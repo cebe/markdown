@@ -27,3 +27,14 @@ Extending
 
 TBD
 
+FAQ
+---
+
+### Why another markdown parser?
+
+Will answer this soon :)
+
+Contact
+-------
+
+Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://twitter.com/cebe_cc).
