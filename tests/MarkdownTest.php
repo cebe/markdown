@@ -1,7 +1,4 @@
 <?php
-/**
- * @author Carsten Brandt <mail@cebe.cc>
- */
 
 namespace cebe\markdown\tests;
 
@@ -10,6 +7,9 @@ use cebe\markdown\Markdown;
 require_once(__DIR__ . '/../Parser.php');
 require_once(__DIR__ . '/../Markdown.php');
 
+/**
+ * @author Carsten Brandt <mail@cebe.cc>
+ */
 class MarkdownTest extends \PHPUnit_Framework_TestCase
 {
 	protected $dataPath = 'markdown-data';
