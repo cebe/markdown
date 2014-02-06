@@ -145,7 +145,7 @@ class Markdown extends Parser
 			'content' => [],
 			'simple' => true,
 		];
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			if (ltrim($line, ' ') !== '') {
 				if ($line[0] == '>' && !isset($line[1])) {
@@ -170,7 +170,7 @@ class Markdown extends Parser
 			'type' => 'code',
 			'content' => [],
 		];
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			if (ltrim($line, ' ') !== '' || $this->identifyLine($lines, $i + 1) === 'code') {
 				$line = substr($line, 4);
@@ -196,7 +196,7 @@ class Markdown extends Parser
 		$item = 0;
 		$indent = '';
 		$len = 0;
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			if (preg_match('/^\d+\. +/', $line, $matches)) {
@@ -231,7 +231,7 @@ class Markdown extends Parser
 		$item = 0;
 		$indent = '';
 		$len = 0;
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			if (preg_match('/^[\-\+\*] +/', $line, $matches)) {
@@ -284,7 +284,7 @@ class Markdown extends Parser
 		];
 		$level = 0;
 		$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $lines; $i++) {
 			$line = $lines[$i];
 			$block['content'][] = $line;
 			$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");

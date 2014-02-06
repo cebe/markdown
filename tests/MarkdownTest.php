@@ -22,6 +22,8 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
 		list($markdown, $html) = $this->getTestData($file);
 
 		$m = new Markdown();
+		// Different OS line endings should not affect test
+		$html = preg_replace('~\r\n?~', "\n", $html);
 		$this->assertEquals($html, $m->parse($markdown));
 	}
 

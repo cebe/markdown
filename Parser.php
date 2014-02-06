@@ -27,8 +27,7 @@ class Parser
 	 */
 	public function parse($text)
 	{
-		$text = str_replace("\r\n", "\n", $text);// TODO speed benchmark preg_replace and str_replace
-		$text = str_replace("\r", "\n", $text);
+		$text = preg_replace('~\r\n?~', "\n", $text);
 		$text = str_replace("\t", '    ', $text); // TODO preserve tabs in code blocks!
 
 		$lines = explode("\n", $text);
@@ -63,7 +62,7 @@ class Parser
 
 		// convert lines to blocks
 
-		for($i = 0; isset($lines[$i]); $i++) { // TODO benchmark isset() vs. $i < count($lines)
+		for($i = 0, $count = count($lines); $i < $count; $i++) {
 			if (!empty($lines[$i])) { // skip empty lines
 				// identify a blocks beginning
 				$blockType = $this->identifyLine($lines, $i);
@@ -112,7 +111,7 @@ class Parser
 			'type' => 'paragraph',
 			'content' => [],
 		];
-		for($i = $current; isset($lines[$i]); $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			if (ltrim($lines[$i], ' ') !== '' && ($i === $current || $this->identifyLine($lines, $i) === 'paragraph')) {
 				$block['content'][] = $lines[$i];
 			} else {
