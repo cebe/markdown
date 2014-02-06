@@ -1,5 +1,5 @@
-A super fast highly extensible markdown parser for PHP
-======================================================
+A super fast, highly extensible markdown parser for PHP
+=======================================================
 
 Coming soon.
 
