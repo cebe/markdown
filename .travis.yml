@@ -10,4 +10,4 @@ install:
   - composer install --dev --prefer-dist
 
 script:
-  - vendor/bin/phpunit --verbose --coverate-text
+  - vendor/bin/phpunit --verbose --coverage-text
