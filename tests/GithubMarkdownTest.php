@@ -1,15 +1,20 @@
 <?php
 
 namespace cebe\markdown\tests;
-
-if (!class_exists('cebe\markdown\tests\MarkdownTest')) {
-	require(__DIR__ . '/MarkdownTest.php');
-}
+use cebe\markdown\GithubMarkdown;
 
 /**
  * @author Carsten Brandt <mail@cebe.cc>
  */
-class GithubMarkdownTest extends MarkdownTest
+class GithubMarkdownTest extends BaseMarkdownTest
 {
-	protected $dataPath = 'github-data';
+	public function createMarkdown()
+	{
+		return new GithubMarkdown();
+	}
+
+	public function getDataPath()
+	{
+		return 'github-data';
+	}
 }

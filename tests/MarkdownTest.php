@@ -4,58 +4,18 @@ namespace cebe\markdown\tests;
 
 use cebe\markdown\Markdown;
 
-require_once(__DIR__ . '/../Parser.php');
-require_once(__DIR__ . '/../Markdown.php');
-
 /**
  * @author Carsten Brandt <mail@cebe.cc>
  */
-class MarkdownTest extends \PHPUnit_Framework_TestCase
+class MarkdownTest extends BaseMarkdownTest
 {
-	protected $dataPath = 'markdown-data';
-
-	/**
-	 * @dataProvider dataFiles
-	 */
-	public function testParagraph($file)
+	public function createMarkdown()
 	{
-		list($markdown, $html) = $this->getTestData($file);
-
-		$m = new Markdown();
-		// Different OS line endings should not affect test
-		$html = preg_replace('~\r\n?~', "\n", $html);
-		$this->assertEquals($html, $m->parse($markdown));
+		return new Markdown();
 	}
 
-	public function getTestData($file)
+	public function getDataPath()
 	{
-		return [
-			file_get_contents(__DIR__ . '/' . $this->dataPath . '/' . $file . '.md'),
-			file_get_contents(__DIR__ . '/' . $this->dataPath . '/' . $file . '.html'),
-		];
-	}
-
-	public function dataFiles()
-	{
-		$src = __DIR__ . '/' . $this->dataPath;
-
-		$files = [];
-
-		$handle = opendir($src);
-		if ($handle === false) {
-			throw new \Exception('Unable to open directory: ' . $src);
-		}
-		while (($file = readdir($handle)) !== false) {
-			if ($file === '.' || $file === '..') {
-				continue;
-			}
-
-			if (substr($file, -3, 3) === '.md' && file_exists($src . '/' . substr($file, 0, -3) .  '.html')) {
-				$files[] = [substr($file, 0, -3)];
-			}
-		}
-		closedir($handle);
-
-		return $files;
+		return 'markdown-data';
 	}
 }
