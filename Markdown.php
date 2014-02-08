@@ -200,31 +200,9 @@ class Markdown extends Parser
 			'type' => 'list',
 			'list' => 'ol',
 			'items' => [],
-			'lazy' => false, // TODO support lazy list
+			'lazy' => false,
 		];
-		$item = 0;
-		$indent = '';
-		$len = 0;
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
-			$line = $lines[$i];
-
-			if (preg_match('/^ {0,3}\d+\. +/', $line, $matches)) {
-				$len = strlen($matches[0]);
-				$indent = str_repeat(' ', $len);
-
-				$line = substr($line, $len);
-				$block['items'][++$item][] = $line;
-			} elseif (ltrim($line, ' ') !== '') {
-				if (strncmp($line, $indent, $len) === 0) {
-					$line = substr($line, $len);
-				}
-				$block['items'][$item][] = $line;
-			} else {
-				break;
-			}
-		}
-
-		return [$block, $i];
+		return $this->consumeList($lines, $current, $block, 'ol');
 	}
 
 	protected function consumeUl($lines, $current)
@@ -235,27 +213,42 @@ class Markdown extends Parser
 			'type' => 'list',
 			'list' => 'ul',
 			'items' => [],
-			'lazy' => false, // TODO support lazy list
+			'lazy' => false,
 		];
+		return $this->consumeList($lines, $current, $block, 'ul');
+	}
+
+	private function consumeList($lines, $current, $block, $type)
+	{
 		$item = 0;
 		$indent = '';
 		$len = 0;
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
-			if (preg_match('/^ {0,3}[\-\+\*] +/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\. +/' : '/^ {0,3}[\-\+\*] +/', $line, $matches)) {
 				$len = strlen($matches[0]);
 				$indent = str_repeat(' ', $len);
 
 				$line = substr($line, $len);
 				$block['items'][++$item][] = $line;
-			} elseif (ltrim($line, ' ') !== '') {
+			} elseif (ltrim($line, ' ') === '') {
+				// next line after empty one is also a list -> lazy list
+				if (($block['lazy'] || count($block['items']) == 1) && isset($lines[$i + 1]) && // TODO this is not correct yet, see failing github test
+					($this->identifyLine($lines, $i + 1) === $type || strncmp($lines[$i + 1], $indent, $len) === 0)) {
+					$block['items'][$item][] = $line;
+					$block['lazy'] = true;
+				} else {
+					break;
+				}
+			} else {
 				if (strncmp($line, $indent, $len) === 0) {
 					$line = substr($line, $len);
+				} elseif ($block['lazy']) {
+					// break if lazy block is not indented
+					break;
 				}
 				$block['items'][$item][] = $line;
-			} else {
-				break;
 			}
 		}
 
