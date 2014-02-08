@@ -312,7 +312,8 @@ class Markdown extends Parser
 
 	protected function renderCode($block)
 	{
-		return '<pre><code>' . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
+		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
+		return "<pre><code$class>" . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
 	}
 
 	protected function renderList($block)
