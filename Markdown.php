@@ -390,9 +390,14 @@ class Markdown extends Parser
 		if (strpos($text, '>') !== false)
 		{
 			if (preg_match('/^<(.*?@.*?\.\w+?)>/', $text, $matches)) { // TODO improve patterns
-				return ["<a href=\"mailto:{$matches[1]}\">{$matches[1]}</a>", strlen($matches[0])]; // TODO encode mail with entities
+				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
+				return [
+					"<a href=\"mailto:$email\">$email</a>", // TODO encode mail with entities
+					strlen($matches[0])
+				];
 			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
-				return ["<a href=\"{$matches[1]}\">{$matches[1]}</a>", strlen($matches[0])];
+				$url = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
+				return ["<a href=\"$url\">$url</a>", strlen($matches[0])];
 			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) {
 				return [$matches[0], strlen($matches[0])];
 			}
@@ -426,11 +431,13 @@ class Markdown extends Parser
 	protected function parseLink($text)
 	{
 		if (preg_match('/^\[(.*?)\]\(([^\s]+)( ".*?")?\)/', $text, $matches)) {
-			$link = "<a href=\"{$matches[2]}\"";
+			$url = htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8');
+			$link = "<a href=\"$url\"";
 			if (!empty($matches[3])) {
-				$link .= " title=\"{$matches[3]}\"";
+				$title = htmlspecialchars($matches[3], ENT_NOQUOTES, 'UTF-8');
+				$link .= " title=\"$title\"";
 			}
-			$link .= '>' . $matches[1] . '</a>';
+			$link .= '>' . $this->parseInline($matches[1]) . '</a>';
 
 			return [$link, strlen($matches[0])];
 		}
