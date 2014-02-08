@@ -118,20 +118,28 @@ class Markdown extends Parser
 			case '#':
 				return 'headline';
 			case ' ':
-				// indentation >= 4
+				// indentation >= 4 is code
 				if (strncmp($line, '    ', 4) === 0) {
 					return 'code';
 				}
 
-				break;
+				// could be indented list
+				if (preg_match('/^ {0,3}[\-\+\*] /', $line)) {
+					return 'ul';
+				}
+
+				// no break;
 			default:
-				if (preg_match('/^\d+\. /', $line)) {
+				if (preg_match('/^ {0,3}\d+\. /', $line)) {
 					return 'ol';
 				}
 		}
 
+		// TODO improve
 		if (isset($lines[$current + 1]) && !empty($lines[$current + 1]) && ($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-')) {
-			return 'headline';
+			if (preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])) {
+				return 'headline';
+			}
 		}
 
 		return 'paragraph';
@@ -200,7 +208,7 @@ class Markdown extends Parser
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
-			if (preg_match('/^\d+\. +/', $line, $matches)) {
+			if (preg_match('/^ {0,3}\d+\. +/', $line, $matches)) {
 				$len = strlen($matches[0]);
 				$indent = str_repeat(' ', $len);
 
@@ -235,7 +243,7 @@ class Markdown extends Parser
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
-			if (preg_match('/^[\-\+\*] +/', $line, $matches)) {
+			if (preg_match('/^ {0,3}[\-\+\*] +/', $line, $matches)) {
 				$len = strlen($matches[0]);
 				$indent = str_repeat(' ', $len);
 
