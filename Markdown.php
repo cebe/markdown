@@ -392,7 +392,7 @@ class Markdown extends Parser
 				return ["<a href=\"mailto:{$matches[1]}\">{$matches[1]}</a>", strlen($matches[0])]; // TODO encode mail with entities
 			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
 				return ["<a href=\"{$matches[1]}\">{$matches[1]}</a>", strlen($matches[0])];
-			} elseif (preg_match('/^<\/?\w\w*?>/', $text, $matches)) {
+			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) {
 				return [$matches[0], strlen($matches[0])];
 			}
 		}

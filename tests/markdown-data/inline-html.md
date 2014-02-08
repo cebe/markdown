@@ -1,0 +1,1 @@
+this is <span class="name">inline **html**</span> trailing
