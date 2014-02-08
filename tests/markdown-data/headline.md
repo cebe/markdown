@@ -19,3 +19,7 @@ another h2
 ----------
 
 par5
+
+#### a h4 heading ####
+
+#### a h4 heading ########

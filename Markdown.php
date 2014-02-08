@@ -70,7 +70,7 @@ class Markdown extends Parser
 
 	protected function identifyLine($lines, $current)
 	{
-		if (empty($lines[$current])) {
+		if (empty($lines[$current]) || trim($lines[$current], ' ') === '') {
 			return 'empty';
 		}
 		$line = $lines[$current];

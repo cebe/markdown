@@ -12,7 +12,7 @@ class Parser
 	/**
 	 * @var int the maximum nesting level for language elements
 	 */
-	public $maximumNestingLevel = 64;
+	public $maximumNestingLevel = 32;
 
 	/**
 	 * @var array a map of markers to parser methods
