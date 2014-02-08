@@ -12,3 +12,11 @@ paragraph 1 is here
 </table>
 
 more markdown here
+
+< this is not an html tag
+
+<thisisnotanhtmltag
+
+<span class="test">some inline **md**</span>
+
+<span>some inline **md**</span>

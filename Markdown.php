@@ -18,6 +18,7 @@ class Markdown extends Parser
 		'*'     => 'parseEmphStrong',
 		'_'     => 'parseEmphStrong',
 		'<'     => 'parseLt',
+		'>'     => 'parseGt',
 		'['     => 'parseLink',
 		'\\'    => 'parseEscape',
 		'`'     => 'parseCode',
@@ -397,6 +398,14 @@ class Markdown extends Parser
 			}
 		}
 		return ['&lt;', 1];
+	}
+
+	/**
+	 * Escape >
+	 */
+	protected function parseGt($text)
+	{
+		return ['&gt;', 1];
 	}
 
 	private $specialCharacters = [
