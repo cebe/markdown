@@ -122,7 +122,7 @@ class Markdown extends Parser
 				return 'headline';
 			case '[': // reference
 
-				if (preg_match('/^\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line, $matches)) {
+				if (preg_match('/^\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line)) {
 					return 'reference';
 				}
 
@@ -139,7 +139,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented reference
-				if (preg_match('/^ {0,3}\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line, $matches)) {
+				if (preg_match('/^ {0,3}\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line)) {
 					return 'reference';
 				}
 
@@ -502,7 +502,7 @@ class Markdown extends Parser
 
 	protected function parseImage($text)
 	{
-		if (preg_match('/^!\[(.+?)\]\(([^\s]+)( ".*?")\)', $text, $matches)) {
+		if (preg_match('/^!\[(.+?)\]\(([^\s]+)( ".*?")\)/', $text, $matches)) {
 			$link = "<img src=\"{$matches[2]}\"";
 			if (!empty($matches[3])) {
 				$link .= " title=\"{$matches[3]}\"";
