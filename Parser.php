@@ -28,7 +28,6 @@ class Parser
 	public function parse($text)
 	{
 		$text = preg_replace('~\r\n?~', "\n", $text);
-		$text = str_replace("\t", '    ', $text); // TODO preserve tabs in code blocks!
 
 		$lines = explode("\n", $text);
 

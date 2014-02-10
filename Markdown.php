@@ -72,7 +72,7 @@ class Markdown extends Parser
 
 	protected function identifyLine($lines, $current)
 	{
-		if (empty($lines[$current]) || trim($lines[$current], ' ') === '') {
+		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {
 			return 'empty';
 		}
 		$line = $lines[$current];
@@ -127,6 +127,8 @@ class Markdown extends Parser
 				}
 
 				break;
+			case "\t":
+				return 'code';
 			case ' ':
 				// indentation >= 4 is code
 				if (strncmp($line, '    ', 4) === 0) {
@@ -139,7 +141,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented reference
-				if (preg_match('/^ {0,3}\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line)) {
+				if (preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
 					return 'reference';
 				}
 
@@ -171,7 +173,7 @@ class Markdown extends Parser
 		];
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (ltrim($line, ' ') !== '') {
+			if (ltrim($line) !== '') {
 				if ($line[0] == '>' && !isset($line[1])) {
 					$line = '';
 				} elseif (strncmp($line, '> ', 2) === 0) {
@@ -196,8 +198,10 @@ class Markdown extends Parser
 		];
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (ltrim($line, ' ') !== '' || $this->identifyLine($lines, $i + 1) === 'code') {
-				$line = substr($line, 4);
+			if (ltrim($line) !== '' || $this->identifyLine($lines, $i + 1) === 'code') {
+				if (!empty($line)) {
+					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
+				}
 				$block['content'][] = $line;
 			} else {
 				break;
@@ -239,13 +243,13 @@ class Markdown extends Parser
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
-			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\. +/' : '/^ {0,3}[\-\+\*] +/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
 				$len = strlen($matches[0]);
 				$indent = str_repeat(' ', $len);
 
 				$line = substr($line, $len);
 				$block['items'][++$item][] = $line;
-			} elseif (ltrim($line, ' ') === '') {
+			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
 				if ($this->identifyLine($lines, $i + 1) === $type || isset($lines[$i + 1]) && strncmp($lines[$i + 1], $indent, $len) === 0) {
 					$block['items'][$item][] = $line;
@@ -281,7 +285,7 @@ class Markdown extends Parser
 			}
 			$block = [
 				'type' => 'headline',
-				'content' => trim($lines[$current], '# '),
+				'content' => trim($lines[$current], "# \t"),
 				'level' => $level,
 			];
 			return [$block, ++$current];
@@ -325,7 +329,7 @@ class Markdown extends Parser
 	protected function consumeReference($lines, $current)
 	{
 		// TODO support title on next line
-		while (preg_match('/^ {0,3}\[(.+?)\]: *(.+?)(?:[ ]+[\(\'"](.+?)[\)\'"])?[ ]*$/', $lines[$current], $matches)) {
+		while (preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
 			$label = strtolower($matches[1]);
 
 			$this->references[$label] = [
@@ -335,7 +339,7 @@ class Markdown extends Parser
 				$this->references[$label]['title'] = $matches[3];
 			} else {
 				// title may be on the next line
-				if (preg_match('/^ +[\(\'"](.+?)[\)\'"] +$/', $lines[$current + 1], $matches)) {
+				if (preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s+$/', $lines[$current + 1], $matches)) {
 					$this->references[$label]['title'] = $matches[1];
 					$current++;
 				}
