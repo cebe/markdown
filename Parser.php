@@ -68,7 +68,10 @@ class Parser
 				$blockType = $this->identifyLine($lines, $i);
 
 				// call consume method for the detected block type to consume further lines
-				list($blocks[], $i) = $this->{'consume' . $blockType}($lines, $i);
+				list($block, $i) = $this->{'consume' . $blockType}($lines, $i);
+				if ($block !== false) {
+					$blocks[] = $block;
+				}
 			}
 		}
 

@@ -41,6 +41,8 @@ class Markdown extends Parser
 		'!', // exclamation mark
 	];
 
+	protected $references = [];
+
 
 	// block parsing
 
@@ -118,6 +120,13 @@ class Markdown extends Parser
 				break;
 			case '#':
 				return 'headline';
+			case '[': // reference
+
+				if (preg_match('/^\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line, $matches)) {
+					return 'reference';
+				}
+
+				break;
 			case ' ':
 				// indentation >= 4 is code
 				if (strncmp($line, '    ', 4) === 0) {
@@ -129,7 +138,12 @@ class Markdown extends Parser
 					return 'ul';
 				}
 
-				// no break;
+				// could be indented reference
+				if (preg_match('/^ {0,3}\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line, $matches)) {
+					return 'reference';
+				}
+
+			// no break;
 			default:
 				if (preg_match('/^ {0,3}\d+\. /', $line)) {
 					return 'ol';
@@ -308,6 +322,29 @@ class Markdown extends Parser
 		return [$block, $current + 1];
 	}
 
+	protected function consumeReference($lines, $current)
+	{
+		// TODO support title on next line
+		while (preg_match('/^ {0,3}\[(.+?)\]: *(.+?)(?:[ ]+[\(\'"](.+?)[\)\'"])?[ ]*$/', $lines[$current], $matches)) {
+			$label = strtolower($matches[1]);
+
+			$this->references[$label] = [
+				'url' => $matches[2],
+			];
+			if (isset($matches[3])) {
+				$this->references[$label]['title'] = $matches[3];
+			} else {
+				// title may be on the next line
+				if (preg_match('/^ +[\(\'"](.+?)[\)\'"] +$/', $lines[$current + 1], $matches)) {
+					$this->references[$label]['title'] = $matches[1];
+					$current++;
+				}
+			}
+			$current++;
+		}
+		return [false, $current];
+	}
+
 	// rendering
 
 	protected function renderQuote($block)
@@ -434,24 +471,38 @@ class Markdown extends Parser
 
 	protected function parseLink($text)
 	{
-		if (preg_match('/^\[(.*?)\]\(([^\s]+)( ".*?")?\)/', $text, $matches)) {
-			$url = htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8');
-			$link = "<a href=\"$url\"";
-			if (!empty($matches[3])) {
-				$title = htmlspecialchars($matches[3], ENT_NOQUOTES, 'UTF-8');
-				$link .= " title=\"$title\"";
+		if (preg_match('/^\[(.+?)\]\(([^\s]+)( ".*?")?\)/', $text, $matches)) {
+			$text = $matches[1];
+			$url = $matches[2];
+			$title = empty($matches[3]) ? null: $matches[3];
+		} elseif (preg_match('/^\[(.+?)\] ?\[(.*?)\]/', $text, $matches)) {
+			$key = strtolower($matches[2]);
+			if (empty($key)) {
+				$key = strtolower($matches[1]);
 			}
-			$link .= '>' . $this->parseInline($matches[1]) . '</a>';
-
-			return [$link, strlen($matches[0])];
+			if (isset($this->references[$key])) {
+				$text = $matches[1];
+				$url = $this->references[$key]['url'];
+				if (!empty($this->references[$key]['title'])) {
+					$title = $this->references[$key]['title'];
+				}
+			} else {
+				return [$text[0], 1];
+			}
+		} else {
+			return [$text[0], 1];
 		}
-		// TODO support references
-		return [$text[0], 1];
+
+		$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+			. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+			. '>' . $this->parseInline($text) . '</a>';
+
+		return [$link, strlen($matches[0])];
 	}
 
 	protected function parseImage($text)
 	{
-		if (preg_match('/^!\[(.*?)\]\(([^\s]+)( ".*?")\)', $text, $matches)) {
+		if (preg_match('/^!\[(.+?)\]\(([^\s]+)( ".*?")\)', $text, $matches)) {
 			$link = "<img src=\"{$matches[2]}\"";
 			if (!empty($matches[3])) {
 				$link .= " title=\"{$matches[3]}\"";
