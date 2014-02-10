@@ -98,16 +98,17 @@ class Markdown extends Parser
 					return 'quote';
 				}
 				break;
+			case '_':
+				// at least 3 of -, * or _ on one line make a hr
+				if (preg_match('/^(_)\s*\1\s*\1(\1|\s)*$/', $line)) {
+					return 'hr';
+				}
+				break;
 			case '-':
 			case '+':
 			case '*':
-				// at least 3 of - or * on one line make a hr
-				// * * *
-				// ***
-				// *****
-				// - - -
-				// -------------------------------
-				if (preg_match('/^([-*])\s*\1\s*\1[\1\s]*$/', $line)) {
+				// at least 3 of -, * or _ on one line make a hr
+				if (preg_match('/^([\-\*])\s*\1\s*\1(\1|\s)*$/', $line)) {
 					return 'hr';
 				}
 
@@ -482,6 +483,10 @@ class Markdown extends Parser
 	protected function parseEmphStrong($text)
 	{
 		$marker = $text[0];
+
+		if (!isset($text[1])) {
+			return [$text[0], 1];
+		}
 
 		if ($marker == $text[1]) { // strong
 			if ($marker == '*' && preg_match('/^[*]{2}((?:[^*]|[*][^*]*[*])+?)[*]{2}(?![*])/s', $text, $matches) ||
