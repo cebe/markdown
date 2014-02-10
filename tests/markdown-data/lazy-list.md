@@ -12,9 +12,6 @@ Suspendisse id sem consectetuer libero luctus adipiscing.
 1. Item one.
 2. Item two with some code:
        code one
-3. List is not lazy so code two should not belong to this item:
-
-    code two
 
 
 1. Item one.

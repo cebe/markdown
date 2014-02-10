@@ -200,7 +200,6 @@ class Markdown extends Parser
 			'type' => 'list',
 			'list' => 'ol',
 			'items' => [],
-			'lazy' => false,
 		];
 		return $this->consumeList($lines, $current, $block, 'ol');
 	}
@@ -213,7 +212,6 @@ class Markdown extends Parser
 			'type' => 'list',
 			'list' => 'ul',
 			'items' => [],
-			'lazy' => false,
 		];
 		return $this->consumeList($lines, $current, $block, 'ul');
 	}
@@ -233,23 +231,27 @@ class Markdown extends Parser
 				$line = substr($line, $len);
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line, ' ') === '') {
-				// next line after empty one is also a list -> lazy list
-				if (($block['lazy'] || count($block['items']) == 1) && isset($lines[$i + 1]) && // TODO this is not correct yet, see failing github test
-					($this->identifyLine($lines, $i + 1) === $type || strncmp($lines[$i + 1], $indent, $len) === 0)) {
+				// next line after empty one is also a list or indented -> lazy list
+				if ($this->identifyLine($lines, $i + 1) === $type || isset($lines[$i + 1]) && strncmp($lines[$i + 1], $indent, $len) === 0) {
 					$block['items'][$item][] = $line;
-					$block['lazy'] = true;
+					$block['lazyItems'][$item] = true;
 				} else {
 					break;
 				}
 			} else {
 				if (strncmp($line, $indent, $len) === 0) {
 					$line = substr($line, $len);
-				} elseif ($block['lazy']) {
+				} elseif (isset($block['lazyItems'][$item])) {
 					// break if lazy block is not indented
 					break;
 				}
 				$block['items'][$item][] = $line;
 			}
+		}
+
+		// make last item lazy if item before was lazy
+		if (isset($block['lazyItems'][$item - 1])) {
+			$block['lazyItems'][$item] = true;
 		}
 
 		return [$block, $i];
@@ -322,9 +324,9 @@ class Markdown extends Parser
 	{
 		$type = $block['list'];
 		$output = "<$type>\n";
-		foreach($block['items'] as $itemLines) {
+		foreach($block['items'] as $item => $itemLines) {
 			$output .= '<li>';
-			if (!$block['lazy']) {
+			if (!isset($block['lazyItems'][$item])) {
 				$firstPar = [];
 				while(!empty($itemLines) && $this->identifyLine($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
