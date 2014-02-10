@@ -2,6 +2,9 @@
 
 namespace cebe\markdown;
 
+// work around https://github.com/facebook/hhvm/issues/1120
+!defined('ENT_HTML401') || define('ENT_HTML401', 0);
+
 /**
  * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax)
  *
