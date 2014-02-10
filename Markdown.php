@@ -310,7 +310,7 @@ class Markdown extends Parser
 		];
 		$level = 0;
 		$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
-		for($i = $current, $count = count($lines); $i < $lines; $i++) {
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			$block['content'][] = $line;
 			$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
@@ -435,8 +435,7 @@ class Markdown extends Parser
 	 */
 	protected function parseLt($text)
 	{
-		if (strpos($text, '>') !== false)
-		{
+		if (strpos($text, '>') !== false) {
 			if (preg_match('/^<(.*?@.*?\.\w+?)>/', $text, $matches)) { // TODO improve patterns
 				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return [
@@ -446,7 +445,7 @@ class Markdown extends Parser
 			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
 				$url = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return ["<a href=\"$url\">$url</a>", strlen($matches[0])];
-			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) {
+			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) { // TODO improve inline HTML
 				return [$matches[0], strlen($matches[0])];
 			}
 		}

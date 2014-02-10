@@ -20,3 +20,8 @@ more markdown here
 <span class="test">some inline **md**</span>
 
 <span>some inline **md**</span>
+
+self-closing on block level:
+
+<p>this is a paragraph</p>
+<hr style="clear: both;" />
