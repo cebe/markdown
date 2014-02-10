@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+require(__DIR__ . '/../Parser.php');
+require(__DIR__ . '/../Markdown.php');
+
+if (isset($argv[1])) {
+	$markdown = file_get_contents($argv[1]);
+} else {
+	$markdown = file_get_contents("php://stdin");
+}
+
+$md = new \cebe\markdown\Markdown();
+echo $md->parse($markdown);
