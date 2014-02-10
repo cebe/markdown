@@ -259,7 +259,7 @@ class Markdown extends Parser
 	{
 		if ($lines[$current][0] === '#') {
 			$level = 1;
-			while(isset($lines[$current][$level]) && $lines[$current][$level] === '#') {
+			while(isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
 				$level++;
 			}
 			$block = [
