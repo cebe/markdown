@@ -73,6 +73,10 @@ class Markdown extends Parser
 		'time',
 	];
 
+	protected $selfClosingHtmlElements = [
+		'br', 'hr', 'img', 'input', 'nobr',
+	];
+
 	protected function identifyLine($lines, $current)
 	{
 		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {
@@ -94,9 +98,12 @@ class Markdown extends Parser
 				$spacePos = strpos($lines[$current], ' ');
 				if ($gtPos === false && $spacePos === false) {
 					break; // no html tag
+				} elseif ($spacePos === false) {
+					$tag = rtrim(substr($line, 1, $gtPos - 1), '/');
+				} else {
+					$tag = rtrim(substr($line, 1, min($gtPos, $spacePos) - 1), '/');
 				}
 
-				$tag = substr($line, 1, min($gtPos, $spacePos) - 1);
 				if (!ctype_alnum($tag) || in_array(strtolower($tag), $this->inlineHtmlElements)) {
 					break; // no html tag or inline html tag
 				}
@@ -335,8 +342,11 @@ class Markdown extends Parser
 				}
 			}
 		} else {
-			$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
+			$tag = rtrim(substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1), '/');
 			$level = 0;
+			if (in_array($tag, $this->selfClosingHtmlElements)) {
+				$level--;
+			}
 			for($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$block['content'][] = $line;
