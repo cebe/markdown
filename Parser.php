@@ -114,7 +114,7 @@ class Parser
 			'content' => [],
 		];
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
-			if (ltrim($lines[$i], ' ') !== '' && ($i === $current || $this->identifyLine($lines, $i) === 'paragraph')) {
+			if (ltrim($lines[$i]) !== '') {
 				$block['content'][] = $lines[$i];
 			} else {
 				break;

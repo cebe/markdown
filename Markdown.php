@@ -73,6 +73,10 @@ class Markdown extends Parser
 		'time',
 	];
 
+	protected $selfClosingHtmlElements = [
+		'br', 'hr', 'img', 'input', 'nobr',
+	];
+
 	protected function identifyLine($lines, $current)
 	{
 		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {
@@ -86,13 +90,20 @@ class Markdown extends Parser
 				if (isset($line[1]) && $line[1] == ' ') {
 					break; // no html tag
 				}
+				if (strncmp($line, '<!--', 4) === 0) {
+					return 'html'; // a html comment
+				}
+
 				$gtPos = strpos($lines[$current], '>');
 				$spacePos = strpos($lines[$current], ' ');
 				if ($gtPos === false && $spacePos === false) {
 					break; // no html tag
+				} elseif ($spacePos === false) {
+					$tag = rtrim(substr($line, 1, $gtPos - 1), '/');
+				} else {
+					$tag = rtrim(substr($line, 1, min($gtPos, $spacePos) - 1), '/');
 				}
 
-				$tag = substr($line, 1, min($gtPos, $spacePos) - 1);
 				if (!ctype_alnum($tag) || in_array(strtolower($tag), $this->inlineHtmlElements)) {
 					break; // no html tag or inline html tag
 				}
@@ -117,7 +128,7 @@ class Markdown extends Parser
 					return 'hr';
 				}
 
-				if (isset($line[1]) && $line[1] == ' ') {
+				if (isset($line[1]) && ($line[1] == ' ' || $line[1] == "\t")) {
 					return 'ul';
 				}
 				break;
@@ -138,6 +149,11 @@ class Markdown extends Parser
 					return 'code';
 				}
 
+				// at least 3 of -, * or _ on one line make a hr
+				if (preg_match('/^ {0,3}([\-\*_])\s*\1\s*\1(\1|\s)*$/', $line)) {
+					return 'hr';
+				}
+
 				// could be indented list
 				if (preg_match('/^ {0,3}[\-\+\*] /', $line)) {
 					return 'ul';
@@ -150,7 +166,7 @@ class Markdown extends Parser
 
 			// no break;
 			default:
-				if (preg_match('/^ {0,3}\d+\. /', $line)) {
+				if (preg_match('/^ {0,3}\d+\.[ \t]/', $line)) {
 					return 'ol';
 				}
 		}
@@ -247,21 +263,30 @@ class Markdown extends Parser
 			$line = $lines[$i];
 
 			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
-				$len = strlen($matches[0]);
-				$indent = str_repeat(' ', $len);
+				if (($len = substr_count($matches[0], "\t")) > 0) {
+					$indent = str_repeat("\t", $len);
+					$line = substr($line, strlen($matches[0]));
+				} else {
+					$len = strlen($matches[0]);
+					$indent = str_repeat(' ', $len);
+					$line = substr($line, $len);
+				}
 
-				$line = substr($line, $len);
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
-				if ($this->identifyLine($lines, $i + 1) === $type || isset($lines[$i + 1]) && strncmp($lines[$i + 1], $indent, $len) === 0) {
+				if ($this->identifyLine($lines, $i + 1) === $type ||
+					isset($lines[$i + 1]) &&
+					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t")) {
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
 				} else {
 					break;
 				}
 			} else {
-				if (strncmp($line, $indent, $len) === 0) {
+				if ($line[0] == "\t") {
+					$line = substr($line, 1);
+				} elseif (strncmp($line, $indent, $len) === 0) {
 					$line = substr($line, $len);
 				} elseif (isset($block['lazyItems'][$item])) {
 					// break if lazy block is not indented
@@ -308,14 +333,27 @@ class Markdown extends Parser
 			'type' => 'html',
 			'content' => [],
 		];
-		$level = 0;
-		$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
-		for($i = $current, $count = count($lines); $i < $lines; $i++) {
-			$line = $lines[$i];
-			$block['content'][] = $line;
-			$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
-			if ($level <= 0) {
-				break;
+		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
+			for($i = $current, $count = count($lines); $i < $count; $i++) {
+				$line = $lines[$i];
+				$block['content'][] = $line;
+				if (strpos($line, '-->') !== false) {
+					break;
+				}
+			}
+		} else {
+			$tag = rtrim(substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1), '/');
+			$level = 0;
+			if (in_array($tag, $this->selfClosingHtmlElements)) {
+				$level--;
+			}
+			for($i = $current, $count = count($lines); $i < $count; $i++) {
+				$line = $lines[$i];
+				$block['content'][] = $line;
+				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
+				if ($level <= 0) {
+					break;
+				}
 			}
 		}
 		return [$block, $i];
@@ -331,8 +369,7 @@ class Markdown extends Parser
 
 	protected function consumeReference($lines, $current)
 	{
-		// TODO support title on next line
-		while (preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
+		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
 			$label = strtolower($matches[1]);
 
 			$this->references[$label] = [
@@ -435,8 +472,7 @@ class Markdown extends Parser
 	 */
 	protected function parseLt($text)
 	{
-		if (strpos($text, '>') !== false)
-		{
+		if (strpos($text, '>') !== false) {
 			if (preg_match('/^<(.*?@.*?\.\w+?)>/', $text, $matches)) { // TODO improve patterns
 				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return [
@@ -446,7 +482,7 @@ class Markdown extends Parser
 			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
 				$url = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return ["<a href=\"$url\">$url</a>", strlen($matches[0])];
-			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) {
+			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) { // TODO improve inline HTML
 				return [$matches[0], strlen($matches[0])];
 			}
 		}
@@ -478,11 +514,11 @@ class Markdown extends Parser
 
 	protected function parseLink($text)
 	{
-		if (preg_match('/^\[(.+?)\]\(([^\s]+)( ".*?")?\)/', $text, $matches)) {
+		if (preg_match('/^\[(.+?)\]\(([^\s]*)(\s+"(.*?)")?\)/m', $text, $matches)) {
 			$text = $matches[1];
 			$url = $matches[2];
-			$title = empty($matches[3]) ? null: $matches[3];
-		} elseif (preg_match('/^\[(.+?)\] ?\[(.*?)\]/', $text, $matches)) {
+			$title = empty($matches[4]) ? null: $matches[4];
+		} elseif (preg_match('/^\[(.+?)\][ \n]?\[(.*?)\]/', $text, $matches)) {
 			$key = strtolower($matches[2]);
 			if (empty($key)) {
 				$key = strtolower($matches[1]);
@@ -509,10 +545,10 @@ class Markdown extends Parser
 
 	protected function parseImage($text)
 	{
-		if (preg_match('/^!\[(.+?)\]\(([^\s]+)( ".*?")\)/', $text, $matches)) {
+		if (preg_match('/^!\[(.+?)\]\(([^\s]*)(\s+"(.*)?")\)/m', $text, $matches)) {
 			$link = "<img src=\"{$matches[2]}\"";
-			if (!empty($matches[3])) {
-				$link .= " title=\"{$matches[3]}\"";
+			if (!empty($matches[4])) {
+				$link .= " title=\"{$matches[4]}\"";
 			}
 			$link .= '>' . $matches[1] . '</a>';
 

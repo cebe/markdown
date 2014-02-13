@@ -536,6 +536,8 @@ following lines will produce a horizontal rule:
 
     ---------------------------------------
 
+	_ _ _
+
 
 * * *
 
