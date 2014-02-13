@@ -359,8 +359,7 @@ class Markdown extends Parser
 
 	protected function consumeReference($lines, $current)
 	{
-		// TODO support title on next line
-		while (preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
+		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
 			$label = strtolower($matches[1]);
 
 			$this->references[$label] = [
@@ -505,11 +504,11 @@ class Markdown extends Parser
 
 	protected function parseLink($text)
 	{
-		if (preg_match('/^\[(.+?)\]\(([^\s]+)( ".*?")?\)/', $text, $matches)) {
+		if (preg_match('/^\[(.+?)\]\(([^\s]*)(\s+"(.*?)")?\)/m', $text, $matches)) {
 			$text = $matches[1];
 			$url = $matches[2];
-			$title = empty($matches[3]) ? null: $matches[3];
-		} elseif (preg_match('/^\[(.+?)\] ?\[(.*?)\]/', $text, $matches)) {
+			$title = empty($matches[4]) ? null: $matches[4];
+		} elseif (preg_match('/^\[(.+?)\][ \n]?\[(.*?)\]/', $text, $matches)) {
 			$key = strtolower($matches[2]);
 			if (empty($key)) {
 				$key = strtolower($matches[1]);
@@ -536,10 +535,10 @@ class Markdown extends Parser
 
 	protected function parseImage($text)
 	{
-		if (preg_match('/^!\[(.+?)\]\(([^\s]+)( ".*?")\)/', $text, $matches)) {
+		if (preg_match('/^!\[(.+?)\]\(([^\s]*)(\s+"(.*)?")\)/m', $text, $matches)) {
 			$link = "<img src=\"{$matches[2]}\"";
-			if (!empty($matches[3])) {
-				$link .= " title=\"{$matches[3]}\"";
+			if (!empty($matches[4])) {
+				$link .= " title=\"{$matches[4]}\"";
 			}
 			$link .= '>' . $matches[1] . '</a>';
 
