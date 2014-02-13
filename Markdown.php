@@ -121,7 +121,7 @@ class Markdown extends Parser
 					return 'hr';
 				}
 
-				if (isset($line[1]) && $line[1] == ' ') {
+				if (isset($line[1]) && ($line[1] == ' ' || $line[1] == "\t")) {
 					return 'ul';
 				}
 				break;
@@ -154,7 +154,7 @@ class Markdown extends Parser
 
 			// no break;
 			default:
-				if (preg_match('/^ {0,3}\d+\. /', $line)) {
+				if (preg_match('/^ {0,3}\d+\.[ \t]/', $line)) {
 					return 'ol';
 				}
 		}
@@ -251,21 +251,30 @@ class Markdown extends Parser
 			$line = $lines[$i];
 
 			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
-				$len = strlen($matches[0]);
-				$indent = str_repeat(' ', $len);
+				if (($len = substr_count($matches[0], "\t")) > 0) {
+					$indent = str_repeat("\t", $len);
+					$line = substr($line, strlen($matches[0]));
+				} else {
+					$len = strlen($matches[0]);
+					$indent = str_repeat(' ', $len);
+					$line = substr($line, $len);
+				}
 
-				$line = substr($line, $len);
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
-				if ($this->identifyLine($lines, $i + 1) === $type || isset($lines[$i + 1]) && strncmp($lines[$i + 1], $indent, $len) === 0) {
+				if ($this->identifyLine($lines, $i + 1) === $type ||
+					isset($lines[$i + 1]) &&
+					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t")) {
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
 				} else {
 					break;
 				}
 			} else {
-				if (strncmp($line, $indent, $len) === 0) {
+				if ($line[0] == "\t") {
+					$line = substr($line, 1);
+				} elseif (strncmp($line, $indent, $len) === 0) {
 					$line = substr($line, $len);
 				} elseif (isset($block['lazyItems'][$item])) {
 					// break if lazy block is not indented
