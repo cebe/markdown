@@ -136,7 +136,7 @@ class Markdown extends Parser
 				return 'headline';
 			case '[': // reference
 
-				if (preg_match('/^\[(.+?)\]:[ ]*(.+?)(?:[ ]+[\'"](.+?)[\'"])?[ ]*$/', $line)) {
+				if (preg_match('/^\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
 					return 'reference';
 				}
 
@@ -160,7 +160,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented reference
-				if (preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
+				if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
 					return 'reference';
 				}
 
@@ -512,35 +512,48 @@ class Markdown extends Parser
 		return [$text[0], 1];
 	}
 
-	protected function parseLink($text)
+	protected function parseLink($markdown)
 	{
-		if (preg_match('/^\[(.+?)\]\(([^\s]*)(\s+"(.*?)")?\)/m', $text, $matches)) {
-			$text = $matches[1];
-			$url = $matches[2];
-			$title = empty($matches[4]) ? null: $matches[4];
-		} elseif (preg_match('/^\[(.+?)\][ \n]?\[(.*?)\]/', $text, $matches)) {
-			$key = strtolower($matches[2]);
-			if (empty($key)) {
-				$key = strtolower($matches[1]);
-			}
-			if (isset($this->references[$key])) {
-				$text = $matches[1];
-				$url = $this->references[$key]['url'];
-				if (!empty($this->references[$key]['title'])) {
-					$title = $this->references[$key]['title'];
+		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) {
+			$text = $textMatches[1];
+			$offset = strlen($textMatches[0]);
+			$markdown = substr($markdown, $offset);
+
+			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
+				$url = $refMatches[1];
+				$title = empty($refMatches[3]) ? null: $refMatches[3];
+				$offset += strlen($refMatches[0]);
+			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {
+				if (empty($refMatches[1])) {
+					$key = strtolower($text);
+				} else {
+					$key = strtolower($refMatches[1]);
 				}
-			} else {
-				return [$text[0], 1];
+				if (isset($this->references[$key])) {
+					$url = $this->references[$key]['url'];
+					if (!empty($this->references[$key]['title'])) {
+						$title = $this->references[$key]['title'];
+					}
+				}
+				$offset += strlen($refMatches[0]);
 			}
-		} else {
-			return [$text[0], 1];
 		}
+	    if (isset($text, $url, $offset)) {
+			$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+				. '>' . $this->parseInline($text) . '</a>';
 
-		$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
-			. '>' . $this->parseInline($text) . '</a>';
-
-		return [$link, strlen($matches[0])];
+			return [$link, $offset];
+	    } else {
+		    // remove all starting [ markers to avoid next one to be parsed as link
+		    $result = '[';
+		    $i = 1;
+		    while(isset($markdown[$i]) && $markdown[$i] == '[') {
+			    $result .= '[';
+			    $i++;
+		    }
+		    return [$result, $i];
+	    }
 	}
 
 	protected function parseImage($text)
