@@ -142,6 +142,11 @@ class Markdown extends Parser
 					return 'code';
 				}
 
+				// at least 3 of -, * or _ on one line make a hr
+				if (preg_match('/^ {0,3}([\-\*_])\s*\1\s*\1(\1|\s)*$/', $line)) {
+					return 'hr';
+				}
+
 				// could be indented list
 				if (preg_match('/^ {0,3}[\-\+\*] /', $line)) {
 					return 'ul';
