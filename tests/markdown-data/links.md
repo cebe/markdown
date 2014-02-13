@@ -1,3 +1,1 @@
 Go search on <http://google.com>!
-
-Well, <this is not a link>...
