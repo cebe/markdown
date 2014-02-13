@@ -86,6 +86,10 @@ class Markdown extends Parser
 				if (isset($line[1]) && $line[1] == ' ') {
 					break; // no html tag
 				}
+				if (strncmp($line, '<!--', 4) === 0) {
+					return 'html'; // a html comment
+				}
+
 				$gtPos = strpos($lines[$current], '>');
 				$spacePos = strpos($lines[$current], ' ');
 				if ($gtPos === false && $spacePos === false) {
@@ -308,14 +312,24 @@ class Markdown extends Parser
 			'type' => 'html',
 			'content' => [],
 		];
-		$level = 0;
-		$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
-			$line = $lines[$i];
-			$block['content'][] = $line;
-			$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
-			if ($level <= 0) {
-				break;
+		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
+			for($i = $current, $count = count($lines); $i < $count; $i++) {
+				$line = $lines[$i];
+				$block['content'][] = $line;
+				if (strpos($line, '-->') !== false) {
+					break;
+				}
+			}
+		} else {
+			$tag = substr($lines[$current], 1, min(strpos($lines[$current], '>'), strpos($lines[$current] . ' ', ' ')) - 1);
+			$level = 0;
+			for($i = $current, $count = count($lines); $i < $count; $i++) {
+				$line = $lines[$i];
+				$block['content'][] = $line;
+				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
+				if ($level <= 0) {
+					break;
+				}
 			}
 		}
 		return [$block, $i];
