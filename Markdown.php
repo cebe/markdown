@@ -6,14 +6,23 @@ namespace cebe\markdown;
 defined('ENT_HTML401') || define('ENT_HTML401', 0);
 
 /**
- * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax)
+ * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax).
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */
 class Markdown extends Parser
 {
+	/**
+	 * @var bool whether to format markup according to HTML5 spec.
+	 * Defaults to `false` which means that markup is formatted as HTML4.
+	 */
 	public $html5 = false;
 
+	/**
+	 * @var array this array defines handler methods for inline markdown markers.
+	 * When a marker is found in the text, the handler method is called with the text
+	 * starting at the position of the marker.
+	 */
 	protected $inlineMarkers = [
 		"  \n"  => 'parseNewline',
 		'&'     => 'parseEntity',
@@ -25,10 +34,12 @@ class Markdown extends Parser
 		'['     => 'parseLink',
 		'\\'    => 'parseEscape',
 		'`'     => 'parseCode',
-//		'http'  => 'parseUrl', // GFM
-//		'~~'    => 'parseStrike', // GFM
 	];
-
+	/**
+	 * @var array these are "escapeable" characters. When using one of these prefixed with a
+	 * backslash, the character will be outputted without the backslash and is not interpreted
+	 * as markdown.
+	 */
 	protected $escapeCharacters = [
 		'\\', // backslash
 		'`', // backtick
@@ -43,7 +54,9 @@ class Markdown extends Parser
 		'.', // dot
 		'!', // exclamation mark
 	];
-
+	/**
+	 * @var array a list of defined references in this document.
+	 */
 	protected $references = [];
 
 
@@ -379,7 +392,7 @@ class Markdown extends Parser
 				$this->references[$label]['title'] = $matches[3];
 			} else {
 				// title may be on the next line
-				if (preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s+$/', $lines[$current + 1], $matches)) {
+				if (isset($lines[$current + 1]) && preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s+$/', $lines[$current + 1], $matches)) {
 					$this->references[$label]['title'] = $matches[1];
 					$current++;
 				}
