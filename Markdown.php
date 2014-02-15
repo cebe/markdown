@@ -90,6 +90,12 @@ class Markdown extends Parser
 		'br', 'hr', 'img', 'input', 'nobr',
 	];
 
+	protected function prepare()
+	{
+		// reset references
+		$this->references = [];
+	}
+
 	protected function identifyLine($lines, $current)
 	{
 		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {
