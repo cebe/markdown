@@ -12,6 +12,12 @@ namespace cebe\markdown;
  */
 class GithubMarkdown extends Markdown
 {
+	/**
+	 * @var boolean whether to interpret newlines as `<br />`-tags.
+	 * This feature is useful for comments where newlines are often meant to be real new lines.
+	 */
+	public $enableNewlines = false;
+
 	protected $inlineMarkers = [
 		// original markdown
 		"  \n"  => 'parseNewline',
@@ -20,6 +26,7 @@ class GithubMarkdown extends Markdown
 		'*'     => 'parseEmphStrong',
 		'_'     => 'parseEmphStrong',
 		'<'     => 'parseLt',
+		'>'     => 'parseGt',
 		'['     => 'parseLink',
 		'\\'    => 'parseEscape',
 		'`'     => 'parseCode',
@@ -27,6 +34,17 @@ class GithubMarkdown extends Markdown
 		'http'  => 'parseUrl',
 		'~~'    => 'parseStrike',
 	];
+
+	public function prepare()
+	{
+		parent::prepare();
+
+		if ($this->enableNewlines) {
+			$this->inlineMarkers["\n"] = 'parseDirectNewline';
+		} else {
+			unset($this->inlineMarkers["\n"]);
+		}
+	}
 
 	protected function identifyLine($lines, $current)
 	{
@@ -43,6 +61,8 @@ class GithubMarkdown extends Markdown
 	protected function consumeFencedCode($lines, $current)
 	{
 		// consume until ```
+
+		// TODO allow more than 3 `, also support ~?
 
 		$block = [
 			'type' => 'code',
@@ -88,5 +108,16 @@ class GithubMarkdown extends Markdown
 			];
 		}
 		return [substr($text, 0, 4), 4];
+	}
+
+	/**
+	 * Parses a newline indicated by a direct line break. This is only used when `enableNewlines` is true.
+	 */
+	protected function parseDirectNewline($text)
+	{
+		return [
+			$this->html5 ? "<br>\n" : "<br />\n",
+			1
+		];
 	}
 }
