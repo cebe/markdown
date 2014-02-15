@@ -236,7 +236,7 @@ class Markdown extends Parser
 		];
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (ltrim($line) !== '' || $this->identifyLine($lines, $i + 1) === 'code') {
+			if (ltrim($line) !== '' || isset($lines[$i + 1]) && $this->identifyLine($lines, $i + 1) === 'code') {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
@@ -294,9 +294,9 @@ class Markdown extends Parser
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
-				if ($this->identifyLine($lines, $i + 1) === $type ||
-					isset($lines[$i + 1]) &&
-					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t")) {
+				if (isset($lines[$i + 1]) && (
+					$this->identifyLine($lines, $i + 1) === $type ||
+					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t"))) {
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
 				} else {
