@@ -18,6 +18,8 @@ class Parser
 	 */
 	protected $inlineMarkers = [];
 
+	private $_usedInlineMarkers = [];
+
 	/**
 	 * Parses the given text considering the full language.
 	 *
@@ -29,6 +31,15 @@ class Parser
 		$this->prepare();
 
 		$text = preg_replace('~\r\n?~', "\n", $text);
+
+		// remove markers that are not present in the text to avoid iterations in parseInline()
+		$this->_usedInlineMarkers = [];
+		foreach($this->inlineMarkers as $marker => $method) {
+			if (strpos($text, $marker) !== false) {
+				$this->_usedInlineMarkers[$marker] = $method;
+			}
+		}
+
 		$lines = explode("\n", $text);
 		$markup = $this->parseBlocks($lines);
 
@@ -168,7 +179,7 @@ class Parser
 	 */
 	protected function parseInline($text)
 	{
-		$markers = $this->inlineMarkers;
+		$markers = $this->_usedInlineMarkers;
 
 		$paragraph = '';
 
