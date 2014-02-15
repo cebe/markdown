@@ -3,7 +3,7 @@
 namespace cebe\markdown;
 
 /**
- * A generic parser for markdown-like languages
+ * A generic parser for markdown-like languages.
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */
@@ -26,11 +26,14 @@ class Parser
 	 */
 	public function parse($text)
 	{
+		$this->prepare();
+
 		$text = preg_replace('~\r\n?~', "\n", $text);
-
 		$lines = explode("\n", $text);
+		$markup = $this->parseBlocks($lines);
 
-		return $this->parseBlocks($lines);
+		$this->cleanup();
+		return $markup;
 	}
 
 	/**
@@ -41,19 +44,42 @@ class Parser
 	 */
 	public function parseParagraph($text)
 	{
-		return $this->parseInline($text);
+		$this->prepare();
+
+		$markup = $this->parseInline($text);
+
+		$this->cleanup();
+		return $markup;
+	}
+
+	/**
+	 * This method will be called before `parse()` and `parseParagraph()`.
+	 * You can override it to do some initialization work.
+	 */
+	protected function prepare()
+	{
+	}
+
+	/**
+	 * This method will be called after `parse()` and `parseParagraph()`.
+	 * You can override it to do cleanup.
+	 */
+	protected function cleanup()
+	{
 	}
 
 	private $depth = 0;
 
 	/**
-	 *
+	 * Parse block elements by calling `identifyLine()` to identify them
+	 * and call consume function afterwards.
+	 * The blocks are then rendered by the corresponding rendering methods.
 	 */
 	protected function parseBlocks($lines)
 	{
 		if ($this->depth++ > $this->maximumNestingLevel) {
-			// TODO just do not parse
-			throw new \Exception('Max nesting depth reached.');
+			// maximum depth is reached, do not parse input
+			return implode("\n", $lines);
 		}
 
 		$blocks = [];
@@ -86,7 +112,7 @@ class Parser
 	}
 
 	/**
-	 * Identifies a line as a block type
+	 * Identifies a line as a block type.
 	 *
 	 * @param $lines
 	 * @param $current
@@ -146,7 +172,7 @@ class Parser
 
 		$paragraph = '';
 
-		while(!empty($markers)) { // TODO benchmark empty vs. while($markers)
+		while(!empty($markers)) { // TODO benchmark empty vs. while($markers) // TODO check whether excluding markers before parse() brings speedup
 			$closest = null;
 			$cpos = 0;
 			foreach($markers as $marker => $method) {
