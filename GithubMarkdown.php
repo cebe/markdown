@@ -18,35 +18,27 @@ class GithubMarkdown extends Markdown
 	 */
 	public $enableNewlines = false;
 
-	protected $inlineMarkers = [
-		// original markdown
-		"  \n"  => 'parseNewline',
-		'&'     => 'parseEntity',
-		'!['    => 'parseImage',
-		'*'     => 'parseEmphStrong',
-		'_'     => 'parseEmphStrong',
-		'<'     => 'parseLt',
-		'>'     => 'parseGt',
-		'['     => 'parseLink',
-		'\\'    => 'parseEscape',
-		'`'     => 'parseCode',
-		// GFM
-		'http'  => 'parseUrl',
-		'ftp'   => 'parseUrl',
-		'~~'    => 'parseStrike',
-	];
-
-	public function prepare()
+	/**
+	 * @inheritDoc
+	 */
+	protected function inlineMarkers()
 	{
-		parent::prepare();
+		$markers = [
+			'http'  => 'parseUrl',
+			'ftp'   => 'parseUrl',
+			'~~'    => 'parseStrike',
+		];
 
 		if ($this->enableNewlines) {
-			$this->inlineMarkers["\n"] = 'parseDirectNewline';
-		} else {
-			unset($this->inlineMarkers["\n"]);
+			$markers["\n"] = 'parseDirectNewline';
 		}
+
+		return array_merge(parent::inlineMarkers(), $markers);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function identifyLine($lines, $current)
 	{
 		if (strncmp($lines[$current], '```', 3) === 0) {

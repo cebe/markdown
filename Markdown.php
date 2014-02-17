@@ -19,23 +19,6 @@ class Markdown extends Parser
 	public $html5 = false;
 
 	/**
-	 * @var array this array defines handler methods for inline markdown markers.
-	 * When a marker is found in the text, the handler method is called with the text
-	 * starting at the position of the marker.
-	 */
-	protected $inlineMarkers = [
-		"  \n"  => 'parseNewline',
-		'&'     => 'parseEntity',
-		'!['    => 'parseImage',
-		'*'     => 'parseEmphStrong',
-		'_'     => 'parseEmphStrong',
-		'<'     => 'parseLt',
-		'>'     => 'parseGt',
-		'['     => 'parseLink',
-		'\\'    => 'parseEscape',
-		'`'     => 'parseCode',
-	];
-	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
@@ -58,10 +41,6 @@ class Markdown extends Parser
 	 * @var array a list of defined references in this document.
 	 */
 	protected $references = [];
-
-
-	// block parsing
-
 
 	// http://www.w3.org/wiki/HTML/Elements#Text-level_semantics
 	protected $inlineHtmlElements = [
@@ -90,12 +69,37 @@ class Markdown extends Parser
 		'br', 'hr', 'img', 'input', 'nobr',
 	];
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function inlineMarkers()
+	{
+		return [
+			"  \n"  => 'parseNewline',
+			'&'     => 'parseEntity',
+			'!['    => 'parseImage',
+			'*'     => 'parseEmphStrong',
+			'_'     => 'parseEmphStrong',
+			'<'     => 'parseLt',
+			'>'     => 'parseGt',
+			'['     => 'parseLink',
+			'\\'    => 'parseEscape',
+			'`'     => 'parseCode',
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function prepare()
 	{
 		// reset references
 		$this->references = [];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function identifyLine($lines, $current)
 	{
 		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {

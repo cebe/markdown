@@ -13,12 +13,8 @@ class Parser
 	 * @var int the maximum nesting level for language elements.
 	 */
 	public $maximumNestingLevel = 32;
-	/**
-	 * @var array a map of markers to parser methods
-	 */
-	protected $inlineMarkers = [];
 
-	private $_usedInlineMarkers = [];
+	private $_inlineMarkers = [];
 
 	/**
 	 * Parses the given text considering the full language.
@@ -32,13 +28,7 @@ class Parser
 
 		$text = preg_replace('~\r\n?~', "\n", $text);
 
-		// remove markers that are not present in the text to avoid iterations in parseInline()
-		$this->_usedInlineMarkers = [];
-		foreach($this->inlineMarkers as $marker => $method) {
-			if (strpos($text, $marker) !== false) {
-				$this->_usedInlineMarkers[$marker] = $method;
-			}
-		}
+		$this->prepareMarkers($text);
 
 		$lines = explode("\n", $text);
 		$markup = $this->parseBlocks($lines);
@@ -57,10 +47,27 @@ class Parser
 	{
 		$this->prepare();
 
+		$this->prepareMarkers($text);
+
 		$markup = $this->parseInline($text);
 
 		$this->cleanup();
 		return $markup;
+	}
+
+	/**
+	 * @param string $text
+	 */
+	private function prepareMarkers($text)
+	{
+		$this->_inlineMarkers = [];
+		// add all markers that are present in markdown
+		// check is done to avoid iterations in parseInline(), good for huge markdown files
+		foreach($this->inlineMarkers() as $marker => $method) {
+			if (strpos($text, $marker) !== false) {
+				$this->_inlineMarkers[$marker] = $method;
+			}
+		}
 	}
 
 	/**
@@ -172,6 +179,20 @@ class Parser
 	}
 
 	/**
+	 * Returns a map of inline markers to the corresponding parser methods.
+	 *
+	 * This array defines handler methods for inline markdown markers.
+	 * When a marker is found in the text, the handler method is called with the text
+	 * starting at the position of the marker.
+	 *
+	 * @return array a map of markers to parser methods
+	 */
+	protected function inlineMarkers()
+	{
+		return [];
+	}
+
+	/**
 	 * Parses inline elements of the language.
 	 *
 	 * @param $text
@@ -179,11 +200,11 @@ class Parser
 	 */
 	protected function parseInline($text)
 	{
-		$markers = $this->_usedInlineMarkers;
+		$markers = $this->_inlineMarkers;
 
 		$paragraph = '';
 
-		while(!empty($markers)) { // TODO benchmark empty vs. while($markers) // TODO check whether excluding markers before parse() brings speedup
+		while(!empty($markers)) {
 			$closest = null;
 			$cpos = 0;
 			foreach($markers as $marker => $method) {
