@@ -51,6 +51,9 @@ class GithubMarkdown extends Markdown
 	// block parsing
 
 
+	/**
+	 * Consume lines for a fenced code block
+	 */
 	protected function consumeFencedCode($lines, $current)
 	{
 		// consume until ```
@@ -78,6 +81,9 @@ class GithubMarkdown extends Markdown
 	// inline parsing
 
 
+	/**
+	 * Parses the strikethrough feature.
+	 */
 	protected function parseStrike($markdown)
 	{
 		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
@@ -89,6 +95,9 @@ class GithubMarkdown extends Markdown
 		return [$markdown[0] . $markdown[1], 2];
 	}
 
+	/**
+	 * Parses urls and adds auto linking feature.
+	 */
 	protected function parseUrl($markdown)
 	{
 		if (preg_match('/^((https?|ftp):\/\/[^ ]+)/', $markdown, $matches)) {

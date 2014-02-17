@@ -204,6 +204,9 @@ class Markdown extends Parser
 		return 'paragraph';
 	}
 
+	/**
+	 * Consume lines for a blockquote element
+	 */
 	protected function consumeQuote($lines, $current)
 	{
 		// consume until newline
@@ -230,6 +233,9 @@ class Markdown extends Parser
 		return [$block, $i];
 	}
 
+	/**
+	 * Consume lines for a code block element
+	 */
 	protected function consumeCode($lines, $current)
 	{
 		// consume until newline
@@ -253,6 +259,9 @@ class Markdown extends Parser
 		return [$block, $i];
 	}
 
+	/**
+	 * Consume lines for an ordered list
+	 */
 	protected function consumeOl($lines, $current)
 	{
 		// consume until newline
@@ -265,6 +274,9 @@ class Markdown extends Parser
 		return $this->consumeList($lines, $current, $block, 'ol');
 	}
 
+	/**
+	 * Consume lines for an unordered list
+	 */
 	protected function consumeUl($lines, $current)
 	{
 		// consume until newline
@@ -327,6 +339,9 @@ class Markdown extends Parser
 		return [$block, $i];
 	}
 
+	/**
+	 * Consume lines for a headline
+	 */
 	protected function consumeHeadline($lines, $current)
 	{
 		if ($lines[$current][0] === '#') {
@@ -350,6 +365,9 @@ class Markdown extends Parser
 		return [$block, $current + 2];
 	}
 
+	/**
+	 * Consume lines for an HTML block
+	 */
 	protected function consumeHtml($lines, $current)
 	{
 		$block = [
@@ -382,6 +400,9 @@ class Markdown extends Parser
 		return [$block, $i];
 	}
 
+	/**
+	 * Consume a horizontal rule
+	 */
 	protected function consumeHr($lines, $current)
 	{
 		$block = [
@@ -390,6 +411,9 @@ class Markdown extends Parser
 		return [$block, $current + 1];
 	}
 
+	/**
+	 * Consume link references
+	 */
 	protected function consumeReference($lines, $current)
 	{
 		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
@@ -412,19 +436,30 @@ class Markdown extends Parser
 		return [false, $current];
 	}
 
+
 	// rendering
 
+
+	/**
+	 * Renders a blockquote
+	 */
 	protected function renderQuote($block)
 	{
 		return '<blockquote>' . $this->parseBlocks($block['content']) . '</blockquote>';
 	}
 
+	/**
+	 * Renders a code block
+	 */
 	protected function renderCode($block)
 	{
 		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
 		return "<pre><code$class>" . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
 	}
 
+	/**
+	 * Renders a list
+	 */
 	protected function renderList($block)
 	{
 		$type = $block['list'];
@@ -446,17 +481,26 @@ class Markdown extends Parser
 		return $output . "</$type>";
 	}
 
+	/**
+	 * Renders a headline
+	 */
 	protected function renderHeadline($block)
 	{
 		$tag = 'h' . $block['level'];
 		return "<$tag>" . $this->parseInline($block['content']) . "</$tag>";
 	}
 
+	/**
+	 * Renders an HTML block
+	 */
 	protected function renderHtml($block)
 	{
 		return implode("\n", $block['content']);
 	}
 
+	/**
+	 * Renders a horizontal rule
+	 */
 	protected function renderHr($block)
 	{
 		return $this->html5 ? '<hr>' : '<hr />';
@@ -491,7 +535,7 @@ class Markdown extends Parser
 	}
 
 	/**
-	 * Parses inline html
+	 * Parses inline HTML.
 	 */
 	protected function parseLt($text)
 	{
@@ -514,28 +558,27 @@ class Markdown extends Parser
 	}
 
 	/**
-	 * Escape >
+	 * Escapes `>` characters.
 	 */
 	protected function parseGt($text)
 	{
 		return ['&gt;', 1];
 	}
 
-	private $specialCharacters = [
-		'\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '>', '#', '+', '-', '.', '!',
-	];
-
 	/**
-	 * Parses escaped special characters
+	 * Parses escaped special characters.
 	 */
 	protected function parseEscape($text)
 	{
-		if (in_array($text[1], $this->specialCharacters)) {
+		if (in_array($text[1], $this->escapeCharacters)) {
 			return [$text[1], 2];
 		}
 		return [$text[0], 1];
 	}
 
+	/**
+	 * Parses a link indicated by `[`.
+	 */
 	protected function parseLink($markdown)
 	{
 		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) {
@@ -580,6 +623,9 @@ class Markdown extends Parser
 	    }
 	}
 
+	/**
+	 * Parses an image indicated by `![`.
+	 */
 	protected function parseImage($text)
 	{
 		if (preg_match('/^!\[(.+?)\]\(([^\s]*)(\s+"(.*)?")\)/m', $text, $matches)) {
@@ -595,6 +641,9 @@ class Markdown extends Parser
 		return [$text[0], 1];
 	}
 
+	/**
+	 * Parses an inline code span `` ` ``.
+	 */
 	protected function parseCode($text)
 	{
 		if (preg_match('/^(`+) (.+?) \1/', $text, $matches)) { // code with enclosed backtick
@@ -611,6 +660,9 @@ class Markdown extends Parser
 		return [$text[0], 1];
 	}
 
+	/**
+	 * Parses empathized and strong elements.
+	 */
 	protected function parseEmphStrong($text)
 	{
 		$marker = $text[0];
