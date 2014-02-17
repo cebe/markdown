@@ -36,6 +36,7 @@ class Markdown extends Parser
 		'-', // minus sign (hyphen)
 		'.', // dot
 		'!', // exclamation mark
+		'<', '>',
 	];
 	/**
 	 * @var array a list of defined references in this document.
