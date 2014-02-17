@@ -13,8 +13,11 @@ class GithubMarkdownTest extends BaseMarkdownTest
 		return new GithubMarkdown();
 	}
 
-	public function getDataPath()
+	public function getDataPaths()
 	{
-		return 'github-data';
+		return [
+			'markdown-data' => __DIR__ . '/markdown-data',
+			'github-data' => __DIR__ . '/github-data',
+		];
 	}
 }

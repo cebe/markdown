@@ -14,8 +14,10 @@ class MarkdownTest extends BaseMarkdownTest
 		return new Markdown();
 	}
 
-	public function getDataPath()
+	public function getDataPaths()
 	{
-		return 'markdown-data';
+		return [
+			'markdown-data' => __DIR__ . '/markdown-data',
+		];
 	}
 }
