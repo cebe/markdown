@@ -552,6 +552,10 @@ class Markdown extends Parser
 				$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
 				return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
 			} elseif (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
+				// HTML tags
+				return [$matches[0], strlen($matches[0])];
+			} elseif (preg_match('~^<!--.*?-->~', $text, $matches)) {
+				// HTML comments
 				return [$matches[0], strlen($matches[0])];
 			}
 		}
@@ -582,31 +586,9 @@ class Markdown extends Parser
 	 */
 	protected function parseLink($markdown)
 	{
-		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) {
-			$text = $textMatches[1];
-			$offset = strlen($textMatches[0]);
-			$markdown = substr($markdown, $offset);
+		if (($parts = $this->parseLinkOrImage($markdown)) !== false) {
+			list($text, $url, $title, $offset) = $parts;
 
-			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
-				$url = $refMatches[1];
-				$title = empty($refMatches[3]) ? null: $refMatches[3];
-				$offset += strlen($refMatches[0]);
-			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {
-				if (empty($refMatches[1])) {
-					$key = strtolower($text);
-				} else {
-					$key = strtolower($refMatches[1]);
-				}
-				if (isset($this->references[$key])) {
-					$url = $this->references[$key]['url'];
-					if (!empty($this->references[$key]['title'])) {
-						$title = $this->references[$key]['title'];
-					}
-				}
-				$offset += strlen($refMatches[0]);
-			}
-		}
-	    if (isset($text, $url, $offset)) {
 			$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
 				. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
 				. '>' . $this->parseInline($text) . '</a>';
@@ -627,19 +609,62 @@ class Markdown extends Parser
 	/**
 	 * Parses an image indicated by `![`.
 	 */
-	protected function parseImage($text)
+	protected function parseImage($markdown)
 	{
-		if (preg_match('/^!\[(.+?)\]\(([^\s]*)(\s+"(.*)?")\)/m', $text, $matches)) {
-			$link = "<img src=\"{$matches[2]}\"";
-			if (!empty($matches[4])) {
-				$link .= " title=\"{$matches[4]}\"";
-			}
-			$link .= '>' . $matches[1] . '</a>';
+		if (($parts = $this->parseLinkOrImage(substr($markdown, 1))) !== false) {
+			list($text, $url, $title, $offset) = $parts;
 
-			return [$link, strlen($matches[0])];
+			$image = '<img src="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. ' alt="' . htmlspecialchars($text, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+				. ($this->html5 ? '>' : ' />');
+
+			return [$image, $offset + 1];
+		} else {
+			// remove all starting [ markers to avoid next one to be parsed as link
+			$result = '!';
+			$i = 1;
+			while(isset($markdown[$i]) && $markdown[$i] == '[') {
+				$result .= '[';
+				$i++;
+			}
+			return [$result, $i];
 		}
-		// TODO support references
-		return [$text[0], 1];
+	}
+
+	private function parseLinkOrImage($markdown)
+	{
+		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
+			$text = $textMatches[1];
+			$offset = strlen($textMatches[0]);
+			$markdown = substr($markdown, $offset);
+
+			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
+				// inline link
+				return [
+					$text,
+					$refMatches[1], // url
+					empty($refMatches[3]) ? null: $refMatches[3], // title
+					$offset + strlen($refMatches[0]), // offset
+				];
+			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {
+				// reference style link
+				if (empty($refMatches[1])) {
+					$key = strtolower($text);
+				} else {
+					$key = strtolower($refMatches[1]);
+				}
+				if (isset($this->references[$key])) {
+					return [
+						$text,
+						$this->references[$key]['url'], // url
+						empty($this->references[$key]['title']) ? null: $this->references[$key]['title'], // title
+						$offset + strlen($refMatches[0]), // offset
+					];
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
