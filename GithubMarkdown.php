@@ -62,26 +62,23 @@ class GithubMarkdown extends Markdown
 	protected function consumeFencedCode($lines, $current)
 	{
 		// consume until ```
-
-		// TODO allow more than 3 `, also support ~?
-
 		$block = [
 			'type' => 'code',
 			'content' => [],
 		];
-		$language = substr($lines[$current], 3);
+		$line = rtrim($lines[$current]);
+		$fence = substr($line, 0, $pos = strrpos($line, '`') + 1);
+		$language = substr($line, $pos);
 		if (!empty($language)) {
 			$block['language'] = $language;
 		}
 		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-			$line = $lines[$i];
-			if (rtrim($line, ' ') !== '```') {
+			if (rtrim($line = $lines[$i]) !== $fence) {
 				$block['content'][] = $line;
 			} else {
 				break;
 			}
 		}
-
 		return [$block, $i];
 	}
 
