@@ -499,9 +499,10 @@ class Markdown extends Parser
 					strlen($matches[0])
 				];
 			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
-				$url = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
-				return ["<a href=\"$url\">$url</a>", strlen($matches[0])];
-			} elseif (preg_match('/^<\/?\w.*?>/', $text, $matches)) { // TODO improve inline HTML
+				$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+				$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
+				return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
+			} elseif (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
 				return [$matches[0], strlen($matches[0])];
 			}
 		}

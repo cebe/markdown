@@ -32,6 +32,7 @@ class GithubMarkdown extends Markdown
 		'`'     => 'parseCode',
 		// GFM
 		'http'  => 'parseUrl',
+		'ftp'   => 'parseUrl',
 		'~~'    => 'parseStrike',
 	];
 
@@ -88,32 +89,34 @@ class GithubMarkdown extends Markdown
 	// inline parsing
 
 
-	protected function parseStrike($text)
+	protected function parseStrike($markdown)
 	{
-		if (preg_match('/^~~(.+?)~~/', $text, $matches)) {
+		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
 			return [
 				'<del>' . $this->parseInline($matches[1]) . '</del>',
 				strlen($matches[0])
 			];
 		}
-		return [$text[0] . $text[1], 2];
+		return [$markdown[0] . $markdown[1], 2];
 	}
 
-	protected function parseUrl($text)
+	protected function parseUrl($markdown)
 	{
-		if (preg_match('/^((https?|ftp):\/\/[^ ]+)/', $text, $matches)) {
+		if (preg_match('/^((https?|ftp):\/\/[^ ]+)/', $markdown, $matches)) {
+			$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+			$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
 			return [
-				'<a href="' . $matches[1] . '">' . $matches[1] . '</a>', // TODO html encode
+				'<a href="' . $url . '">' . $text . '</a>',
 				strlen($matches[0])
 			];
 		}
-		return [substr($text, 0, 4), 4];
+		return [substr($markdown, 0, 4), 4];
 	}
 
 	/**
 	 * Parses a newline indicated by a direct line break. This is only used when `enableNewlines` is true.
 	 */
-	protected function parseDirectNewline($text)
+	protected function parseDirectNewline($markdown)
 	{
 		return [
 			$this->html5 ? "<br>\n" : "<br />\n",
