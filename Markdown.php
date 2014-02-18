@@ -327,6 +327,7 @@ class Markdown extends Parser
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
+			// match list marker on the beginning of the line
 			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
@@ -349,13 +350,10 @@ class Markdown extends Parser
 					break;
 				}
 			} else {
-				if ($line[0] == "\t") {
+				if ($line[0] === "\t") {
 					$line = substr($line, 1);
 				} elseif (strncmp($line, $indent, $len) === 0) {
 					$line = substr($line, $len);
-				} elseif (isset($block['lazyItems'][$item])) {
-					// break if lazy block is not indented
-					break;
 				}
 				$block['items'][$item][] = $line;
 			}
