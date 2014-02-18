@@ -69,6 +69,10 @@ You can use it to render this readme:
 
     bin/markdown README.md > README.html
 
+Using github flavored markdown:
+
+    bin/markdown --flavor=gfm README.md > README.html
+
 or convert the original markdown description to html using the unix pipe:
 
     curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
