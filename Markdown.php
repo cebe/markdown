@@ -427,7 +427,7 @@ class Markdown extends Parser
 				$this->references[$label]['title'] = $matches[3];
 			} else {
 				// title may be on the next line
-				if (isset($lines[$current + 1]) && preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s+$/', $lines[$current + 1], $matches)) {
+				if (isset($lines[$current + 1]) && preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s*$/', $lines[$current + 1], $matches)) {
 					$this->references[$label]['title'] = $matches[1];
 					$current++;
 				}
