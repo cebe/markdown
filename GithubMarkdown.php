@@ -41,7 +41,7 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function identifyLine($lines, $current)
 	{
-		if (strncmp($lines[$current], '```', 3) === 0) {
+		if (isset($lines[$current]) && strncmp($lines[$current], '```', 3) === 0) {
 			return 'fencedCode';
 		}
 		return parent::identifyLine($lines, $current);

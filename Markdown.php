@@ -103,7 +103,7 @@ class Markdown extends Parser
 	 */
 	protected function identifyLine($lines, $current)
 	{
-		if (empty($lines[$current]) || ltrim($lines[$current]) === '') {
+		if (empty($lines[$current])) {
 			return 'empty';
 		}
 		$line = $lines[$current];
@@ -206,6 +206,28 @@ class Markdown extends Parser
 	}
 
 	/**
+	 * Consume lines for a paragraph
+	 */
+	public function consumeParagraph($lines, $current)
+	{
+		// consume until newline or intended line
+
+		$block = [
+			'type' => 'paragraph',
+			'content' => [],
+		];
+		for($i = $current, $count = count($lines); $i < $count; $i++) {
+			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0) {
+				$block['content'][] = $lines[$i];
+			} else {
+				break;
+			}
+		}
+
+		return [$block, --$i];
+	}
+
+	/**
 	 * Consume lines for a blockquote element
 	 */
 	protected function consumeQuote($lines, $current)
@@ -247,7 +269,14 @@ class Markdown extends Parser
 		];
 		for($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (ltrim($line) !== '' || isset($lines[$i + 1]) && $this->identifyLine($lines, $i + 1) === 'code') {
+
+			// a line is considered to belong to this code block as long as it is intended by 4 spaces or a tab
+			if (isset($line[0]) && ($line[0] === "\t" || strncmp($lines[$i], '    ', 4) === 0)) {
+				$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
+				$block['content'][] = $line;
+			// but also if it is empty and the next line is intended by 4 spaces or a tab
+			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
+					  ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
@@ -257,7 +286,7 @@ class Markdown extends Parser
 			}
 		}
 
-		return [$block, $i];
+		return [$block, --$i];
 	}
 
 	/**
@@ -311,7 +340,7 @@ class Markdown extends Parser
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
-				if (isset($lines[$i + 1]) && (
+				if (isset($lines[$i + 1][0]) && (
 					$this->identifyLine($lines, $i + 1) === $type ||
 					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t"))) {
 					$block['items'][$item][] = $line;
@@ -355,7 +384,7 @@ class Markdown extends Parser
 				'content' => trim($lines[$current], "# \t"),
 				'level' => $level,
 			];
-			return [$block, ++$current];
+			return [$block, $current];
 		}
 
 		$block = [
@@ -363,7 +392,7 @@ class Markdown extends Parser
 			'content' => $lines[$current],
 			'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
 		];
-		return [$block, $current + 2];
+		return [$block, $current + 1];
 	}
 
 	/**
@@ -409,7 +438,7 @@ class Markdown extends Parser
 		$block = [
 			'type' => 'hr',
 		];
-		return [$block, $current + 1];
+		return [$block, $current];
 	}
 
 	/**
@@ -434,7 +463,7 @@ class Markdown extends Parser
 			}
 			$current++;
 		}
-		return [false, $current];
+		return [false, --$current];
 	}
 
 
@@ -469,7 +498,7 @@ class Markdown extends Parser
 			$output .= '<li>';
 			if (!isset($block['lazyItems'][$item])) {
 				$firstPar = [];
-				while(!empty($itemLines) && $this->identifyLine($itemLines, 0) === 'paragraph') {
+				while(!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->identifyLine($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
 				}
 				$output .= $this->parseInline(implode("\n", $firstPar));

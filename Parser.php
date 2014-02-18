@@ -105,7 +105,7 @@ class Parser
 		// convert lines to blocks
 
 		for($i = 0, $count = count($lines); $i < $count; $i++) {
-			if (!empty($lines[$i])) { // skip empty lines
+			if (!empty($lines[$i]) && rtrim($lines[$i]) !== '') { // skip empty lines
 				// identify a blocks beginning
 				$blockType = $this->identifyLine($lines, $i);
 
