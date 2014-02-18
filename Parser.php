@@ -213,7 +213,7 @@ class Parser
 					continue;
 				}
 
-				if ($closest === null || $pos < $cpos || ($pos === $cpos && strlen($marker) < strlen($closest))) {
+				if ($closest === null || $pos < $cpos || ($pos === $cpos && strlen($marker) > strlen($closest))) {
 					$closest = $marker;
 					$cpos = $pos;
 				}

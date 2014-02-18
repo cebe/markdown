@@ -575,7 +575,7 @@ class Markdown extends Parser
 	 */
 	protected function parseEscape($text)
 	{
-		if (in_array($text[1], $this->escapeCharacters)) {
+		if (isset($text[1]) && in_array($text[1], $this->escapeCharacters)) {
 			return [$text[1], 2];
 		}
 		return [$text[0], 1];
