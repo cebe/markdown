@@ -3,26 +3,37 @@ A super fast, highly extensible markdown parser for PHP
 
 [![Total Downloads](https://poser.pugx.org/cebe/markdown/downloads.png)](https://packagist.org/packages/cebe/markdown)
 [![Build Status](https://secure.travis-ci.org/cebe/markdown.png)](http://travis-ci.org/cebe/markdown)
-<!-- [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/) -->
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
+<!-- [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/) -->
 
-Already supported:
+What is this?
+-------------
 
-- Default Markdown according to: <http://daringfireball.net/projects/markdown/syntax>
-- Any mixed Markdown flavor you like because of its highly extensible structure.
-- Will allow you to add additional language elements by directly hooking into the parser.
-  No possible error-prone post or pre-processing needed.
+A set of [PHP][] classes, each representing a [Markdown][] flavor, and a command line tool
+for converting markdown files to HTML files.
 
-WIP:
+The implementation focus is to be **fast** and **extensible**. You are able to add additional language elements by
+directly hooking into the parser - no (possibly error-prone) post- or pre-processing is needed to extend the language.
 
-- Github flavored Markdown: <https://help.github.com/articles/github-flavored-markdown>
-- Markdown Extra: <http://michelf.ca/projects/php-markdown/extra/>
+Currently the following markdown flavors are supported:
+
+- The original Markdown according to <http://daringfireball.net/projects/markdown/syntax>.
+- Github flavored Markdown according to <https://help.github.com/articles/github-flavored-markdown> (currently does not support tables).
+- Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
+
+Future plans are to support:
+
+- Markdown Extra according to <http://michelf.ca/projects/php-markdown/extra/>.
+- Smarty Pants <http://daringfireball.net/projects/smartypants/>
+- ... (Feel free to [suggest](https://github.com/cebe/markdown/issues/new) further additions!)
 
 
 Installation
 ------------
 
-Install via composer by adding the following to your `composer.json` `require` section:
+PHP 5.4 or higher is required to use it.
+
+Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
 
     "cebe/markdown": "*"
 
@@ -82,7 +93,8 @@ This job is performed by the `indentifyLine()` method which takes the array of l
 to identify as an argument. This method returns the name of the identified block element which will then be used to parse it.
 In the following example we will implement support for [fenced code blocks][] which are part of the github flavored markdown.
 
-[fenced code blocks]: https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks "Fenced code block feature of github flavored markdown"
+[fenced code blocks]: https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
+                      "Fenced code block feature of github flavored markdown"
 
 	<?php
 
@@ -200,9 +212,20 @@ FAQ
 
 ### Why another markdown parser?
 
-Will answer this soon :)
+Inventing the wheel is not a good idea in general but as I found the need for a markdown parser that runs fast and is open to
+extensions while all current implementations either lack extensibility or are too slow I decided to start my own implementation
+based on what I had seen in other libraries taking the good points of both.
+Inspiration on the implementation design and line based parsing has mostly come from [Parsedown][] which seems to be the [fastest][benchmark]
+markdown parser in the PHP world right now, it is just very hard to extend it.
 
 Contact
 -------
 
 Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://twitter.com/cebe_cc).
+
+
+[PHP]: http://php.net/ "PHP is a popular general-purpose scripting language that is especially suited to web development."
+[Markdown]: http://en.wikipedia.org/wiki/Markdown "Markdown on Wikipedia"
+[composer]: https://getcomposer.org/ "The PHP package manager"
+[Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
+[benchmark]: https://github.com/kzykhys/Markbench#readme
