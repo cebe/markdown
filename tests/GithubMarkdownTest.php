@@ -20,4 +20,12 @@ class GithubMarkdownTest extends BaseMarkdownTest
 			'github-data' => __DIR__ . '/github-data',
 		];
 	}
+
+	public function testNewlines()
+	{
+		$markdown = $this->createMarkdown();
+		$this->assertEquals("This is text<br />\nnewline\nnewline.", $markdown->parseParagraph("This is text  \nnewline\nnewline."));
+		$markdown->enableNewlines = true;
+		$this->assertEquals("This is text<br />\nnewline<br />\nnewline.", $markdown->parseParagraph("This is text  \nnewline\nnewline."));
+	}
 }
