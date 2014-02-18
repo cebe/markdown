@@ -54,17 +54,17 @@ To use the parser as is, you just create an instance of a provided flavor and ca
 or `parseParagraph()`-method:
 
 ```php
-    // default markdown and parse full text
-    $parser = new \cebe\markdown\Markdown();
-    $parser->parse($markdown);
+// default markdown and parse full text
+$parser = new \cebe\markdown\Markdown();
+$parser->parse($markdown);
 
-    // use github
-    $parser = new \cebe\markdown\GithubMarkdown();
-    $parser->parse($markdown);
+// use github
+$parser = new \cebe\markdown\GithubMarkdown();
+$parser->parse($markdown);
 
-    // parse only inline elements (useful for one-line descriptions)
-    $parser = new \cebe\markdown\GithubMarkdown();
-    $parser->parseParagraph($markdown);
+// parse only inline elements (useful for one-line descriptions)
+$parser = new \cebe\markdown\GithubMarkdown();
+$parser->parseParagraph($markdown);
 ```
 
 ### The command line script
