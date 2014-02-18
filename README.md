@@ -35,7 +35,9 @@ PHP 5.4 or higher is required to use it.
 
 Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
 
-    "cebe/markdown": "*"
+```json
+"cebe/markdown": "*"
+```
 
 Run `composer update` afterwards.
 
@@ -51,6 +53,7 @@ Usage
 To use the parser as is, you just create an instance of a provided flavor and call the `parse()`-
 or `parseParagraph()`-method:
 
+```php
     // default markdown and parse full text
     $parser = new \cebe\markdown\Markdown();
     $parser->parse($markdown);
@@ -62,6 +65,7 @@ or `parseParagraph()`-method:
     // parse only inline elements (useful for one-line descriptions)
     $parser = new \cebe\markdown\GithubMarkdown();
     $parser->parseParagraph($markdown);
+```
 
 ### The command line script
 
@@ -100,21 +104,23 @@ In the following example we will implement support for [fenced code blocks][] wh
 [fenced code blocks]: https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
                       "Fenced code block feature of github flavored markdown"
 
-	<?php
+```php
+<?php
 
-	class MyMarkdown extends \cebe\markdown\Markdown
+class MyMarkdown extends \cebe\markdown\Markdown
+{
+	protected function identifyLine($lines, $current)
 	{
-		protected function identifyLine($lines, $current)
-		{
-			// if a line starts with at least 3 backticks it is identified as a fenced code block
-			if (strncmp($lines[$current], '```', 3) === 0) {
-				return 'fencedCode';
-			}
-			return parent::identifyLine($lines, $current);
+		// if a line starts with at least 3 backticks it is identified as a fenced code block
+		if (strncmp($lines[$current], '```', 3) === 0) {
+			return 'fencedCode';
 		}
-
-		// ...
+		return parent::identifyLine($lines, $current);
 	}
+
+	// ...
+}
+```
 
 Parsing of a block element is done in two steps:
 
@@ -124,42 +130,46 @@ Parsing of a block element is done in two steps:
    and the number of the current line. It will return two arguments: an array representing the block element and the line
    number to parse next. In our example we will implement it like this:
 
-		protected function consumeFencedCode($lines, $current)
-		{
-			// create block array
-			$block = [
-				'type' => 'fencedCode',
-				'content' => [],
-			];
-			$line = rtrim($lines[$current]);
+   ```php
+	protected function consumeFencedCode($lines, $current)
+	{
+		// create block array
+		$block = [
+			'type' => 'fencedCode',
+			'content' => [],
+		];
+		$line = rtrim($lines[$current]);
 
-			// detect language and fence length (can be more than 3 backticks)
-			$fence = substr($line, 0, $pos = strrpos($line, '`') + 1);
-			$language = substr($line, $pos);
-			if (!empty($language)) {
-				$block['language'] = $language;
-			}
-
-			// consume all lines until ```
-			for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-				if (rtrim($line = $lines[$i]) !== $fence) {
-					$block['content'][] = $line;
-				} else {
-					// stop consuming when code block is over
-					break;
-				}
-			}
-			return [$block, $i];
+		// detect language and fence length (can be more than 3 backticks)
+		$fence = substr($line, 0, $pos = strrpos($line, '`') + 1);
+		$language = substr($line, $pos);
+		if (!empty($language)) {
+			$block['language'] = $language;
 		}
+
+		// consume all lines until ```
+		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
+			if (rtrim($line = $lines[$i]) !== $fence) {
+				$block['content'][] = $line;
+			} else {
+				// stop consuming when code block is over
+				break;
+			}
+		}
+		return [$block, $i];
+	}
+	```
 
 2. "rendering" the element. After all blocks have been consumed, they are beeing rendered using the `render{blockName}()`
    method:
 
-		protected function renderFencedCode($block)
-		{
-			$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
-			return "<pre><code$class>" . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
-		}
+   ```php
+	protected function renderFencedCode($block)
+	{
+		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
+		return "<pre><code$class>" . htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
+	}
+   ```
 
    You may also add code highlighting here. In general it would also be possible to render ouput in a different language than
    HTML for example LaTeX.
@@ -180,35 +190,37 @@ As an example, we will add support for the [strikethrough][] feature of github f
 
 [strikethrough]: https://help.github.com/articles/github-flavored-markdown#strikethrough "Strikethrough feature of github flavored markdown"
 
-	<?php
+```php
+<?php
 
-	class MyMarkdown extends \cebe\markdown\Markdown
+class MyMarkdown extends \cebe\markdown\Markdown
+{
+	protected function inlineMarkers()
 	{
-		protected function inlineMarkers()
-		{
-			$markers = [
-				'~~'    => 'parseStrike',
-			];
-			// merge new markers with existing ones from parent class
-			return array_merge(parent::inlineMarkers(), $markers);
-		}
-
-		protected function parseStrike($markdown)
-		{
-			// check whether the marker really represents a strikethrough (i.e. there is a closing ~~)
-			if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
-				return [
-				    // return the parsed tag with its content and call `parseInline()` to allow
-				    // other inline markdown elements inside this tag
-					'<del>' . $this->parseInline($matches[1]) . '</del>',
-					// return the offset of the parsed text
-					strlen($matches[0])
-				];
-			}
-			// in case we did not find a closing ~~ we just return the marker and skip 2 characters
-			return [$markdown[0] . $markdown[1], 2];
-		}
+		$markers = [
+			'~~'    => 'parseStrike',
+		];
+		// merge new markers with existing ones from parent class
+		return array_merge(parent::inlineMarkers(), $markers);
 	}
+
+	protected function parseStrike($markdown)
+	{
+		// check whether the marker really represents a strikethrough (i.e. there is a closing ~~)
+		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
+			return [
+			    // return the parsed tag with its content and call `parseInline()` to allow
+			    // other inline markdown elements inside this tag
+				'<del>' . $this->parseInline($matches[1]) . '</del>',
+				// return the offset of the parsed text
+				strlen($matches[0])
+			];
+		}
+		// in case we did not find a closing ~~ we just return the marker and skip 2 characters
+		return [$markdown[0] . $markdown[1], 2];
+	}
+}
+```
 
 
 FAQ
@@ -221,6 +233,7 @@ extensions while all current implementations either lack extensibility or are to
 based on what I had seen in other libraries taking the good points of both.
 Inspiration on the implementation design and line based parsing has mostly come from [Parsedown][] which seems to be the [fastest][benchmark]
 markdown parser in the PHP world right now, it is just very hard to extend it.
+
 
 Contact
 -------
