@@ -103,9 +103,6 @@ class Markdown extends Parser
 	 */
 	protected function identifyLine($lines, $current)
 	{
-		if (empty($lines[$current])) {
-			return 'empty';
-		}
 		$line = $lines[$current];
 		switch($line[0])
 		{
@@ -134,7 +131,7 @@ class Markdown extends Parser
 
 				return 'html';
 			case '>': // quote
-				if (!isset($line[1]) || $line[1] == ' ') {
+				if (!isset($line[1]) || $line[1] == ' ' || $line[1] == "\t") {
 					return 'quote';
 				}
 				break;
@@ -163,7 +160,6 @@ class Markdown extends Parser
 				if (preg_match('/^\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
 					return 'reference';
 				}
-
 				break;
 			case "\t":
 				return 'code';
@@ -194,12 +190,11 @@ class Markdown extends Parser
 					return 'ol';
 				}
 		}
+		
+		if (!empty($lines[$current + 1]) && ($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
+			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])) {
 
-		// TODO improve
-		if (isset($lines[$current + 1]) && !empty($lines[$current + 1]) && ($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-')) {
-			if (preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])) {
-				return 'headline';
-			}
+			return 'headline';
 		}
 
 		return 'paragraph';
