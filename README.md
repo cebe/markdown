@@ -12,7 +12,7 @@ What is this?
 A set of [PHP][] classes, each representing a [Markdown][] flavor, and a command line tool
 for converting markdown files to HTML files.
 
-The implementation focus is to be **fast** and **extensible**. You are able to add additional language elements by
+The implementation focus is to be **fast** (see [benchmark][]) and **extensible**. You are able to add additional language elements by
 directly hooking into the parser - no (possibly error-prone) post- or pre-processing is needed to extend the language.
 
 Currently the following markdown flavors are supported:
@@ -245,4 +245,4 @@ Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://
 [Markdown]: http://en.wikipedia.org/wiki/Markdown "Markdown on Wikipedia"
 [composer]: https://getcomposer.org/ "The PHP package manager"
 [Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
-[benchmark]: https://github.com/kzykhys/Markbench#readme
+[benchmark]: https://github.com/kzykhys/Markbench#readme "kzykhys/Markbench on github"
