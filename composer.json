@@ -31,5 +31,11 @@
 	},
 	"bin": [
 		"bin/markdown"
-	]
+	],
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev",
+			"dev-0.9.x-dev": "0.9.x-dev"
+		}
+	}
 }
