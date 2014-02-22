@@ -17,8 +17,8 @@ directly hooking into the parser - no (possibly error-prone) post- or pre-proces
 
 Currently the following markdown flavors are supported:
 
-- The original Markdown according to <http://daringfireball.net/projects/markdown/syntax>.
-- Github flavored Markdown according to <https://help.github.com/articles/github-flavored-markdown> (currently does not support tables).
+- **The original Markdown** according to <http://daringfireball.net/projects/markdown/syntax>.
+- **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown> (currently does not support tables).
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
 
 Future plans are to support:
