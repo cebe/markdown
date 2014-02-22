@@ -1,7 +1,4 @@
 <?php
-/**
- * @author Carsten Brandt <mail@cebe.cc>
- */
 
 namespace cebe\markdown;
 
@@ -9,6 +6,8 @@ namespace cebe\markdown;
  * Markdown parser for github flavored markdown
  *
  * @author Carsten Brandt <mail@cebe.cc>
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
  */
 class GithubMarkdown extends Markdown
 {
@@ -36,6 +35,10 @@ class GithubMarkdown extends Markdown
 		return array_merge(parent::inlineMarkers(), $markers);
 	}
 
+
+	// block parsing
+
+
 	/**
 	 * @inheritDoc
 	 */
@@ -46,10 +49,6 @@ class GithubMarkdown extends Markdown
 		}
 		return parent::identifyLine($lines, $current);
 	}
-
-
-	// block parsing
-
 
 	/**
 	 * Consume lines for a fenced code block

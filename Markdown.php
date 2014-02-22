@@ -9,6 +9,8 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
  * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax).
  *
  * @author Carsten Brandt <mail@cebe.cc>
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
  */
 class Markdown extends Parser
 {
