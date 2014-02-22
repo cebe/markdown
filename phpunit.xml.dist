@@ -7,8 +7,9 @@
 		stopOnFailure="false">
 		<testsuites>
 			<testsuite name="Markdown Test Suite">
-				<file>./tests/GithubMarkdownTest.php</file>
 				<file>./tests/MarkdownTest.php</file>
+				<file>./tests/GithubMarkdownTest.php</file>
+				<file>./tests/MarkdownExtraTest.php</file>
 			</testsuite>
 		</testsuites>
 		<filter>
