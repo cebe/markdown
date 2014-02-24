@@ -78,7 +78,7 @@ class Markdown extends Parser
 	protected function inlineMarkers()
 	{
 		return [
-//			"  \n"  => 'parseNewline',
+			"  \n"  => 'parseNewline',
 			'&'     => 'parseEntity',
 			'!['    => 'parseImage',
 			'*'     => 'parseEmphStrong',

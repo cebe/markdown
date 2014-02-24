@@ -18,6 +18,8 @@ class Parser
 
 	private $_inlineMarkers = [];
 
+	private $_whitespaceInlineMarkers = [];
+
 	/**
 	 * Parses the given text considering the full language.
 	 *
@@ -63,17 +65,28 @@ class Parser
 	private function prepareMarkers($text)
 	{
 		$this->_inlineMarkers = [];
+		$this->_whitespaceInlineMarkers = [];
 		// add all markers that are present in markdown
 		// check is done to avoid iterations in parseInline(), good for huge markdown files
 		foreach($this->inlineMarkers() as $marker => $method) {
 			if (strpos($text, $marker) !== false) {
 				$m = substr($marker, 0, 1);
-				// put the longest marker first
-				if (isset($this->_inlineMarkers[$m]) && strlen($marker) > strlen(reset($this->_inlineMarkers[$m]))) {
-					$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
-					break;
+				// markers beginning with whitespace are handled differently
+				if ($m !== ' ') {
+					// put the longest marker first
+					if (isset($this->_inlineMarkers[$m]) && strlen($marker) > strlen(reset($this->_inlineMarkers[$m]))) {
+						$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
+						break;
+					}
+					$this->_inlineMarkers[$m][$marker] = $method;
+				} else {
+					// put the longest marker first
+					if (!empty($this->_whitespaceInlineMarkers) && strlen($marker) > strlen(reset($this->_whitespaceInlineMarkers))) {
+						$this->_whitespaceInlineMarkers = array_merge([$marker => $method], $this->_whitespaceInlineMarkers);
+						break;
+					}
+					$this->_whitespaceInlineMarkers[$marker] = $method;
 				}
-				$this->_inlineMarkers[$m][$marker] = $method;
 			}
 		}
 	}
@@ -208,6 +221,12 @@ class Parser
 	 */
 	protected function parseInline($text)
 	{
+		// markers beginning with a whitespace are handled differently
+		// because of too many false-positive matches of strpbrk
+		if (!empty($this->_whitespaceInlineMarkers) && $this->matchNearestWhitespaceMarker($text) !== false) {
+			return $this->parseInlineWithWhitespace($text);
+		}
+
 		$markers = implode('', array_keys($this->_inlineMarkers));
 
 		$paragraph = '';
@@ -242,5 +261,78 @@ class Parser
 		$paragraph .= $text;
 
 		return $paragraph;
+	}
+
+	/**
+	 * Parses inline elements of the language.
+	 *
+	 * @param $text
+	 * @return string
+	 */
+	private function parseInlineWithWhitespace($text)
+	{
+		$markers = implode('', array_keys($this->_inlineMarkers));
+
+		$paragraph = '';
+
+		while(true) {
+			if (!empty($markers)) {
+				$found = strpbrk($text, $markers);
+			} else {
+				$found = false;
+			}
+			$wpos = $this->matchNearestWhitespaceMarker($text);
+
+			if ($found === false && $wpos === false) {
+				break;
+			}
+			// switch between found whitespace or marker
+			if ($found !== false) {
+				$pos = strpos($text, $found);
+				$matchedMarkers = $this->_inlineMarkers[$found[0]];
+			}
+			if ($wpos !== false && ($found === false || $wpos < $pos)) {
+				$pos = $wpos;
+				$found = substr($text, $wpos);
+				$matchedMarkers = $this->_whitespaceInlineMarkers;
+			}
+
+			// add the text up to next marker to the paragraph
+			if ($pos !== 0) {
+				$paragraph .= substr($text, 0, $pos);
+			}
+			$text = $found;
+
+			$parsed = false;
+			foreach($matchedMarkers as $marker => $method) {
+				if (strncmp($text, $marker, strlen($marker)) === 0) {
+					// parse the marker
+					list($output, $offset) = $this->$method($text);
+					$paragraph .= $output;
+					$text = substr($text, $offset);
+					$parsed = true;
+					break;
+				}
+			}
+			if (!$parsed) {
+				$paragraph .= substr($text, 0, 1);
+				$text = substr($text, 1);
+			}
+		}
+
+		$paragraph .= $text;
+
+		return $paragraph;
+	}
+
+	private function matchNearestWhitespaceMarker($text)
+	{
+		$pos = false;
+		foreach($this->_whitespaceInlineMarkers as $marker => $method) {
+			if (($wpos = strpos($text, $marker)) !== false && ($pos === false || $pos > $wpos)) {
+				$pos = $wpos;
+			}
+		}
+		return $pos;
 	}
 }
