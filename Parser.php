@@ -67,7 +67,13 @@ class Parser
 		// check is done to avoid iterations in parseInline(), good for huge markdown files
 		foreach($this->inlineMarkers() as $marker => $method) {
 			if (strpos($text, $marker) !== false) {
-				$this->_inlineMarkers[$marker] = $method;
+				$m = substr($marker, 0, 1);
+				// put the longest marker first
+				if (isset($this->_inlineMarkers[$m]) && strlen($marker) > strlen(reset($this->_inlineMarkers[$m]))) {
+					$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
+					break;
+				}
+				$this->_inlineMarkers[$m][$marker] = $method;
 			}
 		}
 	}
@@ -202,37 +208,34 @@ class Parser
 	 */
 	protected function parseInline($text)
 	{
-		$markers = $this->_inlineMarkers;
+		$markers = implode('', array_keys($this->_inlineMarkers));
 
 		$paragraph = '';
 
-		while(!empty($markers)) {
-			$closest = null;
-			$cpos = 0;
-			foreach($markers as $marker => $method) {
-				if (($pos = strpos($text, $marker)) === false) {
-					unset($markers[$marker]);
-					continue;
-				}
+		while(!empty($markers) && ($found = strpbrk($text, $markers)) !== false) {
 
-				if ($closest === null || $pos < $cpos || ($pos === $cpos && strlen($marker) > strlen($closest))) {
-					$closest = $marker;
-					$cpos = $pos;
-				}
-			}
+			$pos = strpos($text, $found);
 
 			// add the text up to next marker to the paragraph
-			if ($cpos !== 0) {
-				$paragraph .= substr($text, 0, $cpos);
-				$text = substr($text, $cpos);
+			if ($pos !== 0) {
+				$paragraph .= substr($text, 0, $pos);
 			}
+			$text = $found;
 
-			// parse the marker
-			if ($closest !== null) {
-				$method = $markers[$closest];
-				list($output, $offset) = $this->$method($text);
-				$paragraph .= $output;
-				$text = substr($text, $offset);
+			$parsed = false;
+			foreach($this->_inlineMarkers[$text[0]] as $marker => $method) {
+				if (strncmp($text, $marker, strlen($marker)) === 0) {
+					// parse the marker
+					list($output, $offset) = $this->$method($text);
+					$paragraph .= $output;
+					$text = substr($text, $offset);
+					$parsed = true;
+					break;
+				}
+			}
+			if (!$parsed) {
+				$paragraph .= substr($text, 0, 1);
+				$text = substr($text, 1);
 			}
 		}
 
