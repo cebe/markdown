@@ -6,8 +6,9 @@
 require(__DIR__ . '/../Parser.php');
 require(__DIR__ . '/../Markdown.php');
 
-$markdown = file_get_contents('http://daringfireball.net/projects/markdown/syntax.text');
-
+$markdown = '';
+//$markdown = file_get_contents('http://daringfireball.net/projects/markdown/syntax.text');
+$markdown = file_get_contents(__DIR__ . 'http://github.github.com/github-flavored-markdown/sample_content.html');
 //ini_set('xhprof.output_dir', __DIR__ . '/xhprof');
 
 // http://de3.php.net/manual/en/xhprof.examples.php
