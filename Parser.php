@@ -28,9 +28,6 @@ class Parser
 	 */
 	public function parse($text)
 	{
-		if (rtrim($text) === '') {
-			return '';
-		}
 		$this->prepare();
 
 		$text = preg_replace('~\r\n?~', "\n", $text);
@@ -52,9 +49,6 @@ class Parser
 	 */
 	public function parseParagraph($text)
 	{
-		if (rtrim($text) === '') {
-			return '';
-		}
 		$this->prepare();
 
 		$this->prepareMarkers($text);
