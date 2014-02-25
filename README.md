@@ -30,7 +30,7 @@ Future plans are to support:
 
 ### Who is using it?
 
-- It powers the API-docs and the definitive guide for the [Yii Framework][] 2.0. Pre-beta preview is hosted here: http://stuff.cebe.cc/yii2docs/guide_index.html
+- It powers the API-docs and the definitive guide for the [Yii Framework][] [2.0](https://github.com/yiisoft/yii2). Pre-beta preview is hosted here: http://stuff.cebe.cc/yii2docs/guide_index.html
 
 [Yii Framework]: http://www.yiiframework.com/ "The Yii PHP Framework"
 
