@@ -21,6 +21,12 @@ class Markdown extends Parser
 	public $html5 = false;
 
 	/**
+	 * @var bool enable support `start` attribute of ordered lists.
+	 * Defaults to `false` which means that numeration of all ordered lists(<ol>) starts with 1.
+	 */
+	public $enableListsStartNumberSupport = false;
+
+	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
@@ -336,9 +342,11 @@ class Markdown extends Parser
 					$line = substr($line, $len);
 				}
 
-				// attr `start` for ol
-				if ($type == 'ol' && !isset($block['attr']['start']) && isset($matches[1])) {
-					$block['attr']['start'] = $matches[1];
+				if ($this->enableListsStartNumberSupport) {
+					// attr `start` for ol
+					if ($type == 'ol' && !isset($block['attr']['start']) && isset($matches[1])) {
+						$block['attr']['start'] = $matches[1];
+					}
 				}
 
 				$block['items'][++$item][] = $line;
