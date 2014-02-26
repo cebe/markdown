@@ -4,6 +4,9 @@
 require(__DIR__ . '/../Parser.php');
 require(__DIR__ . '/../Markdown.php');
 
+// Send all errors to stderr
+ini_set('display_errors', 'stderr');
+
 $flavor = 'cebe\\markdown\\Markdown';
 $flavors = [
 	'gfm' => ['cebe\\markdown\\GithubMarkdown', __DIR__ . '/../GithubMarkdown.php'],
@@ -23,14 +26,10 @@ foreach($argv as $k => $arg) {
 						require($flavors[$arg[1]][1]);
 						$flavor = $flavors[$arg[1]][0];
 					} else {
-						echo "Error: Unknown flavor: " . $arg[1] . "\n";
-						usage();
-						exit(1);
+					    error("Unknown flavor: " . $arg[1], "usage");
 					}
 				} else {
-					echo "Error: Incomplete argument --flavor!\n";
-					usage();
-					exit(1);
+					error("Incomplete argument --flavor!", "usage");
 				}
 			break;
 			case '-h':
@@ -41,9 +40,7 @@ foreach($argv as $k => $arg) {
 				usage();
 			break;
 			default:
-				echo "Error: Unknown argument " . $arg[0] . "\n";
-				usage();
-				exit(1);
+			    error("Unknown argument " . $arg[0], "usage");
 		}
 	} else {
 		$src[] = $arg;
@@ -55,14 +52,11 @@ if (empty($src)) {
 } elseif (count($src) == 1) {
 	$file = reset($src);
 	if (!file_exists($file)) {
-		echo "Error: File does not exist: $file\n";
-		exit(1);
+	    error("File does not exist:" . $file);
 	}
 	$markdown = file_get_contents($file);
 } else {
-	echo "Error: Converting multiple files is not yet supported.\n";
-	usage();
-	exit(1);
+    error("Error: Converting multiple files is not yet supported.", "usage");
 }
 
 /** @var cebe\markdown\Parser $md */
@@ -107,4 +101,21 @@ Examples:
 
 EOF;
 	exit(1);
+}
+
+/**
+ * Send custom error message to stderr
+ * @param $message string
+ * @param $callback mixed called before script exit
+ * @return void
+ */
+function error($message, $callback = null) {
+    $fe = fopen("php://stderr", "w");
+    fwrite($fe, "Error: " . $message . "\n");
+
+    if (is_callable($callback)) {
+        call_user_func($callback);
+    }
+
+    exit(1);
 }
