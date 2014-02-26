@@ -496,11 +496,11 @@ class Markdown extends Parser
 		$type = $block['list'];
 
 		$attr = "";
-		if (isset($block['attr']) && !empty($block['attr'])) {
-			$attr = " " . $this->getHtmlAttributesString($block['attr']);
+		if (!empty($block['attr'])) {
+			$attr = " " . $this->generateHtmlAttributes($block['attr']);
 		}
 
-		$output = "<" . $type . $attr . ">\n";
+		$output = "<$type$attr>\n";
 		foreach($block['items'] as $item => $itemLines) {
 			$output .= '<li>';
 			if (!isset($block['lazyItems'][$item])) {
@@ -753,10 +753,10 @@ class Markdown extends Parser
 	 * @param $attributes array
 	 * @return string
 	 */
-	protected function getHtmlAttributesString(array $attributes)
+	protected function generateHtmlAttributes(array $attributes)
 	{
 		foreach ($attributes as $attrName=>$attrValue) {
-			$attributes[$attrName] = sprintf('%s="%s"', $attrName, $attrValue);
+			$attributes[$attrName] = "$attrName=\"$attrValue\"";
 		}
 
 		return implode(' ', $attributes);
