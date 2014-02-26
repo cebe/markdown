@@ -26,7 +26,7 @@ foreach($argv as $k => $arg) {
 						require($flavors[$arg[1]][1]);
 						$flavor = $flavors[$arg[1]][0];
 					} else {
-					    error("Unknown flavor: " . $arg[1], "usage");
+						error("Unknown flavor: " . $arg[1], "usage");
 					}
 				} else {
 					error("Incomplete argument --flavor!", "usage");
@@ -40,7 +40,7 @@ foreach($argv as $k => $arg) {
 				usage();
 			break;
 			default:
-			    error("Unknown argument " . $arg[0], "usage");
+				error("Unknown argument " . $arg[0], "usage");
 		}
 	} else {
 		$src[] = $arg;
@@ -52,11 +52,11 @@ if (empty($src)) {
 } elseif (count($src) == 1) {
 	$file = reset($src);
 	if (!file_exists($file)) {
-	    error("File does not exist:" . $file);
+		error("File does not exist:" . $file);
 	}
 	$markdown = file_get_contents($file);
 } else {
-    error("Error: Converting multiple files is not yet supported.", "usage");
+	error("Converting multiple files is not yet supported.", "usage");
 }
 
 /** @var cebe\markdown\Parser $md */
@@ -65,6 +65,9 @@ echo $md->parse($markdown);
 
 // functions
 
+/**
+ * Display usage information
+ */
 function usage() {
 	global $argv;
 	$cmd = $argv[0];
@@ -110,12 +113,12 @@ EOF;
  * @return void
  */
 function error($message, $callback = null) {
-    $fe = fopen("php://stderr", "w");
-    fwrite($fe, "Error: " . $message . "\n");
+	$fe = fopen("php://stderr", "w");
+	fwrite($fe, "Error: " . $message . "\n");
 
-    if (is_callable($callback)) {
-        call_user_func($callback);
-    }
+	if (is_callable($callback)) {
+		call_user_func($callback);
+	}
 
-    exit(1);
+	exit(1);
 }
