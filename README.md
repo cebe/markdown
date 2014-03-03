@@ -237,9 +237,11 @@ FAQ
 
 While reviewing PHP markdown parsers for choosing one to use bundled with the [Yii framework 2.0][]
 I found that most of the implementations use regex to replace patterns instead
-of doing real parsing. This way extding them is quite hard as you have to come up with a complex
-regex, that does not affect other language elements but fits only your addition.
-A [real parser][] should have context aware methods that walk trough the text and
+of doing real parsing. This way extending them with new language elements is quite hard
+as you have to come up with a complex regex, that matches your addition but does not mess
+with other elements. Such additions are very common as you see on github which supports referencing
+issues, users and commits in the comments.
+A [real parser][] should use context aware methods that walk trough the text and
 parse the tokens as they find them. The only implentation that I have found that uses
 this approach is [Parsedown][] which also shows that this implementation is [much faster][benchmark]
 than the regex way. Parsedown however is an implementation that focuses on speed and implements
@@ -249,6 +251,8 @@ not easily extensible.
 Given the situation above I decided to start my own implementation using the parsing approach
 from Parsedown and making it extensible creating a class for each markdown flavor that extend each
 other in the way that also the markdown languages extend each other.
+This allows you to choose between markdown language flavors and also provides a way to compose your
+own flavor picking the best things from all.
 I chose this approach as it is easier to implement and also more intuitive approach compared
 to using callbacks to inject functionallity into the parser.
 
