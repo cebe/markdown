@@ -24,6 +24,12 @@ class Markdown extends Parser
 	public $html5 = false;
 
 	/**
+	 * @var bool enable support `start` attribute of ordered lists.
+	 * Defaults to `false` which means that numeration of all ordered lists(<ol>) starts with 1.
+	 */
+	public $enableListsStartNumberSupport = false;
+
+	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
@@ -299,6 +305,7 @@ class Markdown extends Parser
 		$block = [
 			'type' => 'list',
 			'list' => 'ol',
+			'attr' => [],
 			'items' => [],
 		];
 		return $this->consumeList($lines, $current, $block, 'ol');
@@ -328,7 +335,7 @@ class Markdown extends Parser
 			$line = $lines[$i];
 
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^ {0,3}(\d+)\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));
@@ -336,6 +343,13 @@ class Markdown extends Parser
 					$len = strlen($matches[0]);
 					$indent = str_repeat(' ', $len);
 					$line = substr($line, $len);
+				}
+
+				if ($this->enableListsStartNumberSupport) {
+					// attr `start` for ol
+					if ($type == 'ol' && !isset($block['attr']['start']) && isset($matches[1])) {
+						$block['attr']['start'] = $matches[1];
+					}
 				}
 
 				$block['items'][++$item][] = $line;
@@ -491,7 +505,13 @@ class Markdown extends Parser
 	protected function renderList($block)
 	{
 		$type = $block['list'];
-		$output = "<$type>\n";
+
+		$attr = "";
+		if (!empty($block['attr'])) {
+			$attr = " " . $this->generateHtmlAttributes($block['attr']);
+		}
+
+		$output = "<$type$attr>\n";
 		foreach($block['items'] as $item => $itemLines) {
 			$output .= '<li>';
 			if (!isset($block['lazyItems'][$item])) {
@@ -737,5 +757,19 @@ class Markdown extends Parser
 			}
 		}
 		return [$text[0], 1];
+	}
+
+	/**
+	 * Return html attributes string from [attrName => attrValue] list
+	 * @param $attributes array
+	 * @return string
+	 */
+	protected function generateHtmlAttributes(array $attributes)
+	{
+		foreach ($attributes as $attrName=>$attrValue) {
+			$attributes[$attrName] = "$attrName=\"$attrValue\"";
+		}
+
+		return implode(' ', $attributes);
 	}
 }
