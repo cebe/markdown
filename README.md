@@ -169,7 +169,7 @@ Parsing of a block element is done in two steps:
 	}
 	```
 
-2. "rendering" the element. After all blocks have been consumed, they are beeing rendered using the `render{blockName}()`
+2. "rendering" the element. After all blocks have been consumed, they are being rendered using the `render{blockName}()`
    method:
 
    ```php
