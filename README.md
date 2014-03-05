@@ -235,9 +235,10 @@ class MyMarkdown extends \cebe\markdown\Markdown
 Acknowledgements
 ----------------
 
-I'd like to thank @erusev for creating [Parsedown][] which heavily influenced this work and provided
+I'd like to thank [@erusev][] for creating [Parsedown][] which heavily influenced this work and provided
 the idea of the line based parsing approach.
 
+[@erusev]: https://github.com/erusev "Emanuil Rusev"
 
 FAQ
 ---
