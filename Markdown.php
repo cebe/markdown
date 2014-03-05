@@ -302,7 +302,7 @@ class Markdown extends Parser
 		$block = [
 			'type' => 'list',
 			'list' => 'ol',
-			'attr' => array(),
+			'attr' => [],
 			'items' => [],
 		];
 		return $this->consumeList($lines, $current, $block, 'ol');
