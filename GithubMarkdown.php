@@ -1,13 +1,16 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown;
 
 /**
- * Markdown parser for github flavored markdown
+ * Markdown parser for github flavored markdown.
  *
  * @author Carsten Brandt <mail@cebe.cc>
- * @license https://github.com/cebe/markdown/blob/master/LICENSE
- * @link https://github.com/cebe/markdown#readme
  */
 class GithubMarkdown extends Markdown
 {

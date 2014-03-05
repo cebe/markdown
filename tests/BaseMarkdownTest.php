@@ -1,10 +1,15 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown\tests;
 
-use cebe\markdown\Markdown;
-
 /**
+ * Base class for all Test cases.
+ *
  * @author Carsten Brandt <mail@cebe.cc>
  */
 abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase

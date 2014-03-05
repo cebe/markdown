@@ -1,7 +1,4 @@
 <?php
-/**
- * @author Carsten Brandt <mail@cebe.cc>
- */
 
 require(__DIR__ . '/../Parser.php');
 require(__DIR__ . '/../Markdown.php');

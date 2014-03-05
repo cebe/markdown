@@ -1,5 +1,10 @@
 #!/usr/bin/env php
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 require(__DIR__ . '/../Parser.php');
 require(__DIR__ . '/../Markdown.php');

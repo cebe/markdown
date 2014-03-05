@@ -31,9 +31,11 @@ Future plans are to support:
 
 ### Who is using it?
 
-- It powers the API-docs and the definitive guide for the [Yii Framework][] [2.0](https://github.com/yiisoft/yii2). Pre-beta preview is hosted here: http://stuff.cebe.cc/yii2docs/guide_index.html
+- It powers the API-docs and the definitive guide for the [Yii Framework][] [2.0](https://github.com/yiisoft/yii2).
+  The pre-beta preview is hosted here: http://stuff.cebe.cc/yii2docs/guide_index.html
 
 [Yii Framework]: http://www.yiiframework.com/ "The Yii PHP Framework"
+
 
 Installation
 ------------
@@ -230,6 +232,13 @@ class MyMarkdown extends \cebe\markdown\Markdown
 ```
 
 
+Acknowledgements
+----------------
+
+I'd like to thank @erusev for creating [Parsedown][] which heavily influenced this work and provided
+the idea of the line based parsing approach.
+
+
 FAQ
 ---
 
@@ -262,6 +271,13 @@ to using callbacks to inject functionallity into the parser.
 Just [open an issue][] on github, post your markdown code and describe the problem. You may also attach screenshots of the rendered HTML result to describe your problem.
 
 
+### Am I free to use this?
+
+This library is open source and licensed under the [MIT License][]. This means that you can do whatever you want
+with it as long as you mention my name and include the [license file][license]. Check the [license][] for details.
+
+[MIT License]: http://opensource.org/licenses/MIT
+
 Contact
 -------
 
@@ -276,3 +292,4 @@ Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://
 [Yii framework 2.0]: https://github.com/yiisoft/yii2
 [real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
 [open an issue]: https://github.com/cebe/markdown/issues/new
+[license]: https://github.com/cebe/markdown/blob/master/LICENSE

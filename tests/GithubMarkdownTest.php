@@ -1,9 +1,16 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown\tests;
 use cebe\markdown\GithubMarkdown;
 
 /**
+ * Test case for the github flavored markdown.
+ *
  * @author Carsten Brandt <mail@cebe.cc>
  */
 class GithubMarkdownTest extends BaseMarkdownTest
