@@ -290,8 +290,6 @@ class Parser
 				break;
 			}
 			// switch between found whitespace or marker
-			$pos = false;
-			$matchedMarkers = [];
 			if ($found !== false) {
 				$pos = strpos($text, $found);
 				$matchedMarkers = $this->_inlineMarkers[$found[0]];
