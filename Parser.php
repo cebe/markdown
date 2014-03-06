@@ -71,7 +71,7 @@ class Parser
 		$this->_whitespaceInlineMarkers = [];
 		// add all markers that are present in markdown
 		// check is done to avoid iterations in parseInline(), good for huge markdown files
-		foreach($this->inlineMarkers() as $marker => $method) {
+		foreach ($this->inlineMarkers() as $marker => $method) {
 			if (strpos($text, $marker) !== false) {
 				$m = substr($marker, 0, 1);
 				// markers beginning with whitespace are handled differently
@@ -110,7 +110,7 @@ class Parser
 	{
 	}
 
-	private $depth = 0;
+	private $_depth = 0;
 
 	/**
 	 * Parse block elements by calling `identifyLine()` to identify them
@@ -119,7 +119,7 @@ class Parser
 	 */
 	protected function parseBlocks($lines)
 	{
-		if ($this->depth++ > $this->maximumNestingLevel) {
+		if ($this->_depth++ > $this->maximumNestingLevel) {
 			// maximum depth is reached, do not parse input
 			return implode("\n", $lines);
 		}
@@ -128,7 +128,7 @@ class Parser
 
 		// convert lines to blocks
 
-		for($i = 0, $count = count($lines); $i < $count; $i++) {
+		for ($i = 0, $count = count($lines); $i < $count; $i++) {
 			if (!empty($lines[$i]) && rtrim($lines[$i]) !== '') { // skip empty lines
 				// identify a blocks beginning
 				$blockType = $this->identifyLine($lines, $i);
@@ -144,11 +144,11 @@ class Parser
 		// convert blocks to markup
 
 		$output = '';
-		foreach($blocks as $block) {
+		foreach ($blocks as $block) {
 			$output .= $this->{'render' . $block['type']}($block) . "\n";
 		}
 
-		$this->depth--;
+		$this->_depth--;
 
 		return $output;
 	}
@@ -180,7 +180,7 @@ class Parser
 			'type' => 'paragraph',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			if (ltrim($lines[$i]) !== '') {
 				$block['content'][] = $lines[$i];
 			} else {
@@ -234,7 +234,7 @@ class Parser
 
 		$paragraph = '';
 
-		while(!empty($markers) && ($found = strpbrk($text, $markers)) !== false) {
+		while (!empty($markers) && ($found = strpbrk($text, $markers)) !== false) {
 
 			$pos = strpos($text, $found);
 
@@ -245,7 +245,7 @@ class Parser
 			$text = $found;
 
 			$parsed = false;
-			foreach($this->_inlineMarkers[$text[0]] as $marker => $method) {
+			foreach ($this->_inlineMarkers[$text[0]] as $marker => $method) {
 				if (strncmp($text, $marker, strlen($marker)) === 0) {
 					// parse the marker
 					list($output, $offset) = $this->$method($text);
@@ -278,7 +278,7 @@ class Parser
 
 		$paragraph = '';
 
-		while(true) {
+		while (true) {
 			if (!empty($markers)) {
 				$found = strpbrk($text, $markers);
 			} else {
@@ -307,7 +307,7 @@ class Parser
 			$text = $found;
 
 			$parsed = false;
-			foreach($matchedMarkers as $marker => $method) {
+			foreach ($matchedMarkers as $marker => $method) {
 				if (strncmp($text, $marker, strlen($marker)) === 0) {
 					// parse the marker
 					list($output, $offset) = $this->$method($text);
@@ -331,7 +331,7 @@ class Parser
 	private function matchNearestWhitespaceMarker($text)
 	{
 		$pos = false;
-		foreach($this->_whitespaceInlineMarkers as $marker => $method) {
+		foreach ($this->_whitespaceInlineMarkers as $marker => $method) {
 			if (($wpos = strpos($text, $marker)) !== false && ($pos === false || $pos > $wpos)) {
 				$pos = $wpos;
 			}

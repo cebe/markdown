@@ -42,7 +42,7 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	public function dataFiles()
 	{
 		$files = [];
-		foreach($this->getDataPaths() as $name => $src) {
+		foreach ($this->getDataPaths() as $name => $src) {
 			$handle = opendir($src);
 			if ($handle === false) {
 				throw new \Exception('Unable to open directory: ' . $src);

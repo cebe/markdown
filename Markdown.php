@@ -216,7 +216,7 @@ class Markdown extends Parser
 			'type' => 'paragraph',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0) {
 				$block['content'][] = $lines[$i];
 			} else {
@@ -239,7 +239,7 @@ class Markdown extends Parser
 			'content' => [],
 			'simple' => true,
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			if (ltrim($line) !== '') {
 				if ($line[0] == '>' && !isset($line[1])) {
@@ -267,7 +267,7 @@ class Markdown extends Parser
 			'type' => 'code',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// a line is considered to belong to this code block as long as it is intended by 4 spaces or a tab
@@ -276,7 +276,7 @@ class Markdown extends Parser
 				$block['content'][] = $line;
 			// but also if it is empty and the next line is intended by 4 spaces or a tab
 			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
-					  ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
+			          ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
@@ -324,7 +324,7 @@ class Markdown extends Parser
 		$item = 0;
 		$indent = '';
 		$len = 0;
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// match list marker on the beginning of the line
@@ -374,7 +374,7 @@ class Markdown extends Parser
 	{
 		if ($lines[$current][0] === '#') {
 			$level = 1;
-			while(isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
+			while (isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
 				$level++;
 			}
 			$block = [
@@ -403,7 +403,7 @@ class Markdown extends Parser
 			'content' => [],
 		];
 		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
-			for($i = $current, $count = count($lines); $i < $count; $i++) {
+			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$block['content'][] = $line;
 				if (strpos($line, '-->') !== false) {
@@ -416,7 +416,7 @@ class Markdown extends Parser
 			if (in_array($tag, $this->selfClosingHtmlElements)) {
 				$level--;
 			}
-			for($i = $current, $count = count($lines); $i < $count; $i++) {
+			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$block['content'][] = $line;
 				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
@@ -492,11 +492,11 @@ class Markdown extends Parser
 	{
 		$type = $block['list'];
 		$output = "<$type>\n";
-		foreach($block['items'] as $item => $itemLines) {
+		foreach ($block['items'] as $item => $itemLines) {
 			$output .= '<li>';
 			if (!isset($block['lazyItems'][$item])) {
 				$firstPar = [];
-				while(!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->identifyLine($itemLines, 0) === 'paragraph') {
+				while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->identifyLine($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
 				}
 				$output .= $this->parseInline(implode("\n", $firstPar));
@@ -621,16 +621,16 @@ class Markdown extends Parser
 				. '>' . $this->parseInline($text) . '</a>';
 
 			return [$link, $offset];
-	    } else {
-		    // remove all starting [ markers to avoid next one to be parsed as link
-		    $result = '[';
-		    $i = 1;
-		    while(isset($markdown[$i]) && $markdown[$i] == '[') {
-			    $result .= '[';
-			    $i++;
-		    }
-		    return [$result, $i];
-	    }
+		} else {
+			// remove all starting [ markers to avoid next one to be parsed as link
+			$result = '[';
+			$i = 1;
+			while (isset($markdown[$i]) && $markdown[$i] == '[') {
+				$result .= '[';
+				$i++;
+			}
+			return [$result, $i];
+		}
 	}
 
 	/**
@@ -651,7 +651,7 @@ class Markdown extends Parser
 			// remove all starting [ markers to avoid next one to be parsed as link
 			$result = '!';
 			$i = 1;
-			while(isset($markdown[$i]) && $markdown[$i] == '[') {
+			while (isset($markdown[$i]) && $markdown[$i] == '[') {
 				$result .= '[';
 				$i++;
 			}
