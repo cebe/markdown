@@ -6,6 +6,7 @@
  */
 
 namespace cebe\markdown\tests;
+
 use cebe\markdown\Markdown;
 
 /**
