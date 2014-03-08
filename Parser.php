@@ -15,7 +15,7 @@ namespace cebe\markdown;
 class Parser
 {
 	/**
-	 * @var int the maximum nesting level for language elements.
+	 * @var integer the maximum nesting level for language elements.
 	 */
 	public $maximumNestingLevel = 32;
 

@@ -18,7 +18,7 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
 class Markdown extends Parser
 {
 	/**
-	 * @var bool whether to format markup according to HTML5 spec.
+	 * @var boolean whether to format markup according to HTML5 spec.
 	 * Defaults to `false` which means that markup is formatted as HTML4.
 	 */
 	public $html5 = false;
