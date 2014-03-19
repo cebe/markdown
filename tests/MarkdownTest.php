@@ -27,4 +27,10 @@ class MarkdownTest extends BaseMarkdownTest
 			'markdown-data' => __DIR__ . '/markdown-data',
 		];
 	}
+
+	public function testEdgeCases()
+	{
+		$this->assertEquals("<p>&amp;</p>\n", $this->createMarkdown()->parse('&'));
+		$this->assertEquals("<p>&lt;</p>\n", $this->createMarkdown()->parse('<'));
+	}
 }
