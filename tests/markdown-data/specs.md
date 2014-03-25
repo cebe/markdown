@@ -697,6 +697,17 @@ allowing you to move the markup-related metadata out of the paragraph,
 you can add links without interrupting the narrative flow of your
 prose.
 
+Brackets in url and backslashes in links:
+
+About port info on wiki: [port](http://en.wikipedia.org/wiki/Port_\(computer_networking\))
+
+[I'm an inline-style link](https://www.google.com)
+
+[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+
+[I'm a relative reference to a repository file](../blob/(master)/LICENSE)
+
+Or leave it empty and use the [link text itself]()
 
 <h3 id="em">Emphasis</h3>
 

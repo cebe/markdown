@@ -666,11 +666,11 @@ class Markdown extends Parser
 			$offset = strlen($textMatches[0]);
 			$markdown = substr($markdown, $offset);
 
-			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
+			if (preg_match('/^\(([^\s]*)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
 				// inline link
 				return [
 					$text,
-					$refMatches[1], // url
+					stripslashes($refMatches[1]), // url
 					empty($refMatches[3]) ? null: $refMatches[3], // title
 					$offset + strlen($refMatches[0]), // offset
 				];
