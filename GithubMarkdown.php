@@ -102,7 +102,7 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function parseUrl($markdown)
 	{
-		if (preg_match('/^((https?|ftp):\/\/[^ ]+)/', $markdown, $matches)) {
+		if (preg_match('/^((https?|ftp):\/\/[^ ]+[^\.,:;\'"!\?\) ])/', $markdown, $matches)) {
 			$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
 			$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
 			return [
