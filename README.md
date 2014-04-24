@@ -90,6 +90,15 @@ or convert the original markdown description to html using the unix pipe:
     curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
 
 
+Extensions
+----------
+
+Here are some extensions to this library:
+
+- [markdown-codepen](https://github.com/Bogardo/markdown-codepen) - shortcode to embed codepens from http://codepen.io/ in markdown.
+- ... [add yours](https://github.com/cebe/markdown/edit/master/README.md#L98)
+
+
 Extending the language
 ----------------------
 
