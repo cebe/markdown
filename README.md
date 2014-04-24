@@ -95,8 +95,9 @@ Extensions
 
 Here are some extensions to this library:
 
-- [markdown-codepen](https://github.com/Bogardo/markdown-codepen) - shortcode to embed codepens from http://codepen.io/ in markdown.
-- ... [add yours](https://github.com/cebe/markdown/edit/master/README.md#L98)
+- [Bogardo/markdown-codepen](https://github.com/Bogardo/markdown-codepen) - shortcode to embed codepens from http://codepen.io/ in markdown.
+- [kartik-v/yii2-markdown](https://github.com/kartik-v/yii2-markdown) - Advanced Markdown editing and conversion utilities for Yii Framework 2.0.
+- ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L98)
 
 
 Extending the language
