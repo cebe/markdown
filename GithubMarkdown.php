@@ -102,11 +102,19 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function parseUrl($markdown)
 	{
-		if (preg_match('/^((https?|ftp):\/\/[^ ]+[^\.,:;\'"!\?\) ])/', $markdown, $matches)) {
-			$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-			$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
+		$pattern = <<<REGEXP
+			/(?(R) # in case of recursion match parentheses
+				 \(((?>[^\s()]+)|(?R))*\)
+			|      # else match a link with title
+				^(https?|ftp):\/\/(([^\s()]+)|(?R))+(?<![\.,:;\'"!\?\s])
+			)/x
+REGEXP;
+
+		if (preg_match($pattern, $markdown, $matches)) {
+			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
 			return [
-				'<a href="' . $url . '">' . $text . '</a>',
+				"<a href=\"$href\">$text</a>",
 				strlen($matches[0])
 			];
 		}

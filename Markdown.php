@@ -681,17 +681,24 @@ class Markdown extends Parser
 
 	private function parseLinkOrImage($markdown)
 	{
-		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
+		if (strpos($markdown, ']') !== false && preg_match('/\[((?>[^\]\[]+|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
 			$text = $textMatches[1];
 			$offset = strlen($textMatches[0]);
 			$markdown = substr($markdown, $offset);
 
-			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
+			$pattern = <<<REGEXP
+				/(?(R) # in case of recursion match parentheses
+					 \(((?>[^\s()]+)|(?R))*\)
+				|      # else match a link with title
+					^\((((?>[^\s()]+)|(?R))*)(\s+"(.*?)")?\)
+				)/x
+REGEXP;
+			if (preg_match($pattern, $markdown, $refMatches)) {
 				// inline link
 				return [
 					$text,
-					$refMatches[1], // url
-					empty($refMatches[3]) ? null: $refMatches[3], // title
+					isset($refMatches[2]) ? $refMatches[2] : '', // url
+					empty($refMatches[5]) ? null: $refMatches[5], // title
 					$offset + strlen($refMatches[0]), // offset
 				];
 			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {

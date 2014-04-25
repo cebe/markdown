@@ -13,6 +13,7 @@ use cebe\markdown\Markdown;
  * Test case for traditional markdown.
  *
  * @author Carsten Brandt <mail@cebe.cc>
+ * @group default
  */
 class MarkdownTest extends BaseMarkdownTest
 {

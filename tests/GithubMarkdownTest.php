@@ -13,6 +13,7 @@ use cebe\markdown\GithubMarkdown;
  * Test case for the github flavored markdown.
  *
  * @author Carsten Brandt <mail@cebe.cc>
+ * @group github
  */
 class GithubMarkdownTest extends BaseMarkdownTest
 {
