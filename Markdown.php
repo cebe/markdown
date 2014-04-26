@@ -703,12 +703,12 @@ REGEXP;
 					empty($refMatches[5]) ? null: $refMatches[5], // title
 					$offset + strlen($refMatches[0]), // offset
 				];
-			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {
+			} elseif (preg_match('/^[ \n]?(\[(.*?)\])?/', $markdown, $refMatches)) {
 				// reference style link
-				if (empty($refMatches[1])) {
+				if (empty($refMatches[2])) {
 					$key = strtolower($text);
 				} else {
-					$key = strtolower($refMatches[1]);
+					$key = strtolower($refMatches[2]);
 				}
 				if (isset($this->references[$key])) {
 					return [
