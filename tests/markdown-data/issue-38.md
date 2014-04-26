@@ -12,3 +12,9 @@
 > ```
 // some code
 ```
+
+> some text
+>
+> ```
+// some code
+```
