@@ -588,13 +588,15 @@ class Markdown extends Parser
 	protected function parseLt($text)
 	{
 		if (strpos($text, '>') !== false) {
-			if (preg_match('/^<(.*?@.*?\.\w+?)>/', $text, $matches)) { // TODO improve patterns
+			if (preg_match('/^<([^\s]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
+				// email address
 				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return [
 					"<a href=\"mailto:$email\">$email</a>", // TODO encode mail with entities
 					strlen($matches[0])
 				];
-			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
+			} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
+				// URL
 				$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
 				$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
 				return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
