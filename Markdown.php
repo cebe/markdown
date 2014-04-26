@@ -726,12 +726,12 @@ REGEXP;
 	 */
 	protected function parseCode($text)
 	{
-		if (preg_match('/^(`+) (.+?) \1/', $text, $matches)) { // code with enclosed backtick
+		if (preg_match('/^(``+)\s(.+?)\s\1/s', $text, $matches)) { // code with enclosed backtick
 			return [
 				'<code>' . htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>',
 				strlen($matches[0])
 			];
-		} elseif (preg_match('/^`(.+?)`/', $text, $matches)) {
+		} elseif (preg_match('/^`(.+?)`/s', $text, $matches)) {
 			return [
 				'<code>' . htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8') . '</code>',
 				strlen($matches[0])
