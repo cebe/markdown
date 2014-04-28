@@ -681,7 +681,7 @@ class Markdown extends Parser
 		}
 	}
 
-	private function parseLinkOrImage($markdown)
+	protected function parseLinkOrImage($markdown)
 	{
 		if (strpos($markdown, ']') !== false && preg_match('/\[((?>[^\]\[]+|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
 			$text = $textMatches[1];
