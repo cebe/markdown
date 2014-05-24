@@ -206,13 +206,20 @@ class Markdown extends Parser
 				}
 		}
 		
-		if (!empty($lines[$current + 1]) && ($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
-			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])) {
-
+		if ($this->identifyHeadline($lines, $current)) {
 			return 'headline';
 		}
 
 		return 'paragraph';
+	}
+
+	protected function identifyHeadline($lines, $current)
+	{
+		return (
+			!empty($lines[$current + 1]) &&
+			($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
+			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])
+		);
 	}
 
 	/**
@@ -227,7 +234,7 @@ class Markdown extends Parser
 			'content' => [],
 		];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
-			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0) {
+			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0 && !$this->identifyHeadline($lines, $i)) {
 				$block['content'][] = $lines[$i];
 			} else {
 				break;
