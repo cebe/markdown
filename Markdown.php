@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown;
 
@@ -9,16 +14,20 @@ defined('ENT_HTML401') || define('ENT_HTML401', 0);
  * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax).
  *
  * @author Carsten Brandt <mail@cebe.cc>
- * @license https://github.com/cebe/markdown/blob/master/LICENSE
- * @link https://github.com/cebe/markdown#readme
  */
 class Markdown extends Parser
 {
 	/**
-	 * @var bool whether to format markup according to HTML5 spec.
+	 * @var boolean whether to format markup according to HTML5 spec.
 	 * Defaults to `false` which means that markup is formatted as HTML4.
 	 */
 	public $html5 = false;
+	/**
+	 * @var bool enable support `start` attribute of ordered lists. This means that lists
+	 * will start with the number you actually type in markdown and not the HTML generated one.
+	 * Defaults to `false` which means that numeration of all ordered lists(<ol>) starts with 1.
+	 */
+	public $keepListStartNumber = false;
 
 	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
@@ -44,8 +53,10 @@ class Markdown extends Parser
 	 * @var array a list of defined references in this document.
 	 */
 	protected $references = [];
-
-	// http://www.w3.org/wiki/HTML/Elements#Text-level_semantics
+	/**
+	 * @var array HTML elements considered as inline elements.
+	 * @see http://www.w3.org/wiki/HTML/Elements#Text-level_semantics
+	 */
 	protected $inlineHtmlElements = [
 		'a', 'abbr', 'acronym',
 		'b', 'basefont', 'bdo', 'big', 'br', 'button', 'blink',
@@ -67,10 +78,13 @@ class Markdown extends Parser
 		'wbr',
 		'time',
 	];
-
+	/**
+	 * @var array HTML elements known to be self-closing.
+	 */
 	protected $selfClosingHtmlElements = [
 		'br', 'hr', 'img', 'input', 'nobr',
 	];
+
 
 	/**
 	 * @inheritDoc
@@ -78,7 +92,6 @@ class Markdown extends Parser
 	protected function inlineMarkers()
 	{
 		return [
-			"  \n"  => 'parseNewline',
 			'&'     => 'parseEntity',
 			'!['    => 'parseImage',
 			'*'     => 'parseEmphStrong',
@@ -133,7 +146,7 @@ class Markdown extends Parser
 
 				return 'html';
 			case '>': // quote
-				if (!isset($line[1]) || $line[1] == ' ' || $line[1] == "\t") {
+				if (!isset($line[1]) || $line[1] === ' ' || $line[1] === "\t") {
 					return 'quote';
 				}
 				break;
@@ -151,7 +164,7 @@ class Markdown extends Parser
 					return 'hr';
 				}
 
-				if (isset($line[1]) && ($line[1] == ' ' || $line[1] == "\t")) {
+				if (isset($line[1]) && ($line[1] === ' ' || $line[1] === "\t")) {
 					return 'ul';
 				}
 				break;
@@ -177,7 +190,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented list
-				if (preg_match('/^ {0,3}[\-\+\*] /', $line)) {
+				if (preg_match('/^ {0,3}[\-\+\*][ \t]/', $line)) {
 					return 'ul';
 				}
 
@@ -193,13 +206,20 @@ class Markdown extends Parser
 				}
 		}
 		
-		if (!empty($lines[$current + 1]) && ($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
-			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])) {
-
+		if ($this->identifyHeadline($lines, $current)) {
 			return 'headline';
 		}
 
 		return 'paragraph';
+	}
+
+	protected function identifyHeadline($lines, $current)
+	{
+		return (
+			!empty($lines[$current + 1]) &&
+			($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
+			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])
+		);
 	}
 
 	/**
@@ -213,8 +233,8 @@ class Markdown extends Parser
 			'type' => 'paragraph',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
-			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
+			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0 && !$this->identifyHeadline($lines, $i)) {
 				$block['content'][] = $lines[$i];
 			} else {
 				break;
@@ -236,7 +256,7 @@ class Markdown extends Parser
 			'content' => [],
 			'simple' => true,
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			if (ltrim($line) !== '') {
 				if ($line[0] == '>' && !isset($line[1])) {
@@ -264,7 +284,7 @@ class Markdown extends Parser
 			'type' => 'code',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// a line is considered to belong to this code block as long as it is intended by 4 spaces or a tab
@@ -273,7 +293,7 @@ class Markdown extends Parser
 				$block['content'][] = $line;
 			// but also if it is empty and the next line is intended by 4 spaces or a tab
 			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
-					  ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
+			          ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
@@ -296,6 +316,7 @@ class Markdown extends Parser
 		$block = [
 			'type' => 'list',
 			'list' => 'ol',
+			'attr' => [],
 			'items' => [],
 		];
 		return $this->consumeList($lines, $current, $block, 'ol');
@@ -321,11 +342,11 @@ class Markdown extends Parser
 		$item = 0;
 		$indent = '';
 		$len = 0;
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^ {0,3}\d+\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^ {0,3}(\d+)\.[ \t]+/' : '/^ {0,3}[\-\+\*][ \t]+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));
@@ -333,6 +354,13 @@ class Markdown extends Parser
 					$len = strlen($matches[0]);
 					$indent = str_repeat(' ', $len);
 					$line = substr($line, $len);
+				}
+
+				if ($type == 'ol' && $this->keepListStartNumber) {
+					// attr `start` for ol
+					if (!isset($block['attr']['start']) && isset($matches[1])) {
+						$block['attr']['start'] = $matches[1];
+					}
 				}
 
 				$block['items'][++$item][] = $line;
@@ -371,7 +399,7 @@ class Markdown extends Parser
 	{
 		if ($lines[$current][0] === '#') {
 			$level = 1;
-			while(isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
+			while (isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
 				$level++;
 			}
 			$block = [
@@ -400,7 +428,7 @@ class Markdown extends Parser
 			'content' => [],
 		];
 		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
-			for($i = $current, $count = count($lines); $i < $count; $i++) {
+			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$block['content'][] = $line;
 				if (strpos($line, '-->') !== false) {
@@ -413,7 +441,7 @@ class Markdown extends Parser
 			if (in_array($tag, $this->selfClosingHtmlElements)) {
 				$level--;
 			}
-			for($i = $current, $count = count($lines); $i < $count; $i++) {
+			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$block['content'][] = $line;
 				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
@@ -488,12 +516,18 @@ class Markdown extends Parser
 	protected function renderList($block)
 	{
 		$type = $block['list'];
-		$output = "<$type>\n";
-		foreach($block['items'] as $item => $itemLines) {
+
+		if (!empty($block['attr'])) {
+			$output = "<$type " . $this->generateHtmlAttributes($block['attr']) . ">\n";
+		} else {
+			$output = "<$type>\n";
+		}
+
+		foreach ($block['items'] as $item => $itemLines) {
 			$output .= '<li>';
 			if (!isset($block['lazyItems'][$item])) {
 				$firstPar = [];
-				while(!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->identifyLine($itemLines, 0) === 'paragraph') {
+				while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->identifyLine($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
 				}
 				$output .= $this->parseInline(implode("\n", $firstPar));
@@ -536,14 +570,13 @@ class Markdown extends Parser
 
 
 	/**
+	 * @inheritdocs
+	 *
 	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */
-	protected function parseNewline($text)
+	protected function parsePlainText($text)
 	{
-		return [
-			$this->html5 ? "<br>\n" : "<br />\n",
-			3
-		];
+		return str_replace("  \n", $this->html5 ? "<br>\n" : "<br />\n", $text);
 	}
 
 	/**
@@ -565,13 +598,15 @@ class Markdown extends Parser
 	protected function parseLt($text)
 	{
 		if (strpos($text, '>') !== false) {
-			if (preg_match('/^<(.*?@.*?\.\w+?)>/', $text, $matches)) { // TODO improve patterns
+			if (preg_match('/^<([^\s]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
+				// email address
 				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 				return [
 					"<a href=\"mailto:$email\">$email</a>", // TODO encode mail with entities
 					strlen($matches[0])
 				];
-			} elseif (preg_match('/^<([a-z]{3,}:\/\/.+?)>/', $text, $matches)) { // TODO improve patterns
+			} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
+				// URL
 				$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
 				$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
 				return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
@@ -618,16 +653,16 @@ class Markdown extends Parser
 				. '>' . $this->parseInline($text) . '</a>';
 
 			return [$link, $offset];
-	    } else {
-		    // remove all starting [ markers to avoid next one to be parsed as link
-		    $result = '[';
-		    $i = 1;
-		    while(isset($markdown[$i]) && $markdown[$i] == '[') {
-			    $result .= '[';
-			    $i++;
-		    }
-		    return [$result, $i];
-	    }
+		} else {
+			// remove all starting [ markers to avoid next one to be parsed as link
+			$result = '[';
+			$i = 1;
+			while (isset($markdown[$i]) && $markdown[$i] == '[') {
+				$result .= '[';
+				$i++;
+			}
+			return [$result, $i];
+		}
 	}
 
 	/**
@@ -648,7 +683,7 @@ class Markdown extends Parser
 			// remove all starting [ markers to avoid next one to be parsed as link
 			$result = '!';
 			$i = 1;
-			while(isset($markdown[$i]) && $markdown[$i] == '[') {
+			while (isset($markdown[$i]) && $markdown[$i] == '[') {
 				$result .= '[';
 				$i++;
 			}
@@ -656,27 +691,34 @@ class Markdown extends Parser
 		}
 	}
 
-	private function parseLinkOrImage($markdown)
+	protected function parseLinkOrImage($markdown)
 	{
-		if (strpos($markdown, ']') !== false && preg_match('/\[((?:[^][]|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
+		if (strpos($markdown, ']') !== false && preg_match('/\[((?>[^\]\[]+|(?R))*)\]/', $markdown, $textMatches)) { // TODO improve bracket regex
 			$text = $textMatches[1];
 			$offset = strlen($textMatches[0]);
 			$markdown = substr($markdown, $offset);
 
-			if (preg_match('/^\(([^\s]*?)(\s+"(.*?)")?\)/', $markdown, $refMatches)) {
+			$pattern = <<<REGEXP
+				/(?(R) # in case of recursion match parentheses
+					 \(((?>[^\s()]+)|(?R))*\)
+				|      # else match a link with title
+					^\((((?>[^\s()]+)|(?R))*)(\s+"(.*?)")?\)
+				)/x
+REGEXP;
+			if (preg_match($pattern, $markdown, $refMatches)) {
 				// inline link
 				return [
 					$text,
-					$refMatches[1], // url
-					empty($refMatches[3]) ? null: $refMatches[3], // title
+					isset($refMatches[2]) ? $refMatches[2] : '', // url
+					empty($refMatches[5]) ? null: $refMatches[5], // title
 					$offset + strlen($refMatches[0]), // offset
 				];
-			} elseif (preg_match('/^[ \n]?\[(.*?)\]/', $markdown, $refMatches)) {
+			} elseif (preg_match('/^[ \n]?(\[(.*?)\])?/', $markdown, $refMatches)) {
 				// reference style link
-				if (empty($refMatches[1])) {
+				if (empty($refMatches[2])) {
 					$key = strtolower($text);
 				} else {
-					$key = strtolower($refMatches[1]);
+					$key = strtolower($refMatches[2]);
 				}
 				if (isset($this->references[$key])) {
 					return [
@@ -696,12 +738,12 @@ class Markdown extends Parser
 	 */
 	protected function parseCode($text)
 	{
-		if (preg_match('/^(`+) (.+?) \1/', $text, $matches)) { // code with enclosed backtick
+		if (preg_match('/^(``+)\s(.+?)\s\1/s', $text, $matches)) { // code with enclosed backtick
 			return [
 				'<code>' . htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>',
 				strlen($matches[0])
 			];
-		} elseif (preg_match('/^`(.+?)`/', $text, $matches)) {
+		} elseif (preg_match('/^`(.+?)`/s', $text, $matches)) {
 			return [
 				'<code>' . htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8') . '</code>',
 				strlen($matches[0])
@@ -734,5 +776,18 @@ class Markdown extends Parser
 			}
 		}
 		return [$text[0], 1];
+	}
+
+	/**
+	 * Return html attributes string from [attrName => attrValue] list
+	 * @param array $attributes the attribute name-value pairs.
+	 * @return string
+	 */
+	private function generateHtmlAttributes($attributes)
+	{
+		foreach ($attributes as $name => $value) {
+			$attributes[$name] = "$name=\"$value\"";
+		}
+		return implode(' ', $attributes);
 	}
 }

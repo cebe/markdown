@@ -1,13 +1,16 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown;
 
 /**
- * Markdown parser for github flavored markdown
+ * Markdown parser for github flavored markdown.
  *
  * @author Carsten Brandt <mail@cebe.cc>
- * @license https://github.com/cebe/markdown/blob/master/LICENSE
- * @link https://github.com/cebe/markdown#readme
  */
 class GithubMarkdown extends Markdown
 {
@@ -27,11 +30,6 @@ class GithubMarkdown extends Markdown
 			'ftp'   => 'parseUrl',
 			'~~'    => 'parseStrike',
 		];
-
-		if ($this->enableNewlines) {
-			$markers["\n"] = 'parseDirectNewline';
-		}
-
 		return array_merge(parent::inlineMarkers(), $markers);
 	}
 
@@ -66,7 +64,7 @@ class GithubMarkdown extends Markdown
 		if (!empty($language)) {
 			$block['language'] = $language;
 		}
-		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current + 1, $count = count($lines); $i < $count; $i++) {
 			if (rtrim($line = $lines[$i]) !== $fence) {
 				$block['content'][] = $line;
 			} else {
@@ -99,11 +97,19 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function parseUrl($markdown)
 	{
-		if (preg_match('/^((https?|ftp):\/\/[^ ]+)/', $markdown, $matches)) {
-			$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-			$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
+		$pattern = <<<REGEXP
+			/(?(R) # in case of recursion match parentheses
+				 \(((?>[^\s()]+)|(?R))*\)
+			|      # else match a link with title
+				^(https?|ftp):\/\/(([^\s()]+)|(?R))+(?<![\.,:;\'"!\?\s])
+			)/x
+REGEXP;
+
+		if (preg_match($pattern, $markdown, $matches)) {
+			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
 			return [
-				'<a href="' . $url . '">' . $text . '</a>',
+				"<a href=\"$href\">$text</a>",
 				strlen($matches[0])
 			];
 		}
@@ -111,13 +117,16 @@ class GithubMarkdown extends Markdown
 	}
 
 	/**
-	 * Parses a newline indicated by a direct line break. This is only used when `enableNewlines` is true.
+	 * @inheritdocs
+	 *
+	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */
-	protected function parseDirectNewline($markdown)
+	protected function parsePlainText($text)
 	{
-		return [
-			$this->html5 ? "<br>\n" : "<br />\n",
-			1
-		];
+		if ($this->enableNewlines) {
+			return preg_replace("/(  \n|\n)/", $this->html5 ? "<br>\n" : "<br />\n", $text);
+		} else {
+			return parent::parsePlainText($text);
+		}
 	}
 }

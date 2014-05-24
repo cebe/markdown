@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
+ */
 
 namespace cebe\markdown;
 
@@ -6,17 +11,16 @@ namespace cebe\markdown;
  * A generic parser for markdown-like languages.
  *
  * @author Carsten Brandt <mail@cebe.cc>
- * @license https://github.com/cebe/markdown/blob/master/LICENSE
- * @link https://github.com/cebe/markdown#readme
  */
 class Parser
 {
 	/**
-	 * @var int the maximum nesting level for language elements.
+	 * @var integer the maximum nesting level for language elements.
 	 */
 	public $maximumNestingLevel = 32;
 
 	private $_inlineMarkers = [];
+
 
 	/**
 	 * Parses the given text considering the full language.
@@ -65,9 +69,15 @@ class Parser
 		$this->_inlineMarkers = [];
 		// add all markers that are present in markdown
 		// check is done to avoid iterations in parseInline(), good for huge markdown files
-		foreach($this->inlineMarkers() as $marker => $method) {
+		foreach ($this->inlineMarkers() as $marker => $method) {
 			if (strpos($text, $marker) !== false) {
-				$this->_inlineMarkers[$marker] = $method;
+				$m = $marker[0];
+				// put the longest marker first
+				if (isset($this->_inlineMarkers[$m]) && strlen($marker) > strlen(reset($this->_inlineMarkers[$m]))) {
+					$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
+				} else {
+					$this->_inlineMarkers[$m][$marker] = $method;
+				}
 			}
 		}
 	}
@@ -88,7 +98,7 @@ class Parser
 	{
 	}
 
-	private $depth = 0;
+	private $_depth = 0;
 
 	/**
 	 * Parse block elements by calling `identifyLine()` to identify them
@@ -97,7 +107,7 @@ class Parser
 	 */
 	protected function parseBlocks($lines)
 	{
-		if ($this->depth++ > $this->maximumNestingLevel) {
+		if ($this->_depth++ > $this->maximumNestingLevel) {
 			// maximum depth is reached, do not parse input
 			return implode("\n", $lines);
 		}
@@ -106,7 +116,7 @@ class Parser
 
 		// convert lines to blocks
 
-		for($i = 0, $count = count($lines); $i < $count; $i++) {
+		for ($i = 0, $count = count($lines); $i < $count; $i++) {
 			if (!empty($lines[$i]) && rtrim($lines[$i]) !== '') { // skip empty lines
 				// identify a blocks beginning
 				$blockType = $this->identifyLine($lines, $i);
@@ -122,11 +132,11 @@ class Parser
 		// convert blocks to markup
 
 		$output = '';
-		foreach($blocks as $block) {
+		foreach ($blocks as $block) {
 			$output .= $this->{'render' . $block['type']}($block) . "\n";
 		}
 
-		$this->depth--;
+		$this->_depth--;
 
 		return $output;
 	}
@@ -158,7 +168,7 @@ class Parser
 			'type' => 'paragraph',
 			'content' => [],
 		];
-		for($i = $current, $count = count($lines); $i < $count; $i++) {
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			if (ltrim($lines[$i]) !== '') {
 				$block['content'][] = $lines[$i];
 			} else {
@@ -187,6 +197,9 @@ class Parser
 	 * When a marker is found in the text, the handler method is called with the text
 	 * starting at the position of the marker.
 	 *
+	 * Note that markers starting with whitespace may slow down the parser,
+	 * you may want to use [[parsePlainText]] to deal with them.
+	 *
 	 * @return array a map of markers to parser methods
 	 */
 	protected function inlineMarkers()
@@ -202,42 +215,49 @@ class Parser
 	 */
 	protected function parseInline($text)
 	{
-		$markers = $this->_inlineMarkers;
+		$markers = implode('', array_keys($this->_inlineMarkers));
 
 		$paragraph = '';
 
-		while(!empty($markers)) {
-			$closest = null;
-			$cpos = 0;
-			foreach($markers as $marker => $method) {
-				if (($pos = strpos($text, $marker)) === false) {
-					unset($markers[$marker]);
-					continue;
-				}
+		while (!empty($markers) && ($found = strpbrk($text, $markers)) !== false) {
 
-				if ($closest === null || $pos < $cpos || ($pos === $cpos && strlen($marker) > strlen($closest))) {
-					$closest = $marker;
-					$cpos = $pos;
-				}
-			}
+			$pos = strpos($text, $found);
 
 			// add the text up to next marker to the paragraph
-			if ($cpos !== 0) {
-				$paragraph .= substr($text, 0, $cpos);
-				$text = substr($text, $cpos);
+			if ($pos !== 0) {
+				$paragraph .= $this->parsePlainText(substr($text, 0, $pos));
 			}
+			$text = $found;
 
-			// parse the marker
-			if ($closest !== null) {
-				$method = $markers[$closest];
-				list($output, $offset) = $this->$method($text);
-				$paragraph .= $output;
-				$text = substr($text, $offset);
+			$parsed = false;
+			foreach ($this->_inlineMarkers[$text[0]] as $marker => $method) {
+				if (strncmp($text, $marker, strlen($marker)) === 0) {
+					// parse the marker
+					list($output, $offset) = $this->$method($text);
+					$paragraph .= $output;
+					$text = substr($text, $offset);
+					$parsed = true;
+					break;
+				}
+			}
+			if (!$parsed) {
+				$paragraph .= substr($text, 0, 1);
+				$text = substr($text, 1);
 			}
 		}
 
-		$paragraph .= $text;
+		$paragraph .= $this->parsePlainText($text);
 
 		return $paragraph;
+	}
+
+	/**
+	 * This function gets called for each plain text section in the markdown text.
+	 * It can be used to work on normal text section for example to highlight keywords or
+	 * do special escaping.
+	 */
+	protected function parsePlainText($text)
+	{
+		return $text;
 	}
 }

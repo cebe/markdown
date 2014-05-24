@@ -10,6 +10,7 @@
 				<file>./tests/MarkdownTest.php</file>
 				<file>./tests/GithubMarkdownTest.php</file>
 				<file>./tests/MarkdownExtraTest.php</file>
+				<file>./tests/MarkdownOLStartNumTest.php</file>
 			</testsuite>
 		</testsuites>
 		<filter>

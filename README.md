@@ -1,8 +1,10 @@
 A super fast, highly extensible markdown parser for PHP
 =======================================================
 
+[![Latest Stable Version](https://poser.pugx.org/cebe/markdown/v/stable.png)](https://packagist.org/packages/cebe/markdown)
 [![Total Downloads](https://poser.pugx.org/cebe/markdown/downloads.png)](https://packagist.org/packages/cebe/markdown)
 [![Build Status](https://secure.travis-ci.org/cebe/markdown.png)](http://travis-ci.org/cebe/markdown)
+[![cebe/markdown](http://hhvm.h4cc.de/badge/cebe/markdown.png)](http://hhvm.h4cc.de/package/cebe/markdown)
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
 <!-- [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/) -->
 
@@ -26,6 +28,12 @@ Future plans are to support:
 - Markdown Extra according to <http://michelf.ca/projects/php-markdown/extra/>.
 - Smarty Pants <http://daringfireball.net/projects/smartypants/>
 - ... (Feel free to [suggest](https://github.com/cebe/markdown/issues/new) further additions!)
+
+### Who is using it?
+
+- It powers the [API-docs and the definitive guide](http://www.yiiframework.com/doc-2.0/) for the [Yii Framework][] [2.0](https://github.com/yiisoft/yii2).
+
+[Yii Framework]: http://www.yiiframework.com/ "The Yii PHP Framework"
 
 
 Installation
@@ -80,6 +88,16 @@ Using github flavored markdown:
 or convert the original markdown description to html using the unix pipe:
 
     curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
+
+
+Extensions
+----------
+
+Here are some extensions to this library:
+
+- [Bogardo/markdown-codepen](https://github.com/Bogardo/markdown-codepen) - shortcode to embed codepens from http://codepen.io/ in markdown.
+- [kartik-v/yii2-markdown](https://github.com/kartik-v/yii2-markdown) - Advanced Markdown editing and conversion utilities for Yii Framework 2.0.
+- ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L98)
 
 
 Extending the language
@@ -160,7 +178,7 @@ Parsing of a block element is done in two steps:
 	}
 	```
 
-2. "rendering" the element. After all blocks have been consumed, they are beeing rendered using the `render{blockName}()`
+2. "rendering" the element. After all blocks have been consumed, they are being rendered using the `render{blockName}()`
    method:
 
    ```php
@@ -223,17 +241,52 @@ class MyMarkdown extends \cebe\markdown\Markdown
 ```
 
 
+Acknowledgements
+----------------
+
+I'd like to thank [@erusev][] for creating [Parsedown][] which heavily influenced this work and provided
+the idea of the line based parsing approach.
+
+[@erusev]: https://github.com/erusev "Emanuil Rusev"
+
 FAQ
 ---
 
 ### Why another markdown parser?
 
-Inventing the wheel is not a good idea in general but as I found the need for a markdown parser that runs fast and is open to
-extensions while all current implementations either lack extensibility or are too slow I decided to start my own implementation
-based on what I had seen in other libraries taking the good points of both.
-Inspiration on the implementation design and line based parsing has mostly come from [Parsedown][] which seems to be the [fastest][benchmark]
-markdown parser in the PHP world right now, it is just very hard to extend it.
+While reviewing PHP markdown parsers for choosing one to use bundled with the [Yii framework 2.0][]
+I found that most of the implementations use regex to replace patterns instead
+of doing real parsing. This way extending them with new language elements is quite hard
+as you have to come up with a complex regex, that matches your addition but does not mess
+with other elements. Such additions are very common as you see on github which supports referencing
+issues, users and commits in the comments.
+A [real parser][] should use context aware methods that walk trough the text and
+parse the tokens as they find them. The only implentation that I have found that uses
+this approach is [Parsedown][] which also shows that this implementation is [much faster][benchmark]
+than the regex way. Parsedown however is an implementation that focuses on speed and implements
+its own flavor (mainly github flavored markdown) in one class and at the time of this writing was
+not easily extensible.
 
+Given the situation above I decided to start my own implementation using the parsing approach
+from Parsedown and making it extensible creating a class for each markdown flavor that extend each
+other in the way that also the markdown languages extend each other.
+This allows you to choose between markdown language flavors and also provides a way to compose your
+own flavor picking the best things from all.
+I chose this approach as it is easier to implement and also more intuitive approach compared
+to using callbacks to inject functionallity into the parser.
+
+
+### Where do I report bugs or rendering issues?
+
+Just [open an issue][] on github, post your markdown code and describe the problem. You may also attach screenshots of the rendered HTML result to describe your problem.
+
+
+### Am I free to use this?
+
+This library is open source and licensed under the [MIT License][]. This means that you can do whatever you want
+with it as long as you mention my name and include the [license file][license]. Check the [license][] for details.
+
+[MIT License]: http://opensource.org/licenses/MIT
 
 Contact
 -------
@@ -246,3 +299,7 @@ Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://
 [composer]: https://getcomposer.org/ "The PHP package manager"
 [Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
 [benchmark]: https://github.com/kzykhys/Markbench#readme "kzykhys/Markbench on github"
+[Yii framework 2.0]: https://github.com/yiisoft/yii2
+[real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
+[open an issue]: https://github.com/cebe/markdown/issues/new
+[license]: https://github.com/cebe/markdown/blob/master/LICENSE
