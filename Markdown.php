@@ -53,8 +53,10 @@ class Markdown extends Parser
 	 * @var array a list of defined references in this document.
 	 */
 	protected $references = [];
-
-	// http://www.w3.org/wiki/HTML/Elements#Text-level_semantics
+	/**
+	 * @var array HTML elements considered as inline elements.
+	 * @see http://www.w3.org/wiki/HTML/Elements#Text-level_semantics
+	 */
 	protected $inlineHtmlElements = [
 		'a', 'abbr', 'acronym',
 		'b', 'basefont', 'bdo', 'big', 'br', 'button', 'blink',
@@ -76,10 +78,13 @@ class Markdown extends Parser
 		'wbr',
 		'time',
 	];
-
+	/**
+	 * @var array HTML elements known to be self-closing.
+	 */
 	protected $selfClosingHtmlElements = [
 		'br', 'hr', 'img', 'input', 'nobr',
 	];
+
 
 	/**
 	 * @inheritDoc
@@ -141,7 +146,7 @@ class Markdown extends Parser
 
 				return 'html';
 			case '>': // quote
-				if (!isset($line[1]) || $line[1] == ' ' || $line[1] == "\t") {
+				if (!isset($line[1]) || $line[1] === ' ' || $line[1] === "\t") {
 					return 'quote';
 				}
 				break;
@@ -159,7 +164,7 @@ class Markdown extends Parser
 					return 'hr';
 				}
 
-				if (isset($line[1]) && ($line[1] == ' ' || $line[1] == "\t")) {
+				if (isset($line[1]) && ($line[1] === ' ' || $line[1] === "\t")) {
 					return 'ul';
 				}
 				break;
@@ -185,7 +190,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented list
-				if (preg_match('/^ {0,3}[\-\+\*] /', $line)) {
+				if (preg_match('/^ {0,3}[\-\+\*][ \t]/', $line)) {
 					return 'ul';
 				}
 
@@ -334,7 +339,7 @@ class Markdown extends Parser
 			$line = $lines[$i];
 
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^ {0,3}(\d+)\.\s+/' : '/^ {0,3}[\-\+\*]\s+/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^ {0,3}(\d+)\.[ \t]+/' : '/^ {0,3}[\-\+\*][ \t]+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));

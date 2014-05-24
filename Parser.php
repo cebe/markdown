@@ -21,6 +21,7 @@ class Parser
 
 	private $_inlineMarkers = [];
 
+
 	/**
 	 * Parses the given text considering the full language.
 	 *
