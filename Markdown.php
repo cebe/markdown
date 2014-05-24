@@ -87,7 +87,6 @@ class Markdown extends Parser
 	protected function inlineMarkers()
 	{
 		return [
-			"  \n"  => 'parseNewline',
 			'&'     => 'parseEntity',
 			'!['    => 'parseImage',
 			'*'     => 'parseEmphStrong',
@@ -559,14 +558,13 @@ class Markdown extends Parser
 
 
 	/**
+	 * @inheritdocs
+	 *
 	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */
-	protected function parseNewline($text)
+	protected function parsePlainText($text)
 	{
-		return [
-			$this->html5 ? "<br>\n" : "<br />\n",
-			3
-		];
+		return str_replace("  \n", $this->html5 ? "<br>\n" : "<br />\n", $text);
 	}
 
 	/**
