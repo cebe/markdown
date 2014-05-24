@@ -712,8 +712,9 @@ REGEXP;
 					isset($refMatches[2]) ? $refMatches[2] : '', // url
 					empty($refMatches[5]) ? null: $refMatches[5], // title
 					$offset + strlen($refMatches[0]), // offset
+					null, // reference key
 				];
-			} elseif (preg_match('/^[ \n]?(\[(.*?)\])?/', $markdown, $refMatches)) {
+			} elseif (preg_match('/^([ \n]?\[(.*?)\])?/', $markdown, $refMatches)) {
 				// reference style link
 				if (empty($refMatches[2])) {
 					$key = strtolower($text);
@@ -726,6 +727,7 @@ REGEXP;
 						$this->references[$key]['url'], // url
 						empty($this->references[$key]['title']) ? null: $this->references[$key]['title'], // title
 						$offset + strlen($refMatches[0]), // offset
+						$key,
 					];
 				}
 			}

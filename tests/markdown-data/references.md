@@ -9,3 +9,6 @@ of the [github flavored markdown][gfm].
 hey, check [this].
 
 [this]: https://github.com/cebe/markdown
+
+ref on end of line [this]
+next line.

@@ -36,6 +36,7 @@ class MarkdownExtra extends Markdown
 		'|', // pipe
 	];
 
+	private $_specialAttributesRegex = '\{(([#\.][A-z0-9-_]+\s*)+)\}';
 
 	// TODO allow HTML intended 3 spaces
 
@@ -62,7 +63,25 @@ class MarkdownExtra extends Markdown
 		if (isset($lines[$current]) && (strncmp($lines[$current], '~~~', 3) === 0 || strncmp($lines[$current], '```', 3) === 0)) {
 			return 'fencedCode';
 		}
+		if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current])) {
+			return 'reference';
+		}
 		return parent::identifyLine($lines, $current);
+	}
+
+	/**
+	 * Consume lines for a headline
+	 */
+	protected function consumeHeadline($lines, $current)
+	{
+		list($block, $nextLine) = parent::consumeHeadline($lines, $current);
+
+		if (($pos = strpos($block['content'], '{')) !== false && preg_match("~$this->_specialAttributesRegex~", $block['content'], $matches)) {
+			$block['content'] = substr($block['content'], 0, $pos);
+			$block['content'] = trim($block['content'], "# \t");
+			$block['attributes'] = $matches[1];
+		}
+		return [$block, $nextLine];
 	}
 
 	/**
@@ -95,6 +114,34 @@ class MarkdownExtra extends Markdown
 		return [$block, $i];
 	}
 
+	/**
+	 * Consume link references
+	 */
+	protected function consumeReference($lines, $current)
+	{
+		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current], $matches)) {
+			$label = strtolower($matches[1]);
+
+			$this->references[$label] = [
+				'url' => $matches[2],
+			];
+			if (isset($matches[3])) {
+				$this->references[$label]['title'] = $matches[3];
+			} else {
+				// title may be on the next line
+				if (isset($lines[$current + 1]) && preg_match('/^\s+[\(\'"](.+?)[\)\'"]\s*$/', $lines[$current + 1], $matches)) {
+					$this->references[$label]['title'] = $matches[1];
+					$current++;
+				}
+			}
+			if (isset($matches[5])) {
+				$this->references[$label]['attributes'] = $matches[5];
+			}
+			$current++;
+		}
+		return [false, --$current];
+	}
+
 	// TODO implement tables
 
 	// TODO implement definition lists
@@ -102,4 +149,95 @@ class MarkdownExtra extends Markdown
 	// TODO implement footnotes
 
 	// TODO implement Abbreviations
+
+
+	protected function renderHeadline($block)
+	{
+		$tag = 'h' . $block['level'];
+		$attributes = $this->renderAttributes($block);
+		return "<$tag$attributes>" . $this->parseInline($block['content']) . "</$tag>";
+	}
+
+
+	protected function renderAttributes($block)
+	{
+		$html = [];
+		if (isset($block['attributes'])) {
+			$attributes = preg_split('/\s+/', $block['attributes'], -1, PREG_SPLIT_NO_EMPTY);
+			foreach($attributes as $attribute) {
+				if ($attribute[0] === '#') {
+					$html['id'] = substr($attribute, 1);
+				} else {
+					$html['class'][] = substr($attribute, 1);
+				}
+			}
+		}
+		$result = '';
+		foreach($html as $attr => $value) {
+			if (is_array($value)) {
+				$value = implode(' ', $value);
+			}
+			$result .= " $attr=\"$value\"";
+		}
+		return $result;
+	}
+
+
+	// inline parsing
+
+
+	/**
+	 * Parses a link indicated by `[`.
+	 */
+	protected function parseLink($markdown)
+	{
+		if (($parts = $this->parseLinkOrImage($markdown)) !== false) {
+			list($text, $url, $title, $offset, $refKey) = $parts;
+
+			$attributes = '';
+			if (isset($this->references[$refKey])) {
+				$attributes = $this->renderAttributes($this->references[$refKey]);
+			}
+			if (isset($markdown[$offset]) && $markdown[$offset] === '{' && preg_match("~^$this->_specialAttributesRegex~", substr($markdown, $offset), $matches)) {
+				$attributes = $this->renderAttributes(['attributes' => $matches[1]]);
+				$offset += strlen($matches[0]);
+			}
+
+			$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+				. $attributes . '>' . $this->parseInline($text) . '</a>';
+
+			return [$link, $offset];
+		} else {
+			return parent::parseLink($markdown);
+		}
+	}
+
+	/**
+	 * Parses an image indicated by `![`.
+	 */
+	protected function parseImage($markdown)
+	{
+		if (($parts = $this->parseLinkOrImage(substr($markdown, 1))) !== false) {
+			list($text, $url, $title, $offset, $refKey) = $parts;
+
+			$attributes = '';
+			if (isset($this->references[$refKey])) {
+				$attributes = $this->renderAttributes($this->references[$refKey]);
+			}
+			if (isset($markdown[$offset + 1]) && $markdown[$offset + 1] === '{' && preg_match("~^$this->_specialAttributesRegex~", substr($markdown, $offset + 1), $matches)) {
+				$attributes = $this->renderAttributes(['attributes' => $matches[1]]);
+				$offset += strlen($matches[0]);
+			}
+
+			$image = '<img src="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. ' alt="' . htmlspecialchars($text, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+				. (empty($title) ? '' : ' title="' . htmlspecialchars($title, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+				. $attributes . ($this->html5 ? '>' : ' />');
+
+			return [$image, $offset + 1];
+		} else {
+			return parent::parseImage($markdown);
+		}
+	}
 }
