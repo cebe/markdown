@@ -12,6 +12,12 @@ namespace cebe\markdown;
 class MarkdownExtra extends Markdown
 {
 	/**
+	 * @var bool whether special attributes on code blocks should be applied on the `<pre>` element.
+	 * The default behavior is to put them on the `<code>` element.
+	 */
+	public $codeAttributesOnPre = false;
+
+	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
 	 * backslash, the character will be outputted without the backslash and is not interpreted
 	 * as markdown.
@@ -42,15 +48,15 @@ class MarkdownExtra extends Markdown
 
 	// TODO add markdown inside HTML blocks
 
-	// TODO allow following elements to have id and class attributes:
-	/*
+	// TODO implement tables
 
-    headers,
-    fenced code blocks,
-    links, and
-    images.
+	// TODO implement definition lists
 
-	*/
+	// TODO implement footnotes
+
+	// TODO implement Abbreviations
+
+
 
 	// block parsing
 
@@ -99,11 +105,7 @@ class MarkdownExtra extends Markdown
 			$pos = strrpos($line, '~');
 		}
 		$fence = substr($line, 0, $pos + 1);
-		// TODO this is not language but additional information
-//		$language = substr($line, $pos);
-//		if (!empty($language)) {
-//			$block['language'] = $language;
-//		}
+		$block['attributes'] = substr($line, $pos);
 		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
 			if (rtrim($line = $lines[$i]) !== $fence) {
 				$block['content'][] = $line;
@@ -142,14 +144,13 @@ class MarkdownExtra extends Markdown
 		return [false, --$current];
 	}
 
-	// TODO implement tables
-
-	// TODO implement definition lists
-
-	// TODO implement footnotes
-
-	// TODO implement Abbreviations
-
+	protected function renderCode($block)
+	{
+		$attributes = $this->renderAttributes($block);
+		return ($this->codeAttributesOnPre ? "<pre$attributes><code>" : "<pre><code$attributes>")
+			. htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8')
+			. '</code></pre>';
+	}
 
 	protected function renderHeadline($block)
 	{
@@ -175,9 +176,11 @@ class MarkdownExtra extends Markdown
 		$result = '';
 		foreach($html as $attr => $value) {
 			if (is_array($value)) {
-				$value = implode(' ', $value);
+				$value = trim(implode(' ', $value));
 			}
-			$result .= " $attr=\"$value\"";
+			if (!empty($value)) {
+				$result .= " $attr=\"$value\"";
+			}
 		}
 		return $result;
 	}
