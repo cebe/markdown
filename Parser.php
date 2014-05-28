@@ -73,11 +73,14 @@ class Parser
 			if (strpos($text, $marker) !== false) {
 				$m = $marker[0];
 				// put the longest marker first
-				if (isset($this->_inlineMarkers[$m]) && strlen($marker) > strlen(reset($this->_inlineMarkers[$m]))) {
-					$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
-				} else {
-					$this->_inlineMarkers[$m][$marker] = $method;
+				if (isset($this->_inlineMarkers[$m])) {
+					reset($this->_inlineMarkers[$m]);
+					if (strlen($marker) > strlen(key($this->_inlineMarkers[$m]))) {
+						$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
+						continue;
+					}
 				}
+				$this->_inlineMarkers[$m][$marker] = $method;
 			}
 		}
 	}
