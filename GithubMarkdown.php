@@ -42,7 +42,7 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function identifyLine($lines, $current)
 	{
-		if (isset($lines[$current]) && strncmp($lines[$current], '```', 3) === 0) {
+		if (isset($lines[$current]) && (strncmp($lines[$current], '```', 3) === 0 || strncmp($lines[$current], '~~~', 3) === 0)) {
 			return 'fencedCode';
 		}
 		return parent::identifyLine($lines, $current);
@@ -59,7 +59,7 @@ class GithubMarkdown extends Markdown
 			'content' => [],
 		];
 		$line = rtrim($lines[$current]);
-		$fence = substr($line, 0, $pos = strrpos($line, '`') + 1);
+		$fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);
 		$language = substr($line, $pos);
 		if (!empty($language)) {
 			$block['language'] = $language;
