@@ -1,0 +1,26 @@
+<table>
+<tr><th>Simple </th><th>Table</th></tr>
+<tr><td>1      </td><td>2</td></tr>
+<tr><td>3      </td><td>4</td></tr>
+</table>
+<table>
+<tr><th>Simple </th><th>Table</th></tr>
+<tr><td>1      </td><td>2</td></tr>
+<tr><td>3      </td><td>4</td></tr>
+<tr><td>3      </td><td>4     |</td></tr>
+<tr><td>3      </td><td>4    \</td></tr>
+</table>
+<p>Check https://github.com/erusev/parsedown/issues/184 for the following:</p>
+<table>
+<tr><th>Foo </th><th>Bar </th><th>State</th></tr>
+<tr><td><code>Code | Pipe</code> </td><td>Broken </td><td>Blank</td></tr>
+<tr><td><code>Escaped Code \| Pipe</code> </td><td>Broken </td><td>Blank</td></tr>
+<tr><td>Escaped | Pipe </td><td>Broken </td><td>Blank</td></tr>
+<tr><td>Escaped \</td><td>Pipe </td><td>Broken </td><td>Blank</td></tr>
+<tr><td>Escaped \ </td><td>Pipe </td><td>Broken </td><td>Blank</td></tr>
+</table>
+<table>
+<tr><th>Simple </th><th>Table</th></tr>
+<tr><td>3      </td><td>4</td></tr>
+</table>
+<p>3      | 4</p>

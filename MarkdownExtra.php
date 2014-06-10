@@ -48,14 +48,19 @@ class MarkdownExtra extends Markdown
 
 	// TODO add markdown inside HTML blocks
 
-	// TODO implement tables
-
 	// TODO implement definition lists
 
 	// TODO implement footnotes
 
 	// TODO implement Abbreviations
 
+
+	protected function inlineMarkers()
+	{
+		return parent::inlineMarkers() + [
+			'|' => 'parseTd',
+		];
+	}
 
 
 	// block parsing
@@ -72,8 +77,45 @@ class MarkdownExtra extends Markdown
 		if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current])) {
 			return 'reference';
 		}
+		if (strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1])) {
+			return 'table';
+		}
 		return parent::identifyLine($lines, $current);
 	}
+
+	/**
+	 * Consume lines for a table
+	 */
+	protected function consumeTable($lines, $current)
+	{
+		// consume until newline
+
+		$block = [
+			'type' => 'table',
+			'cols' => [],
+			'rows' => [],
+		];
+		$beginsWithPipe = $lines[$current][0] === '|';
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
+			$line = $lines[$i];
+
+			if ($i == $current+1) { // skip second line
+				$block['cols'] = []; // TODO add column info right left center
+				continue;
+			}
+			if (trim($line) === '' || $beginsWithPipe && $line[0] !== '|') {
+				break;
+			}
+			if (substr($line, -2, 2) !== '\\|' || substr($line, -3, 3) === '\\\\|') {
+				$block['rows'][] = trim($line, '| ');
+			} else {
+				$block['rows'][] = ltrim($line, '| ');
+			}
+		}
+
+		return [$block, --$i];
+	}
+
 
 	/**
 	 * Consume lines for a headline
@@ -142,6 +184,29 @@ class MarkdownExtra extends Markdown
 			$current++;
 		}
 		return [false, --$current];
+	}
+
+	private $_tableCellTag = 'td';
+
+	protected function renderTable($block)
+	{
+		$content = '';
+		$first = true;
+		foreach($block['rows'] as $row) {
+			$this->_tableCellTag = $first ? 'th' : 'td';
+			$first = false;
+			$tds = "<$this->_tableCellTag>" . $this->parseInline($row) . "</$this->_tableCellTag>";
+			$content .= "<tr>$tds</tr>\n";
+		}
+		return "<table>\n$content</table>";
+	}
+
+	protected function parseTd($markdown)
+	{
+		if ($this->context[1] === 'table') {
+			return ["</$this->_tableCellTag><$this->_tableCellTag>", isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
+		}
+		return [$markdown[0], 1];
 	}
 
 	protected function renderCode($block)
