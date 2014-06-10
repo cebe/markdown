@@ -105,7 +105,7 @@ class GithubMarkdown extends Markdown
 			)/x
 REGEXP;
 
-		if (preg_match($pattern, $markdown, $matches)) {
+		if (!in_array('parseLink', $this->context) && preg_match($pattern, $markdown, $matches)) {
 			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
 			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
 			return [

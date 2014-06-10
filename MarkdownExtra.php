@@ -194,7 +194,7 @@ class MarkdownExtra extends Markdown
 	 */
 	protected function parseLink($markdown)
 	{
-		if (($parts = $this->parseLinkOrImage($markdown)) !== false) {
+		if (!in_array('parseLink', array_slice($this->context, 1)) && ($parts = $this->parseLinkOrImage($markdown)) !== false) {
 			list($text, $url, $title, $offset, $refKey) = $parts;
 
 			$attributes = '';

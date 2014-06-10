@@ -225,7 +225,7 @@ class Markdown extends Parser
 	/**
 	 * Consume lines for a paragraph
 	 */
-	public function consumeParagraph($lines, $current)
+	protected function consumeParagraph($lines, $current)
 	{
 		// consume until newline or intended line
 
@@ -598,19 +598,22 @@ class Markdown extends Parser
 	protected function parseLt($text)
 	{
 		if (strpos($text, '>') !== false) {
-			if (preg_match('/^<([^\s]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
-				// email address
-				$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
-				return [
-					"<a href=\"mailto:$email\">$email</a>", // TODO encode mail with entities
-					strlen($matches[0])
-				];
-			} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
-				// URL
-				$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-				$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
-				return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
-			} elseif (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
+			if (!in_array('parseLink', $this->context)) { // do not allow links in links
+				if (preg_match('/^<([^\s]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
+					// email address
+					$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
+					return [
+						"<a href=\"mailto:$email\">$email</a>", // TODO encode mail with entities
+						strlen($matches[0])
+					];
+				} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
+					// URL
+					$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+					$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
+					return ["<a href=\"$url\">$text</a>", strlen($matches[0])];
+				}
+			}
+			if (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
 				// HTML tags
 				return [$matches[0], strlen($matches[0])];
 			} elseif (preg_match('~^<!--.*?-->~', $text, $matches)) {
@@ -645,7 +648,7 @@ class Markdown extends Parser
 	 */
 	protected function parseLink($markdown)
 	{
-		if (($parts = $this->parseLinkOrImage($markdown)) !== false) {
+		if (!in_array('parseLink', array_slice($this->context, 1)) && ($parts = $this->parseLinkOrImage($markdown)) !== false) {
 			list($text, $url, $title, $offset) = $parts;
 
 			$link = '<a href="' . htmlspecialchars($url, ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'

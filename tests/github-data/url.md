@@ -27,3 +27,5 @@ this one is in parenthesis (http://example.com:80/?id=1,2,3).
 ... (see http://en.wikipedia.org/wiki/Port).
 
 http://www.cebe.cc, http://www.cebe.net, and so on
+
+[link to http://www.google.com/](http://www.google.com/)
