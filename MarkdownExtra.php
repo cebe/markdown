@@ -2,6 +2,8 @@
 
 namespace cebe\markdown;
 
+use cebe\markdown\block\TableTrait;
+
 /**
  * Markdown parser for the [markdown extra](http://michelf.ca/projects/php-markdown/extra/) flavor.
  *
@@ -11,6 +13,8 @@ namespace cebe\markdown;
  */
 class MarkdownExtra extends Markdown
 {
+	use TableTrait;
+
 	/**
 	 * @var bool whether special attributes on code blocks should be applied on the `<pre>` element.
 	 * The default behavior is to put them on the `<code>` element.
@@ -18,9 +22,7 @@ class MarkdownExtra extends Markdown
 	public $codeAttributesOnPre = false;
 
 	/**
-	 * @var array these are "escapeable" characters. When using one of these prefixed with a
-	 * backslash, the character will be outputted without the backslash and is not interpreted
-	 * as markdown.
+	 * @inheritDoc
 	 */
 	protected $escapeCharacters = [
 		// from Markdown
@@ -77,45 +79,11 @@ class MarkdownExtra extends Markdown
 		if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current])) {
 			return 'reference';
 		}
-		if (strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1])) {
+		if ($this->identifyTable($lines, $current)) {
 			return 'table';
 		}
 		return parent::identifyLine($lines, $current);
 	}
-
-	/**
-	 * Consume lines for a table
-	 */
-	protected function consumeTable($lines, $current)
-	{
-		// consume until newline
-
-		$block = [
-			'type' => 'table',
-			'cols' => [],
-			'rows' => [],
-		];
-		$beginsWithPipe = $lines[$current][0] === '|';
-		for ($i = $current, $count = count($lines); $i < $count; $i++) {
-			$line = $lines[$i];
-
-			if ($i == $current+1) { // skip second line
-				$block['cols'] = []; // TODO add column info right left center
-				continue;
-			}
-			if (trim($line) === '' || $beginsWithPipe && $line[0] !== '|') {
-				break;
-			}
-			if (substr($line, -2, 2) !== '\\|' || substr($line, -3, 3) === '\\\\|') {
-				$block['rows'][] = trim($line, '| ');
-			} else {
-				$block['rows'][] = ltrim($line, '| ');
-			}
-		}
-
-		return [$block, --$i];
-	}
-
 
 	/**
 	 * Consume lines for a headline
@@ -184,29 +152,6 @@ class MarkdownExtra extends Markdown
 			$current++;
 		}
 		return [false, --$current];
-	}
-
-	private $_tableCellTag = 'td';
-
-	protected function renderTable($block)
-	{
-		$content = '';
-		$first = true;
-		foreach($block['rows'] as $row) {
-			$this->_tableCellTag = $first ? 'th' : 'td';
-			$first = false;
-			$tds = "<$this->_tableCellTag>" . $this->parseInline($row) . "</$this->_tableCellTag>";
-			$content .= "<tr>$tds</tr>\n";
-		}
-		return "<table>\n$content</table>";
-	}
-
-	protected function parseTd($markdown)
-	{
-		if ($this->context[1] === 'table') {
-			return ["</$this->_tableCellTag><$this->_tableCellTag>", isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
-		}
-		return [$markdown[0], 1];
 	}
 
 	protected function renderCode($block)

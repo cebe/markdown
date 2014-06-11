@@ -7,6 +7,8 @@
 
 namespace cebe\markdown;
 
+use cebe\markdown\block\TableTrait;
+
 /**
  * Markdown parser for github flavored markdown.
  *
@@ -14,6 +16,8 @@ namespace cebe\markdown;
  */
 class GithubMarkdown extends Markdown
 {
+	use TableTrait;
+
 	/**
 	 * @var boolean whether to interpret newlines as `<br />`-tags.
 	 * This feature is useful for comments where newlines are often meant to be real new lines.
@@ -23,14 +27,37 @@ class GithubMarkdown extends Markdown
 	/**
 	 * @inheritDoc
 	 */
+	protected $escapeCharacters = [
+		// from Markdown
+		'\\', // backslash
+		'`', // backtick
+		'*', // asterisk
+		'_', // underscore
+		'{', '}', // curly braces
+		'[', ']', // square brackets
+		'(', ')', // parentheses
+		'#', // hash mark
+		'+', // plus sign
+		'-', // minus sign (hyphen)
+		'.', // dot
+		'!', // exclamation mark
+		'<', '>',
+		// added by MarkdownExtra
+		':', // colon
+		'|', // pipe
+	];
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function inlineMarkers()
 	{
-		$markers = [
+		return parent::inlineMarkers() + [
 			'http'  => 'parseUrl',
 			'ftp'   => 'parseUrl',
 			'~~'    => 'parseStrike',
+			'|'     => 'parseTd',
 		];
-		return array_merge(parent::inlineMarkers(), $markers);
 	}
 
 
@@ -44,6 +71,9 @@ class GithubMarkdown extends Markdown
 	{
 		if (isset($lines[$current]) && strncmp($lines[$current], '```', 3) === 0) {
 			return 'fencedCode';
+		}
+		if ($this->identifyTable($lines, $current)) {
+			return 'table';
 		}
 		return parent::identifyLine($lines, $current);
 	}

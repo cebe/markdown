@@ -14,7 +14,8 @@ ini_set('display_errors', 'stderr');
 
 $flavor = 'cebe\\markdown\\Markdown';
 $flavors = [
-	'gfm' => ['cebe\\markdown\\GithubMarkdown', __DIR__ . '/../GithubMarkdown.php'],
+	'gfm'   => ['cebe\\markdown\\GithubMarkdown', __DIR__ . '/../GithubMarkdown.php'],
+	'extra' => ['cebe\\markdown\\MarkdownExtra', __DIR__ . '/../MarkdownExtra.php'],
 ];
 
 $src = [];
@@ -83,7 +84,8 @@ Usage:
     --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
               Available flavors:
 
-              gfm - Github flavored markdown [2]
+              gfm   - Github flavored markdown [2]
+              extra - Markdown Extra [3]
 
     --help    shows this usage information.
 
@@ -106,6 +108,7 @@ Examples:
 
 [1] http://daringfireball.net/projects/markdown/syntax
 [2] https://help.github.com/articles/github-flavored-markdown
+[3] http://michelf.ca/projects/php-markdown/extra/
 
 EOF;
 	exit(1);
