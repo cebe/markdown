@@ -12,18 +12,27 @@ namespace cebe\markdown;
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */
-class Parser
+abstract class Parser
 {
 	/**
 	 * @var integer the maximum nesting level for language elements.
 	 */
 	public $maximumNestingLevel = 32;
 
+	/**
+	 * @var array the set of inline markers to use in different contexts.
+	 */
 	private $_inlineMarkers = [];
+	/**
+	 * @var string the current context the parser is in.
+	 */
+	protected $context = [];
 
 
 	/**
 	 * Parses the given text considering the full language.
+	 *
+	 * This includes parsing block elements as well as inline elements.
 	 *
 	 * @param string $text the text to parse
 	 * @return string parsed markup
@@ -44,7 +53,7 @@ class Parser
 	}
 
 	/**
-	 * Parses a paragraph without block elements (block elements are ignored.
+	 * Parses a paragraph without block elements (block elements are ignored).
 	 *
 	 * @param string $text the text to parse
 	 * @return string parsed markup
@@ -59,30 +68,6 @@ class Parser
 
 		$this->cleanup();
 		return $markup;
-	}
-
-	/**
-	 * @param string $text
-	 */
-	private function prepareMarkers($text)
-	{
-		$this->_inlineMarkers = [];
-		// add all markers that are present in markdown
-		// check is done to avoid iterations in parseInline(), good for huge markdown files
-		foreach ($this->inlineMarkers() as $marker => $method) {
-			if (strpos($text, $marker) !== false) {
-				$m = $marker[0];
-				// put the longest marker first
-				if (isset($this->_inlineMarkers[$m])) {
-					reset($this->_inlineMarkers[$m]);
-					if (strlen($marker) > strlen(key($this->_inlineMarkers[$m]))) {
-						$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
-						continue;
-					}
-				}
-				$this->_inlineMarkers[$m][$marker] = $method;
-			}
-		}
 	}
 
 	/**
@@ -101,6 +86,10 @@ class Parser
 	{
 	}
 
+
+	// block parsing
+
+
 	private $_depth = 0;
 
 	/**
@@ -110,10 +99,11 @@ class Parser
 	 */
 	protected function parseBlocks($lines)
 	{
-		if ($this->_depth++ > $this->maximumNestingLevel) {
+		if ($this->_depth >= $this->maximumNestingLevel) {
 			// maximum depth is reached, do not parse input
 			return implode("\n", $lines);
 		}
+		$this->_depth++;
 
 		$blocks = [];
 
@@ -136,7 +126,9 @@ class Parser
 
 		$output = '';
 		foreach ($blocks as $block) {
+			array_unshift($this->context, $block['type']);
 			$output .= $this->{'render' . $block['type']}($block) . "\n";
+			array_shift($this->context);
 		}
 
 		$this->_depth--;
@@ -149,12 +141,9 @@ class Parser
 	 *
 	 * @param $lines
 	 * @param $current
-	 * @return string the detected block type
+	 * @return string the detected block type (e.g. 'paragraph').
 	 */
-	protected function identifyLine($lines, $current)
-	{
-		return 'paragraph';
-	}
+	protected abstract function identifyLine($lines, $current);
 
 	/**
 	 * Consume lines for a paragraph
@@ -163,7 +152,7 @@ class Parser
 	 * @param $current
 	 * @return array
 	 */
-	public function consumeParagraph($lines, $current)
+	protected function consumeParagraph($lines, $current)
 	{
 		// consume until newline
 
@@ -193,6 +182,10 @@ class Parser
 		return '<p>' . $this->parseInline(implode("\n", $block['content'])) . '</p>';
 	}
 
+
+	// inline parsing
+
+
 	/**
 	 * Returns a map of inline markers to the corresponding parser methods.
 	 *
@@ -205,19 +198,48 @@ class Parser
 	 *
 	 * @return array a map of markers to parser methods
 	 */
-	protected function inlineMarkers()
+	protected abstract function inlineMarkers();
+
+	/**
+	 * Prepare markers that are used in the text to parse
+	 *
+	 * Add all markers that are present in markdown.
+	 * Check is done to avoid iterations in parseInline(), good for huge markdown files
+	 * @param string $text
+	 */
+	private function prepareMarkers($text)
 	{
-		return [];
+		$this->_inlineMarkers = [];
+		foreach ($this->inlineMarkers() as $marker => $method) {
+			if (strpos($text, $marker) !== false) {
+				$m = $marker[0];
+				// put the longest marker first
+				if (isset($this->_inlineMarkers[$m])) {
+					reset($this->_inlineMarkers[$m]);
+					if (strlen($marker) > strlen(key($this->_inlineMarkers[$m]))) {
+						$this->_inlineMarkers[$m] = array_merge([$marker => $method], $this->_inlineMarkers[$m]);
+						continue;
+					}
+				}
+				$this->_inlineMarkers[$m][$marker] = $method;
+			}
+		}
 	}
 
 	/**
 	 * Parses inline elements of the language.
 	 *
-	 * @param $text
+	 * @param string $text the inline text to parse.
 	 * @return string
 	 */
 	protected function parseInline($text)
 	{
+		if ($this->_depth >= $this->maximumNestingLevel) {
+			// maximum depth is reached, do not parse input
+			return $text;
+		}
+		$this->_depth++;
+
 		$markers = implode('', array_keys($this->_inlineMarkers));
 
 		$paragraph = '';
@@ -236,7 +258,10 @@ class Parser
 			foreach ($this->_inlineMarkers[$text[0]] as $marker => $method) {
 				if (strncmp($text, $marker, strlen($marker)) === 0) {
 					// parse the marker
+					array_unshift($this->context, $method);
 					list($output, $offset) = $this->$method($text);
+					array_shift($this->context);
+
 					$paragraph .= $output;
 					$text = substr($text, $offset);
 					$parsed = true;
@@ -250,6 +275,8 @@ class Parser
 		}
 
 		$paragraph .= $this->parsePlainText($text);
+
+		$this->_depth--;
 
 		return $paragraph;
 	}

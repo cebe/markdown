@@ -17,3 +17,5 @@ and another one in the same paragraph:
 [I'm a relative reference to a repository file](../blob/(master)/LICENSE)
 
 Or leave it empty and use the [link text itself]()
+
+A [link [in a link](http://example.com)](http://example.com)
