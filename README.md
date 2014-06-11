@@ -20,12 +20,14 @@ directly hooking into the parser - no (possibly error-prone) post- or pre-proces
 Currently the following markdown flavors are supported:
 
 - **The original Markdown** according to <http://daringfireball.net/projects/markdown/syntax>.
-- **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown> (currently does not support tables).
+- **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown>.
+- **Markdown Extra** according to <http://michelf.ca/projects/php-markdown/extra/> (currently not fully supported WIP see [#25][])
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
+
+[#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
 
 Future plans are to support:
 
-- Markdown Extra according to <http://michelf.ca/projects/php-markdown/extra/>.
 - Smarty Pants <http://daringfireball.net/projects/smartypants/>
 - ... (Feel free to [suggest](https://github.com/cebe/markdown/issues/new) further additions!)
 
@@ -66,7 +68,11 @@ or `parseParagraph()`-method:
 $parser = new \cebe\markdown\Markdown();
 $parser->parse($markdown);
 
-// use github
+// use github markdown
+$parser = new \cebe\markdown\GithubMarkdown();
+$parser->parse($markdown);
+
+// use markdown extra
 $parser = new \cebe\markdown\GithubMarkdown();
 $parser->parse($markdown);
 
