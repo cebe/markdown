@@ -122,29 +122,10 @@ class Markdown extends Parser
 		switch($line[0])
 		{
 			case '<': // HTML block
-
-				if (isset($line[1]) && $line[1] == ' ') {
-					break; // no html tag
+				if ($this->identifyHtmlBlock($lines, $current)) {
+					return 'html';
 				}
-				if (strncmp($line, '<!--', 4) === 0) {
-					return 'html'; // a html comment
-				}
-
-				$gtPos = strpos($lines[$current], '>');
-				$spacePos = strpos($lines[$current], ' ');
-				if ($gtPos === false && $spacePos === false) {
-					break; // no html tag
-				} elseif ($spacePos === false) {
-					$tag = rtrim(substr($line, 1, $gtPos - 1), '/');
-				} else {
-					$tag = rtrim(substr($line, 1, min($gtPos, $spacePos) - 1), '/');
-				}
-
-				if (!ctype_alnum($tag) || in_array(strtolower($tag), $this->inlineHtmlElements)) {
-					break; // no html tag or inline html tag
-				}
-
-				return 'html';
+				break;
 			case '>': // quote
 				if (!isset($line[1]) || $line[1] === ' ' || $line[1] === "\t") {
 					return 'quote';
@@ -172,7 +153,7 @@ class Markdown extends Parser
 				return 'headline';
 			case '[': // reference
 
-				if (preg_match('/^\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
+				if ($this->identifyReference($line)) {
 					return 'reference';
 				}
 				break;
@@ -195,7 +176,7 @@ class Markdown extends Parser
 				}
 
 				// could be indented reference
-				if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line)) {
+				if ($this->identifyReference($line)) {
 					return 'reference';
 				}
 
@@ -220,6 +201,38 @@ class Markdown extends Parser
 			($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
 			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])
 		);
+	}
+
+	protected function identifyHtmlBlock($lines, $current)
+	{
+		$line = $lines[$current];
+
+		if (isset($line[1]) && $line[1] == ' ') {
+			return false; // no html tag
+		}
+		if (strncmp($line, '<!--', 4) === 0) {
+			return true; // a html comment
+		}
+
+		$gtPos = strpos($lines[$current], '>');
+		$spacePos = strpos($lines[$current], ' ');
+		if ($gtPos === false && $spacePos === false) {
+			return false; // no html tag
+		} elseif ($spacePos === false) {
+			$tag = rtrim(substr($line, 1, $gtPos - 1), '/');
+		} else {
+			$tag = rtrim(substr($line, 1, min($gtPos, $spacePos) - 1), '/');
+		}
+
+		if (!ctype_alnum($tag) || in_array(strtolower($tag), $this->inlineHtmlElements)) {
+			return false; // no html tag or inline html tag
+		}
+		return true;
+	}
+
+	protected function identifyReference($line)
+	{
+		return preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line);
 	}
 
 	/**
