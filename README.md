@@ -16,6 +16,7 @@ for converting markdown files to HTML files.
 
 The implementation focus is to be **fast** (see [benchmark][]) and **extensible**. You are able to add additional language elements by
 directly hooking into the parser - no (possibly error-prone) post- or pre-processing is needed to extend the language.
+It is also [well tested][] to provide best rendering results also in edge cases where other parsers fail.
 
 Currently the following markdown flavors are supported:
 
@@ -25,6 +26,7 @@ Currently the following markdown flavors are supported:
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
 
 [#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
+[well tested]: https://travis-ci.org/cebe/markdown "PHPUnit tests on Travis-CI"
 
 Future plans are to support:
 
@@ -41,7 +43,7 @@ Future plans are to support:
 Installation
 ------------
 
-PHP 5.4 or higher is required to use it.
+PHP 5.4 or higher is required to use it. It will also run on [facebook's hhvm][].
 
 Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
 
@@ -369,3 +371,4 @@ Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://
 [real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
 [open an issue]: https://github.com/cebe/markdown/issues/new
 [license]: https://github.com/cebe/markdown/blob/master/LICENSE
+[facebook's hhvm]: http://hhvm.com/
