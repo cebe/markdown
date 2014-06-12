@@ -43,7 +43,8 @@ Future plans are to support:
 Installation
 ------------
 
-PHP 5.4 or higher is required to use it. It will also run on [facebook's hhvm][].
+[PHP 5.4 or higher](http://www.php.net/downloads.php) is required to use it.
+It will also run on facebook's [hhvm](http://hhvm.com/).
 
 Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
 
@@ -371,4 +372,3 @@ Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://
 [real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
 [open an issue]: https://github.com/cebe/markdown/issues/new
 [license]: https://github.com/cebe/markdown/blob/master/LICENSE
-[facebook's hhvm]: http://hhvm.com/
