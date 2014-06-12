@@ -60,11 +60,20 @@ Usage
 
 ### In your PHP project
 
-To use the parser as is, you just create an instance of a provided flavor and call the `parse()`-
-or `parseParagraph()`-method:
+To parse your markdown you need only two lines of code. The first one is to choose the markdown flavor as
+one of the following:
+
+- Original Markdown: `$parser = new \cebe\markdown\Markdown();`
+- Github Flavored Markdown: `$parser = new \cebe\markdown\GithubMarkdown();`
+- Markdown Extra: `$parser = new \cebe\markdown\MarkdownExtra();`
+
+The next step is to call the `parse()`-method for parsing the text using the full markdown language
+or calling the `parseParagraph()`-method to parse only inline elements.
+
+Here are some examples:
 
 ```php
-// default markdown and parse full text
+// original markdown and parse full text
 $parser = new \cebe\markdown\Markdown();
 $parser->parse($markdown);
 
@@ -73,13 +82,25 @@ $parser = new \cebe\markdown\GithubMarkdown();
 $parser->parse($markdown);
 
 // use markdown extra
-$parser = new \cebe\markdown\GithubMarkdown();
+$parser = new \cebe\markdown\MarkdownExtra();
 $parser->parse($markdown);
 
 // parse only inline elements (useful for one-line descriptions)
 $parser = new \cebe\markdown\GithubMarkdown();
 $parser->parseParagraph($markdown);
 ```
+
+You may optionally set one of the following options on the parser object:
+
+For all Markdown Flavors:
+
+- `$parser->html5 = true` to enable HTML5 output instead of HTML4.
+- `$parser->keepListStartNumber = true` to enable keeping the numbers of ordered lists as specified in the markdown.
+  The default behavior is to always start from 1 and increment by one regardless of the number in markdown.
+
+For GithubMarkdown:
+
+- `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
 
 ### The command line script
 
@@ -94,6 +115,45 @@ Using github flavored markdown:
 or convert the original markdown description to html using the unix pipe:
 
     curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
+
+Here is the full Help output you will see when running `bin/markdown --help`:
+
+    PHP Markdown to HTML converter
+    ------------------------------
+    
+    by Carsten Brandt <mail@cebe.cc>
+   
+    Usage:
+        bin/markdown [--flavor=<flavor>] [file.md]
+
+        --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
+                  Available flavors:
+
+                  gfm   - Github flavored markdown [2]
+                  extra - Markdown Extra [3]
+
+        --help    shows this usage information.
+
+        If no file is specified input will be read from STDIN.
+    
+    Examples:
+    
+        Render a file with original markdown:
+
+            bin/markdown README.md > README.html
+    
+        Render a file using gihtub flavored markdown:
+    
+            bin/markdown --flavor=gfm README.md > README.html
+    
+        Convert the original markdown description to html using STDIN:
+    
+            curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
+    
+    
+    [1] http://daringfireball.net/projects/markdown/syntax
+    [2] https://help.github.com/articles/github-flavored-markdown
+    [3] http://michelf.ca/projects/php-markdown/extra/
 
 
 Extensions
