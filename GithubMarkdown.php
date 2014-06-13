@@ -42,7 +42,7 @@ class GithubMarkdown extends Markdown
 		'.', // dot
 		'!', // exclamation mark
 		'<', '>',
-		// added by MarkdownExtra
+		// added by GithubMarkdown
 		':', // colon
 		'|', // pipe
 	];

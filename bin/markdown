@@ -8,6 +8,7 @@
 
 require(__DIR__ . '/../Parser.php');
 require(__DIR__ . '/../Markdown.php');
+require(__DIR__ . '/../block/TableTrait.php');
 
 // Send all errors to stderr
 ini_set('display_errors', 'stderr');
@@ -18,6 +19,7 @@ $flavors = [
 	'extra' => ['cebe\\markdown\\MarkdownExtra', __DIR__ . '/../MarkdownExtra.php'],
 ];
 
+$full = false;
 $src = [];
 foreach($argv as $k => $arg) {
 	if ($k == 0) {
@@ -37,6 +39,9 @@ foreach($argv as $k => $arg) {
 				} else {
 					error("Incomplete argument --flavor!", "usage");
 				}
+			break;
+			case '--full':
+				$full = true;
 			break;
 			case '-h':
 			case '--help':
@@ -67,7 +72,31 @@ if (empty($src)) {
 
 /** @var cebe\markdown\Parser $md */
 $md = new $flavor();
-echo $md->parse($markdown);
+$markup = $md->parse($markdown);
+
+if ($full) {
+	echo <<<HTML
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<style>
+		body { font-family: Arial, sans-serif; }
+		code { background: #eeeeff; padding: 2px; }
+		li { margin-bottom: 5px; }
+		img { max-width: 1200px; }
+		table, td, th { border: solid 1px #ccc; border-collapse: collapse; }
+	</style>
+</head>
+<body>
+$markup
+</body>
+</html>
+HTML;
+} else {
+	echo $markup;
+}
 
 // functions
 
@@ -79,13 +108,15 @@ function usage() {
 	$cmd = $argv[0];
 	echo <<<EOF
 Usage:
-    $cmd [--flavor=<flavor>] [file.md]
+    $cmd [--flavor=<flavor>] [--full] [file.md]
 
     --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
               Available flavors:
 
               gfm   - Github flavored markdown [2]
               extra - Markdown Extra [3]
+
+    --full    ouput a full HTML page with head and body. If not given only the parsed markdown will be output.
 
     --help    shows this usage information.
 
