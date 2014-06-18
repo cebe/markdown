@@ -14,6 +14,8 @@ namespace cebe\markdown\tests;
  */
 abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 {
+	protected $outputFileExtension = '.html';
+
 	abstract public function getDataPaths();
 
 	abstract public function createMarkdown();
@@ -35,7 +37,7 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	{
 		return [
 			file_get_contents($this->getDataPaths()[$path] . '/' . $file . '.md'),
-			file_get_contents($this->getDataPaths()[$path] . '/' . $file . '.html'),
+			file_get_contents($this->getDataPaths()[$path] . '/' . $file . $this->outputFileExtension),
 		];
 	}
 
@@ -52,7 +54,7 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 					continue;
 				}
 
-				if (substr($file, -3, 3) === '.md' && file_exists($src . '/' . substr($file, 0, -3) .  '.html')) {
+				if (substr($file, -3, 3) === '.md' && file_exists($src . '/' . substr($file, 0, -3) .  $this->outputFileExtension)) {
 					$files[] = [$name, substr($file, 0, -3)];
 				}
 			}
