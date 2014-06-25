@@ -40,6 +40,10 @@ abstract class Parser
 	public function parse($text)
 	{
 		$this->prepare();
+		
+		if (empty($text)) {
+			return '';
+		}
 
 		$text = preg_replace('~\r\n?~', "\n", $text);
 
@@ -61,6 +65,10 @@ abstract class Parser
 	public function parseParagraph($text)
 	{
 		$this->prepare();
+
+		if (empty($text)) {
+			return '';
+		}
 
 		$this->prepareMarkers($text);
 
