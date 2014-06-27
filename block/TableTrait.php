@@ -17,7 +17,7 @@ trait TableTrait
 
 	protected function identifyTable($lines, $current)
 	{
-		return strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1]);
+		return strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && isset($lines[$current + 1]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1]);
 	}
 
 	/**
@@ -40,6 +40,10 @@ trait TableTrait
 				$cols = explode('|', trim($line, ' |'));
 				foreach($cols as $col) {
 					$col = trim($col);
+					if (empty($col)) {
+						$block['cols'][] = '';
+						continue;
+					}
 					$l = ($col[0] === ':');
 					$r = (substr($col, -1, 1) === ':');
 					if ($l && $r) {
