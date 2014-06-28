@@ -94,7 +94,7 @@ trait TableTrait
 
 	protected function parseTd($markdown)
 	{
-		if ($this->context[1] === 'table') {
+		if (isset($this->context[1]) && $this->context[1] === 'table') {
 			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount++] . '"';
 			return ["</$this->_tableCellTag><$this->_tableCellTag$align>", isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
 		}
