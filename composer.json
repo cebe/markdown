@@ -23,7 +23,8 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
-		"facebook/xhprof": "*@dev"
+		"facebook/xhprof": "*@dev",
+		"cebe/indent": "*"
 	},
 	"autoload": {
 		"psr-4": {

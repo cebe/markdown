@@ -306,7 +306,7 @@ class Markdown extends Parser
 				$block['content'][] = $line;
 			// but also if it is empty and the next line is intended by 4 spaces or a tab
 			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
-			          ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
+				      ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
@@ -355,11 +355,14 @@ class Markdown extends Parser
 		$item = 0;
 		$indent = '';
 		$len = 0;
+		// track the indentation of list markers, if indented more than previous element
+		// a list marker is considered to be long to a lower level
+		$leadSpace = 3;
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^ {0,3}(\d+)\.[ \t]+/' : '/^ {0,3}[\-\+\*][ \t]+/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})[\-\+\*][ \t]+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));
@@ -368,11 +371,14 @@ class Markdown extends Parser
 					$indent = str_repeat(' ', $len);
 					$line = substr($line, $len);
 				}
+				if ($i === $current) {
+					$leadSpace = strlen($matches[1]) + 1;
+				}
 
 				if ($type == 'ol' && $this->keepListStartNumber) {
 					// attr `start` for ol
-					if (!isset($block['attr']['start']) && isset($matches[1])) {
-						$block['attr']['start'] = $matches[1];
+					if (!isset($block['attr']['start']) && isset($matches[2])) {
+						$block['attr']['start'] = $matches[2];
 					}
 				}
 
