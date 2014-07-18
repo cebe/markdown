@@ -116,7 +116,7 @@ Usage:
               gfm   - Github flavored markdown [2]
               extra - Markdown Extra [3]
 
-    --full    ouput a full HTML page with head and body. If not given only the parsed markdown will be output.
+    --full    ouput a full HTML page with head and body. If not given, only the parsed markdown will be output.
 
     --help    shows this usage information.
 

@@ -20,9 +20,9 @@ It is also [well tested][] to provide best rendering results also in edge cases 
 
 Currently the following markdown flavors are supported:
 
-- **The original Markdown** according to <http://daringfireball.net/projects/markdown/syntax>.
-- **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown>.
-- **Markdown Extra** according to <http://michelf.ca/projects/php-markdown/extra/> (currently not fully supported WIP see [#25][])
+- **The original Markdown** according to <http://daringfireball.net/projects/markdown/syntax> ([try it!](http://markdown.cebe.cc/try?flavor=default)).
+- **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown> ([try it!](http://markdown.cebe.cc/try?flavor=gfm)).
+- **Markdown Extra** according to <http://michelf.ca/projects/php-markdown/extra/> (currently not fully supported WIP see [#25][], [try it!](http://markdown.cebe.cc/try?flavor=extra))
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
 
 [#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
