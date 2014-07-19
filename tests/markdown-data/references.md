@@ -12,3 +12,12 @@ hey, check [this].
 
 ref on end of line [this]
 next line.
+
+this is a [multi
+line] reference.
+
+this is a [Link
+with][multi
+line] reference.
+
+[multi line]: http://example.com

@@ -736,14 +736,15 @@ REGEXP;
 					$offset + strlen($refMatches[0]), // offset
 					null, // reference key
 				];
-			} elseif (preg_match('/^([ \n]?\[(.*?)\])?/', $markdown, $refMatches)) {
+			} elseif (preg_match('/^([ \n]?\[(.*?)\])?/s', $markdown, $refMatches)) {
 				// reference style link
 				if (empty($refMatches[2])) {
 					$key = strtolower($text);
 				} else {
 					$key = strtolower($refMatches[2]);
 				}
-				if (isset($this->references[$key])) {
+				$normalizedKey = preg_replace('/\s+/', ' ', $key);
+				if (isset($this->references[$key]) || isset($this->references[$key = $normalizedKey])) {
 					return [
 						$text,
 						$this->references[$key]['url'], // url
