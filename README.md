@@ -125,34 +125,36 @@ Here is the full Help output you will see when running `bin/markdown --help`:
     ------------------------------
     
     by Carsten Brandt <mail@cebe.cc>
-   
+    
     Usage:
-        bin/markdown [--flavor=<flavor>] [file.md]
-
+        bin/markdown [--flavor=<flavor>] [--full] [file.md]
+    
         --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
                   Available flavors:
-
+    
                   gfm   - Github flavored markdown [2]
                   extra - Markdown Extra [3]
+
+        --full    ouput a full HTML page with head and body. If not given, only the parsed markdown will be output.
 
         --help    shows this usage information.
 
         If no file is specified input will be read from STDIN.
-    
+
     Examples:
-    
+
         Render a file with original markdown:
 
             bin/markdown README.md > README.html
-    
+
         Render a file using gihtub flavored markdown:
-    
+
             bin/markdown --flavor=gfm README.md > README.html
-    
+
         Convert the original markdown description to html using STDIN:
-    
+
             curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
-    
+
     
     [1] http://daringfireball.net/projects/markdown/syntax
     [2] https://help.github.com/articles/github-flavored-markdown
