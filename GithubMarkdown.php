@@ -8,6 +8,7 @@
 namespace cebe\markdown;
 
 use cebe\markdown\block\TableTrait;
+use cebe\markdown\block\EmojiTrait;
 
 /**
  * Markdown parser for github flavored markdown.
@@ -17,6 +18,7 @@ use cebe\markdown\block\TableTrait;
 class GithubMarkdown extends Markdown
 {
 	use TableTrait;
+	use EmojiTrait;
 
 	/**
 	 * @var boolean whether to interpret newlines as `<br />`-tags.
@@ -57,6 +59,7 @@ class GithubMarkdown extends Markdown
 			'ftp'   => 'parseUrl',
 			'~~'    => 'parseStrike',
 			'|'     => 'parseTd',
+			':'     => 'parseEmoji',
 		];
 	}
 
@@ -106,6 +109,24 @@ class GithubMarkdown extends Markdown
 
 
 	// inline parsing
+
+
+	/**
+	 * 9/4/2014 3:00:41 AM
+	 * PHP Github Emoji - @cecekpawon THRSH
+	 */
+	protected function parseEmoji($markdown)
+	{
+		if (preg_match('/^:(\w+):/', $markdown, $matches)) {
+			if ($emoji = $this->parseEmojiExtd($matches[1])) {
+				return [
+					'<img src="' . $this->parseInline($emoji) . '" class="emoji-awesomeclass" />',
+					strlen($matches[0])
+				];
+			}
+		}
+		return [$markdown[0] . $markdown[1], 2];
+	}
 
 
 	/**
