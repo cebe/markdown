@@ -117,7 +117,7 @@ class GithubMarkdown extends Markdown
 	 */
 	protected function parseEmoji($markdown)
 	{
-		if (preg_match('/^:(\w+):/', $markdown, $matches)) {
+		if (preg_match('/^:([\+\-0-9a-z]+):/', $markdown, $matches)) {
 			if ($emoji = $this->parseEmojiExtd($matches[1])) {
 				return [
 					'<img src="' . $this->parseInline($emoji) . '" class="emoji-awesomeclass" />',
