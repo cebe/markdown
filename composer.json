@@ -1,6 +1,6 @@
 {
 	"name": "cebe/markdown",
-	"description": "A super fast highly extensible markdown parser for PHP",
+	"description": "A super fast, highly extensible markdown parser for PHP",
 	"keywords": ["markdown", "gfm", "markdown-extra", "fast", "extensible"],
 	"homepage": "https://github.com/cebe/markdown#readme",
 	"type": "library",

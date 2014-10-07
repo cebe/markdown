@@ -1,9 +1,8 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: cebe
- * Date: 11.06.14
- * Time: 23:31
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/markdown/blob/master/LICENSE
+ * @link https://github.com/cebe/markdown#readme
  */
 
 namespace cebe\markdown\block;
@@ -15,7 +14,7 @@ trait TableTrait
 	private $_tableCellCount = 0;
 	private $_tableCellAlign = [];
 
-	protected function identifyTable($lines, $current)
+	protected function identifyTable($line, $lines, $current)
 	{
 		return strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && isset($lines[$current + 1]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1]);
 	}
@@ -28,7 +27,7 @@ trait TableTrait
 		// consume until newline
 
 		$block = [
-			'type' => 'table',
+			'table',
 			'cols' => [],
 			'rows' => [],
 		];
@@ -89,7 +88,7 @@ trait TableTrait
 			$first = false;
 			$this->_tableCellCount = 0;
 		}
-		return "<table>\n$content</tbody>\n</table>";
+		return "<table>\n$content</tbody>\n</table>\n";
 	}
 
 	protected function parseTd($markdown)
