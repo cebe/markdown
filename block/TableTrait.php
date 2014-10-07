@@ -80,7 +80,7 @@ trait TableTrait
 		foreach($block['rows'] as $row) {
 			$this->_tableCellTag = $first ? 'th' : 'td';
 			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount++] . '"';
-			$tds = "<$this->_tableCellTag$align>" . $this->parseInline($row) . "</$this->_tableCellTag>";
+			$tds = "<$this->_tableCellTag$align>" . $this->renderAbsy($this->parseInline($row)) . "</$this->_tableCellTag>"; // TODO move this to the consume step
 			$content .= "<tr>$tds</tr>\n";
 			if ($first) {
 				$content .= "</thead>\n<tbody>\n";
@@ -91,12 +91,15 @@ trait TableTrait
 		return "<table>\n$content</tbody>\n</table>\n";
 	}
 
+	/**
+	 * @marker |
+	 */
 	protected function parseTd($markdown)
 	{
 		if (isset($this->context[1]) && $this->context[1] === 'table') {
 			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount++] . '"';
-			return ["</$this->_tableCellTag><$this->_tableCellTag$align>", isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
+			return [['text', "</$this->_tableCellTag><$this->_tableCellTag$align>"], isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1]; // TODO make a absy node
 		}
-		return [$markdown[0], 1];
+		return [['text', $markdown[0]], 1];
 	}
 }

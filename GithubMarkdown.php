@@ -47,35 +47,13 @@ class GithubMarkdown extends Markdown
 		'|', // pipe
 	];
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function inlineMarkers()
-	{
-		return parent::inlineMarkers() + [
-			'http'  => 'parseUrl',
-			'ftp'   => 'parseUrl',
-			'~~'    => 'parseStrike',
-			'|'     => 'parseTd',
-		];
-	}
-
 
 	// block parsing
 
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function identifyLine($lines, $current)
+	public function identifyFencedCode($line)
 	{
-		if (isset($lines[$current]) && (strncmp($lines[$current], '```', 3) === 0 || strncmp($lines[$current], '~~~', 3) === 0)) {
-			return 'fencedCode';
-		}
-		if ($this->identifyTable($lines, $current)) {
-			return 'table';
-		}
-		return parent::identifyLine($lines, $current);
+		return strncmp($line, '```', 3) === 0 || strncmp($line, '~~~', 3) === 0;
 	}
 
 	/**
@@ -85,7 +63,7 @@ class GithubMarkdown extends Markdown
 	{
 		// consume until ```
 		$block = [
-			'type' => 'code',
+			'code',
 			'content' => [],
 		];
 		$line = rtrim($lines[$current]);
@@ -101,6 +79,8 @@ class GithubMarkdown extends Markdown
 				break;
 			}
 		}
+		$block['content'] = implode("\n", $block['content']);
+
 		return [$block, $i];
 	}
 
@@ -110,20 +90,31 @@ class GithubMarkdown extends Markdown
 
 	/**
 	 * Parses the strikethrough feature.
+	 * @marker ~~
 	 */
 	protected function parseStrike($markdown)
 	{
 		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
 			return [
-				'<del>' . $this->parseInline($matches[1]) . '</del>',
+				[
+					'strike',
+					$this->parseInline($matches[1])
+				],
 				strlen($matches[0])
 			];
 		}
-		return [$markdown[0] . $markdown[1], 2];
+		return [['text', $markdown[0] . $markdown[1]], 2];
+	}
+
+	protected function renderStrike($block)
+	{
+		return '<del>' . $this->renderAbsy($block[1]) . '</del>';
 	}
 
 	/**
 	 * Parses urls and adds auto linking feature.
+	 * @marker http
+	 * @marker ftp
 	 */
 	protected function parseUrl($markdown)
 	{
@@ -139,11 +130,11 @@ REGEXP;
 			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
 			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
 			return [
-				"<a href=\"$href\">$text</a>",
+				['text', "<a href=\"$href\">$text</a>"], // TODO
 				strlen($matches[0])
 			];
 		}
-		return [substr($markdown, 0, 4), 4];
+		return [['text', substr($markdown, 0, 4)], 4];
 	}
 
 	/**
@@ -151,12 +142,12 @@ REGEXP;
 	 *
 	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */
-	protected function parsePlainText($text)
+	protected function renderText($text)
 	{
 		if ($this->enableNewlines) {
-			return preg_replace("/(  \n|\n)/", $this->html5 ? "<br>\n" : "<br />\n", $text);
+			return preg_replace("/(  \n|\n)/", $this->html5 ? "<br>\n" : "<br />\n", $text[1]);
 		} else {
-			return parent::parsePlainText($text);
+			return parent::renderText($text);
 		}
 	}
 }

@@ -38,6 +38,27 @@ class Markdown extends Parser
 	public $html5 = false;
 
 	/**
+	 * @var array these are "escapeable" characters. When using one of these prefixed with a
+	 * backslash, the character will be outputted without the backslash and is not interpreted
+	 * as markdown.
+	 */
+	protected $escapeCharacters = [
+		'\\', // backslash
+		'`', // backtick
+		'*', // asterisk
+		'_', // underscore
+		'{', '}', // curly braces
+		'[', ']', // square brackets
+		'(', ')', // parentheses
+		'#', // hash mark
+		'+', // plus sign
+		'-', // minus sign (hyphen)
+		'.', // dot
+		'!', // exclamation mark
+		'<', '>',
+	];
+
+	/**
 	 * @var array a list of defined references in this document.
 	 */
 	protected $references = [];
@@ -70,7 +91,7 @@ class Markdown extends Parser
 			'paragraph',
 			'content' => $this->parseInline(implode("\n", $content)),
 		];
-		return [$block, $i];
+		return [$block, --$i];
 	}
 
 

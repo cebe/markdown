@@ -57,32 +57,16 @@ class MarkdownExtra extends Markdown
 	// TODO implement Abbreviations
 
 
-	protected function inlineMarkers()
-	{
-		return parent::inlineMarkers() + [
-			'|' => 'parseTd',
-		];
-	}
-
-
 	// block parsing
 
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function identifyLine($lines, $current)
+	protected function identifyReference($line)
 	{
-		if (isset($lines[$current]) && (strncmp($lines[$current], '~~~', 3) === 0 || strncmp($lines[$current], '```', 3) === 0)) {
-			return 'fencedCode';
-		}
-		if (preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $lines[$current])) {
-			return 'reference';
-		}
-		if ($this->identifyTable($lines, $current)) {
-			return 'table';
-		}
-		return parent::identifyLine($lines, $current);
+		return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $line);
+	}
+
+	public function identifyFencedCode($line)
+	{
+		return strncmp($line, '```', 3) === 0 || strncmp($line, '~~~', 3) === 0;
 	}
 
 	/**
@@ -107,7 +91,7 @@ class MarkdownExtra extends Markdown
 	{
 		// consume until ```
 		$block = [
-			'type' => 'code',
+			'code',
 			'content' => [],
 		];
 		$line = rtrim($lines[$current]);
@@ -123,6 +107,8 @@ class MarkdownExtra extends Markdown
 				break;
 			}
 		}
+		$block['content'] = implode("\n", $block['content']);
+
 		return [$block, $i];
 	}
 
@@ -158,7 +144,7 @@ class MarkdownExtra extends Markdown
 	{
 		$attributes = $this->renderAttributes($block);
 		return ($this->codeAttributesOnPre ? "<pre$attributes><code>" : "<pre><code$attributes>")
-			. htmlspecialchars(implode("\n", $block['content']) . "\n", ENT_NOQUOTES, 'UTF-8')
+			. htmlspecialchars($block['content'], ENT_NOQUOTES, 'UTF-8')
 			. '</code></pre>';
 	}
 
@@ -166,7 +152,7 @@ class MarkdownExtra extends Markdown
 	{
 		$tag = 'h' . $block['level'];
 		$attributes = $this->renderAttributes($block);
-		return "<$tag$attributes>" . $this->parseInline($block['content']) . "</$tag>";
+		return "<$tag$attributes>" . $this->parseInline($block['content']) . "</$tag>\n";
 	}
 
 

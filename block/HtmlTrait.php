@@ -44,13 +44,10 @@ trait HtmlTrait
 
 	protected function identifyHtml($line, $lines, $current)
 	{
-		if ($line[0] !== '<') {
-			return false;
-		}
-
-		if (isset($line[1]) && $line[1] == ' ') {
+		if ($line[0] !== '<' || isset($line[1]) && $line[1] == ' ') {
 			return false; // no html tag
 		}
+
 		if (strncmp($line, '<!--', 4) === 0) {
 			return true; // a html comment
 		}

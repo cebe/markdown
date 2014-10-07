@@ -5,6 +5,7 @@ use cebe\markdown\MarkdownExtra;
 
 /**
  * @author Carsten Brandt <mail@cebe.cc>
+ * @group extra
  */
 class MarkdownExtraTest extends BaseMarkdownTest
 {
