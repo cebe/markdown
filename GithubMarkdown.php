@@ -7,8 +7,6 @@
 
 namespace cebe\markdown;
 
-use cebe\markdown\block\TableTrait;
-
 /**
  * Markdown parser for github flavored markdown.
  *
@@ -16,7 +14,13 @@ use cebe\markdown\block\TableTrait;
  */
 class GithubMarkdown extends Markdown
 {
-	use TableTrait;
+	// include block element parsing using traits
+	use block\TableTrait;
+	use block\FencedCodeTrait;
+
+	// include inline element parsing using traits
+	use inline\StrikeoutTrait;
+	use inline\UrlHighlightTrait;
 
 	/**
 	 * @var boolean whether to interpret newlines as `<br />`-tags.
@@ -47,95 +51,6 @@ class GithubMarkdown extends Markdown
 		'|', // pipe
 	];
 
-
-	// block parsing
-
-
-	public function identifyFencedCode($line)
-	{
-		return strncmp($line, '```', 3) === 0 || strncmp($line, '~~~', 3) === 0;
-	}
-
-	/**
-	 * Consume lines for a fenced code block
-	 */
-	protected function consumeFencedCode($lines, $current)
-	{
-		// consume until ```
-		$block = [
-			'code',
-			'content' => [],
-		];
-		$line = rtrim($lines[$current]);
-		$fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);
-		$language = substr($line, $pos);
-		if (!empty($language)) {
-			$block['language'] = $language;
-		}
-		for ($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-			if (rtrim($line = $lines[$i]) !== $fence) {
-				$block['content'][] = $line;
-			} else {
-				break;
-			}
-		}
-		$block['content'] = implode("\n", $block['content']);
-
-		return [$block, $i];
-	}
-
-
-	// inline parsing
-
-
-	/**
-	 * Parses the strikethrough feature.
-	 * @marker ~~
-	 */
-	protected function parseStrike($markdown)
-	{
-		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
-			return [
-				[
-					'strike',
-					$this->parseInline($matches[1])
-				],
-				strlen($matches[0])
-			];
-		}
-		return [['text', $markdown[0] . $markdown[1]], 2];
-	}
-
-	protected function renderStrike($block)
-	{
-		return '<del>' . $this->renderAbsy($block[1]) . '</del>';
-	}
-
-	/**
-	 * Parses urls and adds auto linking feature.
-	 * @marker http
-	 * @marker ftp
-	 */
-	protected function parseUrl($markdown)
-	{
-		$pattern = <<<REGEXP
-			/(?(R) # in case of recursion match parentheses
-				 \(((?>[^\s()]+)|(?R))*\)
-			|      # else match a link with title
-				^(https?|ftp):\/\/(([^\s()]+)|(?R))+(?<![\.,:;\'"!\?\s])
-			)/x
-REGEXP;
-
-		if (!in_array('parseLink', $this->context) && preg_match($pattern, $markdown, $matches)) {
-			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
-			return [
-				['text', "<a href=\"$href\">$text</a>"], // TODO
-				strlen($matches[0])
-			];
-		}
-		return [['text', substr($markdown, 0, 4)], 4];
-	}
 
 	/**
 	 * @inheritdocs

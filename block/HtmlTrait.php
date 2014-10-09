@@ -127,4 +127,14 @@ trait HtmlTrait
 		}
 	}
 
+
+
+	/**
+	 * Escapes `>` characters.
+	 * @marker >
+	 */
+	protected function parseGt($text)
+	{
+		return [['text', '&gt;'], 1];
+	}
 } 
