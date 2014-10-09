@@ -7,9 +7,14 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds the 4 space indented code blocks
+ */
 trait CodeTrait
 {
+	/**
+	 * identify a line as the beginning of a code block.
+	 */
 	protected function identifyCode($line)
 	{
 		// indentation >= 4 is code
@@ -23,30 +28,30 @@ trait CodeTrait
 	{
 		// consume until newline
 
-		$block = [
-			'code',
-			'content' => [],
-		];
+		$content = [];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
 			// a line is considered to belong to this code block as long as it is intended by 4 spaces or a tab
 			if (isset($line[0]) && ($line[0] === "\t" || strncmp($lines[$i], '    ', 4) === 0)) {
 				$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
-				$block['content'][] = $line;
+				$content[] = $line;
 			// but also if it is empty and the next line is intended by 4 spaces or a tab
 			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
 				      ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
 				if (!empty($line)) {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
-				$block['content'][] = $line;
+				$content[] = $line;
 			} else {
 				break;
 			}
 		}
-		$block['content'] = implode("\n", $block['content']);
 
+		$block = [
+			'code',
+			'content' => implode("\n", $content),
+		];
 		return [$block, --$i];
 	}
 
@@ -58,5 +63,4 @@ trait CodeTrait
 		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
 		return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES, 'UTF-8') . "</code></pre>\n";
 	}
-
-} 
+}

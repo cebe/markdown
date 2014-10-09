@@ -7,9 +7,6 @@
 
 namespace cebe\markdown;
 
-// work around https://github.com/facebook/hhvm/issues/1120
-defined('ENT_HTML401') || define('ENT_HTML401', 0);
-
 /**
  * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax).
  *
@@ -20,10 +17,20 @@ class Markdown extends Parser
 	// include block element parsing using traits
 	use block\CodeTrait;
 	use block\HeadlineTrait;
-	use block\HtmlTrait;
-	use block\ListTrait;
+	use block\HtmlTrait {
+		parseInlineHtml as private;
+	}
+	use block\ListTrait {
+		// Check Ul List before headline
+		identifyUl as protected identifyBUl;
+		consumeUl as protected consumeBUl;
+	}
 	use block\QuoteTrait;
-	use block\RuleTrait;
+	use block\RuleTrait {
+		// Check Hr before checking lists
+		identifyHr as protected identifyAHr;
+		consumeHr as protected consumeAHr;
+	}
 	use block\TableTrait;
 
 	// include inline element parsing using traits
@@ -58,11 +65,6 @@ class Markdown extends Parser
 		'<', '>',
 	];
 
-	/**
-	 * @var array a list of defined references in this document.
-	 */
-	protected $references = [];
-
 
 	/**
 	 * @inheritDoc
@@ -75,6 +77,8 @@ class Markdown extends Parser
 
 	/**
 	 * Consume lines for a paragraph
+	 *
+	 * Allow headlines and code to break paragraphs
 	 */
 	protected function consumeParagraph($lines, $current)
 	{
@@ -104,7 +108,4 @@ class Markdown extends Parser
 	{
 		return str_replace("  \n", $this->html5 ? "<br>\n" : "<br />\n", $text[1]);
 	}
-
-
-
 }

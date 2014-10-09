@@ -7,8 +7,13 @@
 
 namespace cebe\markdown\inline;
 
+// work around https://github.com/facebook/hhvm/issues/1120
+defined('ENT_HTML401') || define('ENT_HTML401', 0);
 
-trait UrlHighlightTrait
+/**
+ * Adds auto linking for URLs
+ */
+trait UrlLinkTrait
 {
 	/**
 	 * Parses urls and adds auto linking feature.
@@ -26,13 +31,18 @@ trait UrlHighlightTrait
 REGEXP;
 
 		if (!in_array('parseLink', $this->context) && preg_match($pattern, $markdown, $matches)) {
-			$href = htmlspecialchars($matches[0], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-			$text = htmlspecialchars(urldecode($matches[0]), ENT_NOQUOTES, 'UTF-8');
 			return [
-				['text', "<a href=\"$href\">$text</a>"], // TODO
+				['autoUrl', $matches[0]],
 				strlen($matches[0])
 			];
 		}
 		return [['text', substr($markdown, 0, 4)], 4];
 	}
-} 
+
+	protected function renderAutoUrl($block)
+	{
+		$href = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES, 'UTF-8');
+		return "<a href=\"$href\">$text</a>";
+	}
+}

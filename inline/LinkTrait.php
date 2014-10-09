@@ -7,9 +7,41 @@
 
 namespace cebe\markdown\inline;
 
+// work around https://github.com/facebook/hhvm/issues/1120
+defined('ENT_HTML401') || define('ENT_HTML401', 0);
 
+/**
+ * Addes links and images as well as url markers.
+ *
+ * This trait conflicts with the HtmlTrait. If both are used together,
+ * you have to define a resolution, by defining the HtmlTrait::parseInlineHtml
+ * as private so it is not used directly:
+ *
+ * ```php
+ * use block\HtmlTrait {
+ *     parseInlineHtml as private parseInlineHtml;
+ * }
+ * ```
+ *
+ * If the method exists it is called internally by this trait.
+ *
+ * Also make sure to reset references on prepare():
+ *
+ * ```php
+ * protected function prepare()
+ * {
+ *     // reset references
+ *     $this->references = [];
+ * }
+ * ```
+ */
 trait LinkTrait
 {
+	/**
+	 * @var array a list of defined references in this document.
+	 */
+	protected $references = [];
+
 	/**
 	 * Parses a link indicated by `[`.
 	 * @marker [
@@ -125,27 +157,37 @@ REGEXP;
 			if (!in_array('parseLink', $this->context)) { // do not allow links in links
 				if (preg_match('/^<([^\s]*?@[^\s]*?\.\w+?)>/', $text, $matches)) {
 					// email address
-					$email = htmlspecialchars($matches[1], ENT_NOQUOTES, 'UTF-8');
 					return [
-						['text', "<a href=\"mailto:$email\">$email</a>"], // TODO encode mail with entities
+						['email', $matches[1]],
 						strlen($matches[0])
 					];
 				} elseif (preg_match('/^<([a-z]{3,}:\/\/[^\s]+?)>/', $text, $matches)) {
 					// URL
-					$url = htmlspecialchars($matches[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-					$text = htmlspecialchars(urldecode($matches[1]), ENT_NOQUOTES, 'UTF-8');
-					return [['text', "<a href=\"$url\">$text</a>"], strlen($matches[0])];
+					return [
+						['url', $matches[1]],
+						strlen($matches[0])
+					];
 				}
 			}
-			if (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
-				// HTML tags
-				return [['text', $matches[0]], strlen($matches[0])];
-			} elseif (preg_match('~^<!--.*?-->~', $text, $matches)) {
-				// HTML comments
-				return [['text', $matches[0]], strlen($matches[0])];
+			// try inline HTML if it was neither a URL nor email if HtmlTrait is included.
+			if (method_exists($this, 'parseInlineHtml')) {
+				return $this->parseInlineHtml($text);
 			}
 		}
 		return [['text', '&lt;'], 1];
+	}
+
+	protected function renderEmail($block)
+	{
+		$email = htmlspecialchars($block[1], ENT_NOQUOTES, 'UTF-8');
+		return "<a href=\"mailto:$email\">$email</a>";
+	}
+
+	protected function renderUrl($block)
+	{
+		$url = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES, 'UTF-8');
+		return "<a href=\"$url\">$text</a>";
 	}
 
 	private function lookupReference($key)
@@ -169,7 +211,6 @@ REGEXP;
 				return $block['orig'];
 			}
 		}
-
 		return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
 			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
 			. '>' . $this->renderAbsy($block['text']) . '</a>';
@@ -184,7 +225,6 @@ REGEXP;
 				return $block['orig'];
 			}
 		}
-
 		return '<img src="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
 			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
 			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')

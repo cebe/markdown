@@ -7,7 +7,9 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds the list blocks
+ */
 trait ListTrait
 {
 	/**
@@ -17,11 +19,17 @@ trait ListTrait
 	 */
 	public $keepListStartNumber = false;
 
+	/**
+	 * identify a line as the beginning of an ordered list.
+	 */
 	protected function identifyOl($line)
 	{
 		return (is_numeric($line[0]) || $line[0] === ' ') && preg_match('/^ {0,3}\d+\.[ \t]/', $line);
 	}
 
+	/**
+	 * identify a line as the beginning of an unordered list.
+	 */
 	protected function identifyUl($line)
 	{
 		return ($line[0] === '-' || $line[0] === '+' || $line[0] === '*') && (isset($line[1]) && ($line[1] === ' ' || $line[1] === "\t")) ||
@@ -69,10 +77,11 @@ trait ListTrait
 		// track the indentation of list markers, if indented more than previous element
 		// a list marker is considered to be long to a lower level
 		$leadSpace = 3;
+		$marker = $type === 'ul' ? ltrim($lines[$current])[0] : '';
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})[\-\+\*][ \t]+/', $line, $matches)) {
+			if (preg_match($type == 'ol' ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})\\'.$marker.'[ \t]+/', $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));
@@ -96,7 +105,7 @@ trait ListTrait
 			} elseif (ltrim($line) === '') {
 				// next line after empty one is also a list or indented -> lazy list
 				if (isset($lines[$i + 1][0]) && (
-					$this->{'identify' . $type}($lines[$i + 1], $lines, $i + 1) ||
+					$this->{'identify' . $type}($lines[$i + 1], $lines, $i + 1) && ($type !== 'ul' || ltrim($lines[$i + 1])[0] === $marker) ||
 					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t"))) {
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
@@ -122,7 +131,7 @@ trait ListTrait
 			$content = [];
 			if (!isset($block['lazyItems'][$itemId])) {
 				$firstPar = [];
-				while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->getLineType($itemLines, 0) === 'paragraph') { // TODO
+				while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->detectLineType($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
 				}
 				$content = $this->parseInline(implode("\n", $firstPar));
@@ -168,5 +177,4 @@ trait ListTrait
 		}
 		return implode(' ', $attributes);
 	}
-
-} 
+}

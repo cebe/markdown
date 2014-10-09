@@ -7,9 +7,14 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds the block quote elements
+ */
 trait QuoteTrait
 {
+	/**
+	 * identify a line as the beginning of a block quote.
+	 */
 	protected function identifyQuote($line)
 	{
 		return $line[0] === '>' && (!isset($line[1]) || $line[1] === ' ' || $line[1] === "\t");
@@ -52,5 +57,4 @@ trait QuoteTrait
 	{
 		return '<blockquote>' . $this->renderAbsy($block['content']) . "</blockquote>\n";
 	}
-
-} 
+}

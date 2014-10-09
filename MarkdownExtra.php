@@ -4,6 +4,9 @@ namespace cebe\markdown;
 
 use cebe\markdown\block\TableTrait;
 
+// work around https://github.com/facebook/hhvm/issues/1120
+defined('ENT_HTML401') || define('ENT_HTML401', 0);
+
 /**
  * Markdown parser for the [markdown extra](http://michelf.ca/projects/php-markdown/extra/) flavor.
  *
@@ -13,7 +16,12 @@ use cebe\markdown\block\TableTrait;
  */
 class MarkdownExtra extends Markdown
 {
-	use TableTrait;
+	// include block element parsing using traits
+	use block\TableTrait;
+	use block\FencedCodeTrait;
+
+	// include inline element parsing using traits
+	// TODO
 
 	/**
 	 * @var bool whether special attributes on code blocks should be applied on the `<pre>` element.
@@ -64,11 +72,6 @@ class MarkdownExtra extends Markdown
 		return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $line);
 	}
 
-	public function identifyFencedCode($line)
-	{
-		return strncmp($line, '```', 3) === 0 || strncmp($line, '~~~', 3) === 0;
-	}
-
 	/**
 	 * Consume lines for a headline
 	 */
@@ -76,40 +79,13 @@ class MarkdownExtra extends Markdown
 	{
 		list($block, $nextLine) = parent::consumeHeadline($lines, $current);
 
-		if (($pos = strpos($block['content'], '{')) !== false && preg_match("~$this->_specialAttributesRegex~", $block['content'], $matches)) {
-			$block['content'] = substr($block['content'], 0, $pos);
-			$block['content'] = trim($block['content'], "# \t");
-			$block['attributes'] = $matches[1];
-		}
+		// TODO find special attributes in content inline markdown
+//		if (($pos = strpos($block['content'], '{')) !== false && preg_match("~$this->_specialAttributesRegex~", $block['content'], $matches)) {
+//			$block['content'] = substr($block['content'], 0, $pos);
+//			$block['content'] = trim($block['content'], "# \t");
+//			$block['attributes'] = $matches[1];
+//		}
 		return [$block, $nextLine];
-	}
-
-	/**
-	 * Consume lines for a fenced code block
-	 */
-	protected function consumeFencedCode($lines, $current)
-	{
-		// consume until ```
-		$block = [
-			'code',
-			'content' => [],
-		];
-		$line = rtrim($lines[$current]);
-		if (($pos = strrpos($line, '`')) === false) {
-			$pos = strrpos($line, '~');
-		}
-		$fence = substr($line, 0, $pos + 1);
-		$block['attributes'] = substr($line, $pos);
-		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-			if (rtrim($line = $lines[$i]) !== $fence) {
-				$block['content'][] = $line;
-			} else {
-				break;
-			}
-		}
-		$block['content'] = implode("\n", $block['content']);
-
-		return [$block, $i];
 	}
 
 	/**
@@ -187,6 +163,7 @@ class MarkdownExtra extends Markdown
 
 	/**
 	 * Parses a link indicated by `[`.
+	 * @marker [
 	 */
 	protected function parseLink($markdown)
 	{
@@ -214,6 +191,7 @@ class MarkdownExtra extends Markdown
 
 	/**
 	 * Parses an image indicated by `![`.
+	 * @marker ![
 	 */
 	protected function parseImage($markdown)
 	{

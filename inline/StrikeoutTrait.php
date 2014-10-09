@@ -7,7 +7,9 @@
 
 namespace cebe\markdown\inline;
 
-
+/**
+ * Adds strikeout inline elements
+ */
 trait StrikeoutTrait
 {
 	/**
@@ -32,4 +34,4 @@ trait StrikeoutTrait
 	{
 		return '<del>' . $this->renderAbsy($block[1]) . '</del>';
 	}
-} 
+}

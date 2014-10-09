@@ -7,7 +7,9 @@
 
 namespace cebe\markdown\inline;
 
-
+/**
+ * Adds inline code elements
+ */
 trait CodeTrait
 {
 	/**
@@ -40,4 +42,4 @@ trait CodeTrait
 	{
 		return '<code>' . htmlspecialchars($block[1], ENT_NOQUOTES, 'UTF-8') . '</code>';
 	}
-} 
+}

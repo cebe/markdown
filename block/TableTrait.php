@@ -7,16 +7,21 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds the table blocks
+ */
 trait TableTrait
 {
 	private $_tableCellTag = 'td';
 	private $_tableCellCount = 0;
 	private $_tableCellAlign = [];
 
+	/**
+	 * identify a line as the beginning of a table block.
+	 */
 	protected function identifyTable($line, $lines, $current)
 	{
-		return strpos($lines[$current], '|') !== false && preg_match('~|.*|~', $lines[$current]) && isset($lines[$current + 1]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1]);
+		return strpos($line, '|') !== false && preg_match('~|.*|~', $line) && isset($lines[$current + 1]) && preg_match('~^[\s\|\:-]+$~', $lines[$current + 1]);
 	}
 
 	/**
@@ -71,6 +76,9 @@ trait TableTrait
 		return [$block, --$i];
 	}
 
+	/**
+	 * render a table block
+	 */
 	protected function renderTable($block)
 	{
 		$content = '';

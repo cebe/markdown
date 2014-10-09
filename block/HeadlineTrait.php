@@ -7,16 +7,21 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds the headline blocks
+ */
 trait HeadlineTrait
 {
+	/**
+	 * identify a line as a headline
+	 */
 	protected function identifyHeadline($line, $lines, $current)
 	{
 		return (
 			// heading with #
 			$line[0] === '#'
 			||
-			// underlined heading
+			// underlined headline
 			!empty($lines[$current + 1]) &&
 			($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
 			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])
@@ -29,6 +34,7 @@ trait HeadlineTrait
 	protected function consumeHeadline($lines, $current)
 	{
 		if ($lines[$current][0] === '#') {
+			// ATX headline
 			$level = 1;
 			while (isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
 				$level++;
@@ -39,14 +45,15 @@ trait HeadlineTrait
 				'level' => $level,
 			];
 			return [$block, $current];
+		} else {
+			// underlined headline
+			$block = [
+				'headline',
+				'content' => $this->parseInline($lines[$current]),
+				'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
+			];
+			return [$block, $current + 1];
 		}
-
-		$block = [
-			'headline',
-			'content' => $this->parseInline($lines[$current]),
-			'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
-		];
-		return [$block, $current + 1];
 	}
 
 	/**

@@ -7,7 +7,9 @@
 
 namespace cebe\markdown\block;
 
-
+/**
+ * Adds inline and block HTML support
+ */
 trait HtmlTrait
 {
 	/**
@@ -42,6 +44,9 @@ trait HtmlTrait
 		'br', 'hr', 'img', 'input', 'nobr',
 	];
 
+	/**
+	 * identify a line as the beginning of a HTML block.
+	 */
 	protected function identifyHtml($line, $lines, $current)
 	{
 		if ($line[0] !== '<' || isset($line[1]) && $line[1] == ' ') {
@@ -73,14 +78,11 @@ trait HtmlTrait
 	 */
 	protected function consumeHtml($lines, $current)
 	{
-		$block = [
-			'html',
-			'content' => [],
-		];
+		$content = [];
 		if (strncmp($lines[$current], '<!--', 4) === 0) { // html comment
 			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
-				$block['content'][] = $line;
+				$content[] = $line;
 				if (strpos($line, '-->') !== false) {
 					break;
 				}
@@ -93,13 +95,17 @@ trait HtmlTrait
 			}
 			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
-				$block['content'][] = $line;
+				$content[] = $line;
 				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
 				if ($level <= 0) {
 					break;
 				}
 			}
 		}
+		$block = [
+			'html',
+			'content' => implode("\n", $content),
+		];
 		return [$block, $i];
 	}
 
@@ -108,10 +114,8 @@ trait HtmlTrait
 	 */
 	protected function renderHtml($block)
 	{
-		return implode("\n", $block['content']) . "\n";
+		return $block['content'] . "\n";
 	}
-
-
 
 	/**
 	 * Parses an & or a html entity definition.
@@ -121,13 +125,37 @@ trait HtmlTrait
 	{
 		// html entities e.g. &copy; &#169; &#x00A9;
 		if (preg_match('/^&#?[\w\d]+;/', $text, $matches)) {
-			return [['text', $matches[0]], strlen($matches[0])];
+			return [['inlineHtml', $matches[0]], strlen($matches[0])];
 		} else {
 			return [['text', '&amp;'], 1];
 		}
 	}
 
+	/**
+	 * renders a html entity.
+	 */
+	protected function renderInlineHtml($block)
+	{
+		return $block[1];
+	}
 
+	/**
+	 * Parses inline HTML.
+	 * @marker <
+	 */
+	protected function parseInlineHtml($text)
+	{
+		if (strpos($text, '>') !== false) {
+			if (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
+				// HTML tags
+				return [['inlineHtml', $matches[0]], strlen($matches[0])];
+			} elseif (preg_match('~^<!--.*?-->~', $text, $matches)) {
+				// HTML comments
+				return [['inlineHtml', $matches[0]], strlen($matches[0])];
+			}
+		}
+		return [['text', '&lt;'], 1];
+	}
 
 	/**
 	 * Escapes `>` characters.
@@ -137,4 +165,4 @@ trait HtmlTrait
 	{
 		return [['text', '&gt;'], 1];
 	}
-} 
+}

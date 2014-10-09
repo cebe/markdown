@@ -22,6 +22,7 @@ abstract class Parser
 
 	/**
 	 * @var string the current context the parser is in.
+	 * TODO remove in favor of absy
 	 */
 	protected $context = [];
 	/**
@@ -33,10 +34,7 @@ abstract class Parser
 		'\\', // backslash
 	];
 
-	/**
-	 * @var array the set of inline markers to use in different contexts.
-	 */
-	private $_inlineMarkers = [];
+	private $_depth = 0;
 
 
 	/**
@@ -55,12 +53,12 @@ abstract class Parser
 			return '';
 		}
 
-		$text = preg_replace('~\r\n?~', "\n", $text);
+		// http://stackoverflow.com/a/18992691/1106908
+		$text = preg_replace('~\R~', "\n", $text);
 
 		$this->prepareMarkers($text);
 
-		$lines = explode("\n", $text);
-		$absy = $this->parseBlocks($lines);
+		$absy = $this->parseBlocks(explode("\n", $text));
 		$markup = $this->renderAbsy($absy);
 
 		$this->cleanup();
@@ -80,6 +78,9 @@ abstract class Parser
 		if (empty($text)) {
 			return '';
 		}
+
+		// http://stackoverflow.com/a/18992691/1106908
+		$text = preg_replace('~\R~', "\n", $text);
 
 		$this->prepareMarkers($text);
 
@@ -109,27 +110,38 @@ abstract class Parser
 
 	// block parsing
 
+	private $_blockTypes;
 
-	private $_depth = 0;
-
-	private function getBlocktypes()
+	/**
+	 * @return array a list of block element types available.
+	 */
+	protected function blockTypes()
 	{
-		// detect block types via "identify" functions
-		$reflection = new \ReflectionClass($this);
-		$lineIdentifiers = array_filter(array_map(function($method) {
-			$name = $method->getName();
-			return strncmp($name, 'identify', 8) === 0 ? substr($name, 8) : false;
-		}, $reflection->getMethods(ReflectionMethod::IS_PROTECTED)));
+		if ($this->_blockTypes === null) {
+			// detect block types via "identify" functions
+			$reflection = new \ReflectionClass($this);
+			$this->_blockTypes = array_filter(array_map(function($method) {
+				$name = $method->getName();
+				return strncmp($name, 'identify', 8) === 0 ? strtolower(substr($name, 8)) : false;
+			}, $reflection->getMethods(ReflectionMethod::IS_PROTECTED)));
 
-		sort($lineIdentifiers);
-		return $lineIdentifiers;
+			sort($this->_blockTypes);
+		}
+		return $this->_blockTypes;
 	}
 
-	protected function getLineType($lines, $current)
+	/**
+	 * Given a set of lines and an index of a current line it uses the registed block types to
+	 * detect the type of this line.
+	 * @param array $lines
+	 * @param integer $current
+	 * @return string name of the block type in lower case
+	 */
+	protected function detectLineType($lines, $current)
 	{
 		$line = $lines[$current];
-		$lineIdentifiers = $this->getBlocktypes();
-		foreach($lineIdentifiers as $blockType) {
+		$blockTypes = $this->blockTypes();
+		foreach($blockTypes as $blockType) {
 			if ($this->{'identify' . $blockType}($line, $lines, $current)) {
 				return $blockType;
 			}
@@ -152,7 +164,7 @@ abstract class Parser
 
 		$blocks = [];
 
-		$lineIdentifiers = $this->getBlocktypes();
+		$blockTypes = $this->blockTypes();
 
 		// convert lines to blocks
 		for ($i = 0, $count = count($lines); $i < $count; $i++) {
@@ -160,7 +172,7 @@ abstract class Parser
 			if (!empty($line) && rtrim($line) !== '') { // skip empty lines
 				// identify a blocks beginning
 				$identified = false;
-				foreach($lineIdentifiers as $blockType) {
+				foreach($blockTypes as $blockType) {
 					if ($this->{'identify' . $blockType}($line, $lines, $i)) {
 						// call consume method for the detected block type to consume further lines
 						list($block, $i) = $this->{'consume' . $blockType}($lines, $i);
@@ -186,7 +198,6 @@ abstract class Parser
 
 	protected function renderAbsy($blocks)
 	{
-//		print_r($blocks);
 		$output = '';
 		foreach ($blocks as $block) {
 			array_unshift($this->context, $block[0]);
@@ -237,6 +248,11 @@ abstract class Parser
 
 
 	/**
+	 * @var array the set of inline markers to use in different contexts.
+	 */
+	private $_inlineMarkers = [];
+
+	/**
 	 * Returns a map of inline markers to the corresponding parser methods.
 	 *
 	 * This array defines handler methods for inline markdown markers.
@@ -244,7 +260,11 @@ abstract class Parser
 	 * starting at the position of the marker.
 	 *
 	 * Note that markers starting with whitespace may slow down the parser,
-	 * you may want to use [[parsePlainText]] to deal with them.
+	 * you may want to use [[renderText]] to deal with them.
+	 *
+	 * You may override this method to define a set of markers and parsing methods.
+	 * The default implementation looks for protected methods starting with `parse` that
+	 * also have an `@marker` annotation in PHPDoc.
 	 *
 	 * @return array a map of markers to parser methods
 	 */
@@ -315,7 +335,7 @@ abstract class Parser
 
 			// add the text up to next marker to the paragraph
 			if ($pos !== 0) {
-				$paragraph[] = $this->parsePlainText(substr($text, 0, $pos));
+				$paragraph[] = ['text', substr($text, 0, $pos)];
 			}
 			$text = $found;
 
@@ -339,21 +359,11 @@ abstract class Parser
 			}
 		}
 
-		$paragraph[] = $this->parsePlainText($text);
+		$paragraph[] = ['text', $text];
 
 		$this->_depth--;
 
 		return $paragraph;
-	}
-
-	/**
-	 * This function gets called for each plain text section in the markdown text.
-	 * It can be used to work on normal text section for example to highlight keywords or
-	 * do special escaping.
-	 */
-	protected function parsePlainText($text)
-	{
-		return ['text', $text];
 	}
 
 	/**
@@ -368,6 +378,11 @@ abstract class Parser
 		return [['text', $text[0]], 1];
 	}
 
+	/**
+	 * This function renders plain text sections in the markdown text.
+	 * It can be used to work on normal text sections for example to highlight keywords or
+	 * do special escaping.
+	 */
 	protected function renderText($block)
 	{
 		return $block[1];
