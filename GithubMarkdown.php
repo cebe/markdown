@@ -52,6 +52,36 @@ class GithubMarkdown extends Markdown
 	];
 
 
+
+	/**
+	 * Consume lines for a paragraph
+	 *
+	 * Allow headlines, lists and code to break paragraphs
+	 */
+	protected function consumeParagraph($lines, $current)
+	{
+		// consume until newline
+		$content = [];
+		for ($i = $current, $count = count($lines); $i < $count; $i++) {
+			$line = $lines[$i];
+			if (!empty($line) && ltrim($line) !== '' &&
+				!($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) !== 0) &&
+				!$this->identifyHeadline($line, $lines, $i) &&
+				!$this->identifyUl($line, $lines, $i) &&
+				!$this->identifyOl($line, $lines, $i))
+			{
+				$content[] = $line;
+			} else {
+				break;
+			}
+		}
+		$block = [
+			'paragraph',
+			'content' => $this->parseInline(implode("\n", $content)),
+		];
+		return [$block, --$i];
+	}
+
 	/**
 	 * @inheritdocs
 	 *

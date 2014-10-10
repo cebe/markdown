@@ -85,8 +85,12 @@ class Markdown extends Parser
 		// consume until newline
 		$content = [];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
-			if (ltrim($lines[$i]) !== '' && $lines[$i][0] != "\t" && strncmp($lines[$i], '    ', 4) !== 0 && !$this->identifyHeadline($lines[$i], $lines, $i)) {
-				$content[] = $lines[$i];
+			$line = $lines[$i];
+			if (!empty($line) && ltrim($line) !== '' &&
+				!($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) !== 0) &&
+				!$this->identifyHeadline($line, $lines, $i))
+			{
+				$content[] = $line;
 			} else {
 				break;
 			}

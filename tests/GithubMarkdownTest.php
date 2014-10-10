@@ -39,4 +39,19 @@ class GithubMarkdownTest extends BaseMarkdownTest
 
 		$this->assertEquals("<p>This is text</p>\n<p>newline<br />\nnewline.</p>\n", $markdown->parse("This is text\n\nnewline\nnewline."));
 	}
+
+	public function dataFiles()
+	{
+		$files = parent::dataFiles();
+		foreach($files as $i => $f) {
+			// skip files that are different in github MD
+			if ($f[0] === 'markdown-data' && (
+					$f[1] === 'list-marker-in-paragraph' ||
+					$f[1] === 'dense-block-markers'
+				)) {
+				unset($files[$i]);
+			}
+		}
+		return $files;
+	}
 }
