@@ -21,7 +21,8 @@ trait FencedCodeTrait
 	 */
 	protected function identifyFencedCode($line)
 	{
-		return strncmp($line, '```', 3) === 0 || strncmp($line, '~~~', 3) === 0;
+		return ($l = $line[0]) === '`' && strncmp($line, '```', 3) === 0 ||
+				$l === '~' && strncmp($line, '~~~', 3) === 0;
 	}
 
 	/**

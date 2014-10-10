@@ -17,7 +17,7 @@ trait QuoteTrait
 	 */
 	protected function identifyQuote($line)
 	{
-		return $line[0] === '>' && (!isset($line[1]) || $line[1] === ' ' || $line[1] === "\t");
+		return $line[0] === '>' && (!isset($line[1]) || ($l1 = $line[1]) === ' ' || $l1 === "\t");
 	}
 
 	/**

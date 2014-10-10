@@ -23,7 +23,7 @@ trait HeadlineTrait
 			||
 			// underlined headline
 			!empty($lines[$current + 1]) &&
-			($lines[$current + 1][0] === '=' || $lines[$current + 1][0] === '-') &&
+			(($l = $lines[$current + 1][0]) === '=' || $l === '-') &&
 			preg_match('/^(\-+|=+)\s*$/', $lines[$current + 1])
 		);
 	}

@@ -24,7 +24,7 @@ trait ListTrait
 	 */
 	protected function identifyOl($line)
 	{
-		return (is_numeric($line[0]) || $line[0] === ' ') && preg_match('/^ {0,3}\d+\.[ \t]/', $line);
+		return (($l = $line[0]) > '0' && $l <= '9' || $l === ' ') && preg_match('/^ {0,3}\d+\.[ \t]/', $line);
 	}
 
 	/**
@@ -32,10 +32,9 @@ trait ListTrait
 	 */
 	protected function identifyUl($line)
 	{
-		return ($line[0] === '-' || $line[0] === '+' || $line[0] === '*') && (isset($line[1]) && ($line[1] === ' ' || $line[1] === "\t")) ||
-		       ($line[0] === ' ' && preg_match('/^ {0,3}[\-\+\*][ \t]/', $line));
-
-
+		$l = $line[0];
+		return ($l === '-' || $l === '+' || $l === '*') && (isset($line[1]) && (($l1 = $line[1]) === ' ' || $l1 === "\t")) ||
+		       ($l === ' ' && preg_match('/^ {0,3}[\-\+\*][ \t]/', $line));
 	}
 
 	/**
