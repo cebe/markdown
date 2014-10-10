@@ -177,4 +177,7 @@ trait ListTrait
 		}
 		return implode(' ', $attributes);
 	}
+
+	abstract protected function parseInline($text);
+	abstract protected function renderAbsy($absy);
 }

@@ -110,4 +110,7 @@ trait TableTrait
 		}
 		return [['text', $markdown[0]], 1];
 	}
+
+	abstract protected function parseInline($text);
+	abstract protected function renderAbsy($absy);
 }

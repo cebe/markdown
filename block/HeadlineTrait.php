@@ -64,4 +64,7 @@ trait HeadlineTrait
 		$tag = 'h' . $block['level'];
 		return "<$tag>" . $this->renderAbsy($block['content']) . "</$tag>\n";
 	}
+
+	abstract protected function parseInline($text);
+	abstract protected function renderAbsy($absy);
 }
