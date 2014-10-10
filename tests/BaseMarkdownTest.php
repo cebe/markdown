@@ -33,6 +33,12 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($html, $m->parse($markdown));
 	}
 
+	public function testInvalidUtf8()
+	{
+		$m = $this->createMarkdown();
+		$this->assertEquals('<code>�</code>', $m->parseParagraph("`\x80`"));
+	}
+
 	public function getTestData($path, $file)
 	{
 		return [

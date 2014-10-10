@@ -179,14 +179,14 @@ REGEXP;
 
 	protected function renderEmail($block)
 	{
-		$email = htmlspecialchars($block[1], ENT_NOQUOTES, 'UTF-8');
+		$email = htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 		return "<a href=\"mailto:$email\">$email</a>";
 	}
 
 	protected function renderUrl($block)
 	{
 		$url = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES, 'UTF-8');
+		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 		return "<a href=\"$url\">$text</a>";
 	}
 
@@ -209,7 +209,7 @@ REGEXP;
 			}
 		}
 		return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. '>' . $this->renderAbsy($block['text']) . '</a>';
 	}
 
@@ -223,8 +223,8 @@ REGEXP;
 			}
 		}
 		return '<img src="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"'
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. ($this->html5 ? '>' : ' />');
 	}
 

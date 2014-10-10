@@ -131,7 +131,7 @@ class MarkdownExtra extends Markdown
 	{
 		$attributes = $this->renderAttributes($block);
 		return ($this->codeAttributesOnPre ? "<pre$attributes><code>" : "<pre><code$attributes>")
-			. htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES, 'UTF-8')
+			. htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8')
 			. "</code></pre>\n";
 	}
 
@@ -228,7 +228,7 @@ class MarkdownExtra extends Markdown
 		}
 		$attributes = $this->renderAttributes($block);
 		return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. $attributes . '>' . $this->renderAbsy($block['text']) . '</a>';
 	}
 
@@ -243,8 +243,8 @@ class MarkdownExtra extends Markdown
 		}
 		$attributes = $this->renderAttributes($block);
 		return '<img src="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"')
+			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"'
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. $attributes . ($this->html5 ? '>' : ' />');
 	}
 }
