@@ -315,7 +315,7 @@ abstract class Parser
 	 * Parses inline elements of the language.
 	 *
 	 * @param string $text the inline text to parse.
-	 * @return string
+	 * @return array
 	 */
 	protected function parseInline($text)
 	{

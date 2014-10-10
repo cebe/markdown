@@ -61,9 +61,4 @@ class TestParser extends Parser
 	{
 		return [['text', 'B'], strrpos($text, ']') + 1];
 	}
-
-//	protected function identifyLine($lines, $current)
-//	{
-//		return 'paragraph';
-//	}
 }

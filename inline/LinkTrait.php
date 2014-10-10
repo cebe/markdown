@@ -190,14 +190,11 @@ REGEXP;
 		return "<a href=\"$url\">$text</a>";
 	}
 
-	private function lookupReference($key)
+	protected function lookupReference($key)
 	{
 		$normalizedKey = preg_replace('/\s+/', ' ', $key);
 		if (isset($this->references[$key]) || isset($this->references[$key = $normalizedKey])) {
-			return [
-				'url' => $this->references[$key]['url'], // url
-				'title' => empty($this->references[$key]['title']) ? null: $this->references[$key]['title'], // title
-			];
+			return $this->references[$key];
 		}
 		return false;
 	}
