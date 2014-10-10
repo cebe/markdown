@@ -31,7 +31,6 @@ class Markdown extends Parser
 		identifyHr as protected identifyAHr;
 		consumeHr as protected consumeAHr;
 	}
-	use block\TableTrait;
 
 	// include inline element parsing using traits
 	use inline\CodeTrait;
