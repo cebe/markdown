@@ -15,3 +15,11 @@ Header 1            {#header1}
 ![img][linkref]
 
 [linkref]: http://url.de/ "optional title" {#id .class}
+
+this is just normal text {.main .shine #the-site}
+
+some { brackets
+
+some } brackets
+
+some { } brackets

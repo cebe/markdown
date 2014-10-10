@@ -6,7 +6,7 @@ A super fast, highly extensible markdown parser for PHP
 [![Build Status](https://secure.travis-ci.org/cebe/markdown.png)](http://travis-ci.org/cebe/markdown)
 [![Tested against HHVM](http://hhvm.h4cc.de/badge/cebe/markdown.png)](http://hhvm.h4cc.de/package/cebe/markdown)
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
-<!-- [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/) -->
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/)
 
 What is this?
 -------------
@@ -16,6 +16,8 @@ for converting markdown files to HTML files.
 
 The implementation focus is to be **fast** (see [benchmark][]) and **extensible**. You are able to add additional language elements by
 directly hooking into the parser - no (possibly error-prone) post- or pre-processing is needed to extend the language.
+Since version 1.0.0 the parser has an internal representation of the markdown as an abstract syntax tree which you can use to
+manipulate the document in many ways before rendering.
 It is also [well tested][] to provide best rendering results also in edge cases where other parsers fail.
 
 Currently the following markdown flavors are supported:
@@ -49,13 +51,10 @@ It will also run on facebook's [hhvm](http://hhvm.com/).
 Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
 
 ```json
-"cebe/markdown": "*"
+"cebe/markdown": "~1.0.0"
 ```
 
 Run `composer update` afterwards.
-
-Alternatively you can clone this repository and use the classes directly.
-In this case you have to include the `Parser.php` and `Markdown.php` files yourself.
 
 
 Usage
@@ -187,8 +186,8 @@ properties. For the different element types there are different ways to extend t
 ### Adding block elements
 
 The markdown is parsed line by line to identify each non-empty line as one of the block element types.
-This job is performed by the `indentifyLine()` method which takes the array of lines and the number of the current line
-to identify as an argument. This method returns the name of the identified block element which will then be used to parse it.
+To identify a line as the beginning of a block element it calls all protected class methods who's name begins with `identify`.
+An identify function returns true if it has identified the block element it is responsible for or false if not.
 In the following example we will implement support for [fenced code blocks][] which are part of the github flavored markdown.
 
 [fenced code blocks]: https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
@@ -199,10 +198,10 @@ In the following example we will implement support for [fenced code blocks][] wh
 
 class MyMarkdown extends \cebe\markdown\Markdown
 {
-	protected function identifyLine($lines, $current)
+	protected function identifyLine($line, $lines, $current)
 	{
 		// if a line starts with at least 3 backticks it is identified as a fenced code block
-		if (strncmp($lines[$current], '```', 3) === 0) {
+		if (strncmp($line, '```', 3) === 0) {
 			return 'fencedCode';
 		}
 		return parent::identifyLine($lines, $current);
@@ -212,20 +211,25 @@ class MyMarkdown extends \cebe\markdown\Markdown
 }
 ```
 
+In the above, `$line` is a string containing the content of the current line and is equal to `$lines[$current]`.
+You may use `$lines` and `$current` to check other lines than the current line. In most cases you can ignore these parameters.
+
 Parsing of a block element is done in two steps:
 
 1. "consuming" all the lines belonging to it. In most cases this is iterating over the lines starting from the identified
    line until a blank line occurs. This step is implemented by a method named `consume{blockName}()` where `{blockName}`
-   will be replaced by the name we returned in the `identifyLine()`-method. The consume method also takes the lines array
-   and the number of the current line. It will return two arguments: an array representing the block element and the line
-   number to parse next. In our example we will implement it like this:
+   is the same name as used for the identify function above. The consume method also takes the lines array
+   and the number of the current line. It will return two arguments: an array representing the block element in the abstract syntax tree
+   of the markdown document and the line number to parse next. In the abstract syntax array the first element refers to the name of
+   the element, all other array elements can be freely defined by yourself.
+   In our example we will implement it like this:
 
    ```php
 	protected function consumeFencedCode($lines, $current)
 	{
 		// create block array
 		$block = [
-			'type' => 'fencedCode',
+			'fencedCode',
 			'content' => [],
 		];
 		$line = rtrim($lines[$current]);
@@ -250,8 +254,8 @@ Parsing of a block element is done in two steps:
 	}
 	```
 
-2. "rendering" the element. After all blocks have been consumed, they are being rendered using the `render{blockName}()`
-   method:
+2. "rendering" the element. After all blocks have been consumed, they are being rendered using the
+   `render{elementName}()`-method where `elementName` refers to the name of the element in the abstract syntax tree:
 
    ```php
 	protected function renderFencedCode($block)
@@ -267,13 +271,14 @@ Parsing of a block element is done in two steps:
 
 ### Adding inline elements
 
-Adding inline elements is different from block elements as they are directly parsed in the text where they occur.
+Adding inline elements is different from block elements as they are parsed using markers in the text.
 An inline element is identified by a marker that marks the beginning of an inline element (e.g. `[` will mark a possible
 beginning of a link or `` ` `` will mark inline code).
 
-Inline markers are declared in the `inlineMarkers()`-method which returns a map from marker to parser method. That method
-will then be called when a marker is found in the text. As an argument it takes the text starting at the position of the marker.
-The parser method will return an array containing the text to append to the parsed markup and an offset of text it has
+Parsing methods for inline elements are also protected and identified by the prefix `parse`. Additionally a `@marker` annotation
+in PHPDoc is needed to register the parse function for one or multiple markers.
+The method will then be called when a marker is found in the text. As an argument it takes the text starting at the position of the marker.
+The parser method will return an array containing the element of the abstract sytnax tree and an offset of text it has
 parsed from the input markdown. All text up to this offset will be removed from the markdown before the next marker will be searched.
 
 As an example, we will add support for the [strikethrough][] feature of github flavored markdown:
@@ -285,29 +290,29 @@ As an example, we will add support for the [strikethrough][] feature of github f
 
 class MyMarkdown extends \cebe\markdown\Markdown
 {
-	protected function inlineMarkers()
-	{
-		$markers = [
-			'~~'    => 'parseStrike',
-		];
-		// merge new markers with existing ones from parent class
-		return array_merge(parent::inlineMarkers(), $markers);
-	}
-
+	/**
+	 * @marker ~~
+	 */
 	protected function parseStrike($markdown)
 	{
 		// check whether the marker really represents a strikethrough (i.e. there is a closing ~~)
 		if (preg_match('/^~~(.+?)~~/', $markdown, $matches)) {
 			return [
-			    // return the parsed tag with its content and call `parseInline()` to allow
+			    // return the parsed tag as an element of the abstract syntax tree and call `parseInline()` to allow
 			    // other inline markdown elements inside this tag
-				'<del>' . $this->parseInline($matches[1]) . '</del>',
+				['strike', $this->parseInline($matches[1])],
 				// return the offset of the parsed text
 				strlen($matches[0])
 			];
 		}
 		// in case we did not find a closing ~~ we just return the marker and skip 2 characters
-		return [$markdown[0] . $markdown[1], 2];
+		return [['text', '~~'], 2];
+	}
+
+	// rendering is the same as for block elements, we turn the abstract syntax array into a string.
+	protected function renderStrike($element)
+	{
+		return '<del>' . $this->renderAbsy($element[1]) . '</del>';
 	}
 }
 ```

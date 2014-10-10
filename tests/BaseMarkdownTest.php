@@ -27,10 +27,16 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	{
 		list($markdown, $html) = $this->getTestData($path, $file);
 		// Different OS line endings should not affect test
-		$html = preg_replace('~\r\n?~', "\n", $html);
+		$html = preg_replace('~\R~', "\n", $html);
 
 		$m = $this->createMarkdown();
 		$this->assertEquals($html, $m->parse($markdown));
+	}
+
+	public function testInvalidUtf8()
+	{
+		$m = $this->createMarkdown();
+		$this->assertEquals('<code>�</code>', $m->parseParagraph("`\x80`"));
 	}
 
 	public function getTestData($path, $file)

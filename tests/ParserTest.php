@@ -54,16 +54,11 @@ class TestParser extends Parser
 
 	protected function parseMarkerA($text)
 	{
-		return ['A', strrpos($text, ']') + 1];
+		return [['text', 'A'], strrpos($text, ']') + 1];
 	}
 
 	protected function parseMarkerB($text)
 	{
-		return ['B', strrpos($text, ']') + 1];
-	}
-
-	protected function identifyLine($lines, $current)
-	{
-		return 'paragraph';
+		return [['text', 'B'], strrpos($text, ']') + 1];
 	}
 }

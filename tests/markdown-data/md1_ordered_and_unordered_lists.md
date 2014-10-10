@@ -15,7 +15,7 @@ Asterisks loose:
 
 *	asterisk 3
 
-* * *
+- - -
 
 Pluses tight:
 
