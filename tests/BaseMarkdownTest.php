@@ -26,8 +26,8 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	public function testParse($path, $file)
 	{
 		list($markdown, $html) = $this->getTestData($path, $file);
-		// Different OS line endings should not affect test
-		$html = preg_replace('~\R~', "\n", $html);
+
+		$html = str_replace(array("\r\n", "\r", "\f"), "\n", $html);
 
 		$m = $this->createMarkdown();
 		$this->assertEquals($html, $m->parse($markdown));
