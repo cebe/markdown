@@ -32,7 +32,7 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	{
 		list($markdown, $html) = $this->getTestData($path, $file);
 		// Different OS line endings should not affect test
-		$html = preg_replace('~\R~u', "\n", $html);
+		$html = str_replace(["\r\n", "\n\r", "\r"], "\n", $html);
 
 		$m = $this->createMarkdown();
 		$this->assertEquals($html, $m->parse($markdown));
@@ -63,26 +63,24 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 		// http://en.wikipedia.org/wiki/Newline#Representations
 		return [
 			["a\r\nb", "a\nb"],
-//			["\n\r", "\n"], // Acorn BBC and RISC OS spooled text output, not supported currently :)
+			["a\n\rb", "a\nb"], // Acorn BBC and RISC OS spooled text output :)
 			["a\nb", "a\nb"],
 			["a\rb", "a\nb"],
 
-			["a\n\nb", "a\n\nb"],
-			["\r\r", "\n\n"],
-//			["\n\r\n\r", "\n\n"], // Acorn BBC and RISC OS spooled text output, not supported currently :)
-			["\r\n\r\n", "\n\n"],
+			["a\n\nb", "a\n\nb", "a</p>\n<p>b"],
+			["a\r\rb", "a\n\nb", "a</p>\n<p>b"],
+			["a\n\r\n\rb", "a\n\nb", "a</p>\n<p>b"], // Acorn BBC and RISC OS spooled text output :)
+			["a\r\n\r\nb", "a\n\nb", "a</p>\n<p>b"],
 		];
 	}
 
 	/**
 	 * @dataProvider pregData
 	 */
-	public function testPregReplaceR($input, $exptected)
+	public function testPregReplaceR($input, $exptected, $pexpect = null)
 	{
-		$this->assertSame($exptected, preg_replace('~\R~', "\n", $input));
-		$this->assertSame($exptected, preg_replace('~\R~u', "\n", $input));
 		$this->assertSame($exptected, $this->createMarkdown()->parseParagraph($input));
-//		$this->assertSame("<p>$exptected</p>", $this->createMarkdown()->parse($input));
+		$this->assertSame($pexpect === null ? "<p>$exptected</p>\n" : "<p>$pexpect</p>\n", $this->createMarkdown()->parse($input));
 	}
 
 	public function getTestData($path, $file)

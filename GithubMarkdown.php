@@ -90,7 +90,8 @@ class GithubMarkdown extends Markdown
 	protected function renderText($text)
 	{
 		if ($this->enableNewlines) {
-			return preg_replace("/(  \n|\n)/", $this->html5 ? "<br>\n" : "<br />\n", $text[1]);
+			$br = $this->html5 ? "<br>\n" : "<br />\n";
+			return strtr($text[1], ["  \n" => $br, "\n" => $br]);
 		} else {
 			return parent::renderText($text);
 		}
