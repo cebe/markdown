@@ -7,6 +7,8 @@
 
 namespace cebe\markdown\tests;
 
+use cebe\markdown\Parser;
+
 /**
  * Base class for all Test cases.
  *
@@ -18,6 +20,9 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 
 	abstract public function getDataPaths();
 
+	/**
+	 * @return Parser
+	 */
 	abstract public function createMarkdown();
 
 	/**
@@ -27,16 +32,57 @@ abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
 	{
 		list($markdown, $html) = $this->getTestData($path, $file);
 		// Different OS line endings should not affect test
-		$html = preg_replace('~\R~', "\n", $html);
+		$html = preg_replace('~\R~u', "\n", $html);
 
 		$m = $this->createMarkdown();
 		$this->assertEquals($html, $m->parse($markdown));
 	}
 
+	public function testUtf8()
+	{
+		$this->assertSame("<p>абвгдеёжзийклмнопрстуфхцчшщъыьэюя</p>\n", $this->createMarkdown()->parse('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
+		$this->assertSame("<p>there is a charater, 配</p>\n", $this->createMarkdown()->parse('there is a charater, 配'));
+		$this->assertSame("<p>Arabic Latter \"م (M)\"</p>\n", $this->createMarkdown()->parse('Arabic Latter "م (M)"'));
+		$this->assertSame("<p>電腦</p>\n", $this->createMarkdown()->parse('電腦'));
+
+		$this->assertSame('абвгдеёжзийклмнопрстуфхцчшщъыьэюя', $this->createMarkdown()->parseParagraph('абвгдеёжзийклмнопрстуфхцчшщъыьэюя'));
+		$this->assertSame('there is a charater, 配', $this->createMarkdown()->parseParagraph('there is a charater, 配'));
+		$this->assertSame('Arabic Latter "م (M)"', $this->createMarkdown()->parseParagraph('Arabic Latter "م (M)"'));
+		$this->assertSame('電腦', $this->createMarkdown()->parseParagraph('電腦'));
+	}
+
 	public function testInvalidUtf8()
 	{
 		$m = $this->createMarkdown();
+		$this->assertEquals("<p><code>�</code></p>\n", $m->parse("`\x80`"));
 		$this->assertEquals('<code>�</code>', $m->parseParagraph("`\x80`"));
+	}
+
+	public function pregData()
+	{
+		// http://en.wikipedia.org/wiki/Newline#Representations
+		return [
+			["a\r\nb", "a\nb"],
+//			["\n\r", "\n"], // Acorn BBC and RISC OS spooled text output, not supported currently :)
+			["a\nb", "a\nb"],
+			["a\rb", "a\nb"],
+
+			["a\n\nb", "a\n\nb"],
+			["\r\r", "\n\n"],
+//			["\n\r\n\r", "\n\n"], // Acorn BBC and RISC OS spooled text output, not supported currently :)
+			["\r\n\r\n", "\n\n"],
+		];
+	}
+
+	/**
+	 * @dataProvider pregData
+	 */
+	public function testPregReplaceR($input, $exptected)
+	{
+		$this->assertSame($exptected, preg_replace('~\R~', "\n", $input));
+		$this->assertSame($exptected, preg_replace('~\R~u', "\n", $input));
+		$this->assertSame($exptected, $this->createMarkdown()->parseParagraph($input));
+//		$this->assertSame("<p>$exptected</p>", $this->createMarkdown()->parse($input));
 	}
 
 	public function getTestData($path, $file)

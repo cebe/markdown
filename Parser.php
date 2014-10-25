@@ -54,7 +54,7 @@ abstract class Parser
 		}
 
 		// http://stackoverflow.com/a/18992691/1106908
-		$text = preg_replace('~\R~', "\n", $text);
+		$text = preg_replace('~\R~u', "\n", $text);
 
 		$this->prepareMarkers($text);
 
@@ -80,7 +80,7 @@ abstract class Parser
 		}
 
 		// http://stackoverflow.com/a/18992691/1106908
-		$text = preg_replace('~\R~', "\n", $text);
+		$text = preg_replace('~\R~u', "\n", $text);
 
 		$this->prepareMarkers($text);
 
