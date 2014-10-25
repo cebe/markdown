@@ -1,12 +1,16 @@
 CHANGELOG
 =========
 
+Version 1.0.2 work in progress
+------------------------------
+
+...
+
 Version 1.0.1 on 25. Okt. 2014
 ------------------------------
 
 - Fixed the `bin/markdown` script to work with composer autoloader (c497bada0e15f61873ba6b2e29f4bb8b3ef2a489)
-- #74 fixed a bug that caused a bunch of broken characters when non-ASCII input was given. Input must be utf-8 encoded to work.
-  This was the default before but is now explicit and documented.
+- #74 fixed a bug that caused a bunch of broken characters when non-ASCII input was given. Parser now handles UTF-8 input correctly. Other encodings are currently untested, UTF-8 is recommended.
 
 Version 1.0.0 on 12. Okt. 2014
 ------------------------------
