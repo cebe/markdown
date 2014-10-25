@@ -110,8 +110,7 @@ For GithubMarkdown:
 
 - `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
 
-Note that the parser works well and is tested with UTF-8 encoding of the input and will produce valid UTF-8 encoded output.
-Other encodings are currently not supported.
+It is recommended to use UTF-8 encoding for the input strings. Other encodings are currently not tested.
 
 ### The command line script
 
