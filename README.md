@@ -8,27 +8,29 @@ A super fast, highly extensible markdown parser for PHP
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/)
 
-What is this?
+What is this? <a name="what"></a>
 -------------
 
 A set of [PHP][] classes, each representing a [Markdown][] flavor, and a command line tool
 for converting markdown files to HTML files.
 
-The implementation focus is to be **fast** (see [benchmark][]) and **extensible**. You are able to add additional language elements by
-directly hooking into the parser - no (possibly error-prone) post- or pre-processing is needed to extend the language.
-Since version 1.0.0 the parser has an internal representation of the markdown as an abstract syntax tree which you can use to
-manipulate the document in many ways before rendering.
-It is also [well tested][] to provide best rendering results also in edge cases where other parsers fail.
+The implementation focus is to be **fast** (see [benchmark][]) and **extensible**.
+Parsing Markdown to HTML is as simple as calling a single method (see [Usage](#usage)) providing a solid implementation
+that gives most expected results even in non-trivial edge cases.
+
+Extending the Markdown language with new elements is as simple as adding a new method to the class that converts the
+markdown text to the expected output in HTML. This is possible without dealing with complex and error prone regular expressions.
+It is also possible to hook into the markdown structure and add elements or read meta information using the internal representation
+of the Markdown text as an abstract syntax tree (see [Extending the language](#extend)).
 
 Currently the following markdown flavors are supported:
 
-- **The original Markdown** according to <http://daringfireball.net/projects/markdown/syntax> ([try it!](http://markdown.cebe.cc/try?flavor=default)).
+- **Traditional Markdown** according to <http://daringfireball.net/projects/markdown/syntax> ([try it!](http://markdown.cebe.cc/try?flavor=default)).
 - **Github flavored Markdown** according to <https://help.github.com/articles/github-flavored-markdown> ([try it!](http://markdown.cebe.cc/try?flavor=gfm)).
 - **Markdown Extra** according to <http://michelf.ca/projects/php-markdown/extra/> (currently not fully supported WIP see [#25][], [try it!](http://markdown.cebe.cc/try?flavor=extra))
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
 
 [#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
-[well tested]: https://travis-ci.org/cebe/markdown "PHPUnit tests on Travis-CI"
 
 Future plans are to support:
 
@@ -42,22 +44,26 @@ Future plans are to support:
 [Yii Framework]: http://www.yiiframework.com/ "The Yii PHP Framework"
 
 
-Installation
+Installation <a name="installation"></a>
 ------------
 
 [PHP 5.4 or higher](http://www.php.net/downloads.php) is required to use it.
 It will also run on facebook's [hhvm](http://hhvm.com/).
 
-Installation is recommended to be done via [composer][] by adding the following to the `require` section in your `composer.json`:
+Installation is recommended to be done via [composer][] by running:
+
+	composer require cebe/markdown "~1.0.1"
+
+Alternatively you can add the following to the `require` section in your `composer.json` manually:
 
 ```json
-"cebe/markdown": "~1.0.0"
+"cebe/markdown": "~1.0.1"
 ```
 
 Run `composer update` afterwards.
 
 
-Usage
+Usage <a name="usage"></a>
 -----
 
 ### In your PHP project
@@ -65,7 +71,7 @@ Usage
 To parse your markdown you need only two lines of code. The first one is to choose the markdown flavor as
 one of the following:
 
-- Original Markdown: `$parser = new \cebe\markdown\Markdown();`
+- Traditional Markdown: `$parser = new \cebe\markdown\Markdown();`
 - Github Flavored Markdown: `$parser = new \cebe\markdown\GithubMarkdown();`
 - Markdown Extra: `$parser = new \cebe\markdown\MarkdownExtra();`
 
@@ -75,7 +81,7 @@ or calling the `parseParagraph()`-method to parse only inline elements.
 Here are some examples:
 
 ```php
-// original markdown and parse full text
+// traditional markdown and parse full text
 $parser = new \cebe\markdown\Markdown();
 $parser->parse($markdown);
 
@@ -103,6 +109,9 @@ For all Markdown Flavors:
 For GithubMarkdown:
 
 - `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
+
+Note that the parser works well and is tested with UTF-8 encoding of the input and will produce valid UTF-8 encoded output.
+Other encodings are currently not supported.
 
 ### The command line script
 
@@ -171,7 +180,7 @@ Here are some extensions to this library:
 - ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L98)
 
 
-Extending the language
+Extending the language <a name="extend"></a>
 ----------------------
 
 Markdown consists of two types of language elements, I'll call them block and inline elements simlar to what you have in
@@ -317,8 +326,12 @@ class MyMarkdown extends \cebe\markdown\Markdown
 }
 ```
 
+### Composing your own Markdown flavor
 
-Acknowledgements
+TBD
+
+
+Acknowledgements <a name="ack"></a>
 ----------------
 
 I'd like to thank [@erusev][] for creating [Parsedown][] which heavily influenced this work and provided
@@ -326,7 +339,7 @@ the idea of the line based parsing approach.
 
 [@erusev]: https://github.com/erusev "Emanuil Rusev"
 
-FAQ
+FAQ <a name="faq"></a>
 ---
 
 ### Why another markdown parser?
@@ -358,12 +371,18 @@ to using callbacks to inject functionallity into the parser.
 Just [open an issue][] on github, post your markdown code and describe the problem. You may also attach screenshots of the rendered HTML result to describe your problem.
 
 
+### How can I contribute to this library?
+
+Check the [CONTRIBUTING.md](CONTRIBUTING.md) file for more info.
+
+
 ### Am I free to use this?
 
 This library is open source and licensed under the [MIT License][]. This means that you can do whatever you want
 with it as long as you mention my name and include the [license file][license]. Check the [license][] for details.
 
 [MIT License]: http://opensource.org/licenses/MIT
+
 
 Contact
 -------
