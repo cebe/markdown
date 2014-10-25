@@ -54,7 +54,9 @@ abstract class Parser
 		}
 
 		// http://stackoverflow.com/a/18992691/1106908
-		$text = preg_replace('~\R~', "\n", $text);
+        // to support Whatever unicode chars:
+        // http://php.net/manual/en/function.preg-replace.php#106981 
+		$text = preg_replace('~\R~u', "\n", $text);
 
 		$this->prepareMarkers($text);
 
