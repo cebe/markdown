@@ -48,13 +48,13 @@ abstract class Parser
 	public function parse($text)
 	{
 		$this->prepare();
-		
+
 		if (empty($text)) {
 			return '';
 		}
 
-		// http://stackoverflow.com/a/18992691/1106908
-		$text = preg_replace('~\R~', "\n", $text);
+
+		$text = str_replace(array("\r\n", "\n\r", "\r", "\f"), "\n", $text);
 
 		$this->prepareMarkers($text);
 
@@ -79,8 +79,7 @@ abstract class Parser
 			return '';
 		}
 
-		// http://stackoverflow.com/a/18992691/1106908
-		$text = preg_replace('~\R~', "\n", $text);
+		$text = str_replace(array("\r\n", "\n\r", "\r", "\f"), "\n", $text);
 
 		$this->prepareMarkers($text);
 
