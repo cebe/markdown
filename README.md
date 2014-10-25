@@ -30,12 +30,15 @@ Currently the following markdown flavors are supported:
 - **Markdown Extra** according to <http://michelf.ca/projects/php-markdown/extra/> (currently not fully supported WIP see [#25][], [try it!](http://markdown.cebe.cc/try?flavor=extra))
 - Any mixed Markdown flavor you like because of its highly extensible structure (See documentation below).
 
-[#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
-
 Future plans are to support:
 
 - Smarty Pants <http://daringfireball.net/projects/smartypants/>
 - ... (Feel free to [suggest](https://github.com/cebe/markdown/issues/new) further additions!)
+
+[PHP]: http://php.net/ "PHP is a popular general-purpose scripting language that is especially suited to web development."
+[Markdown]: http://en.wikipedia.org/wiki/Markdown "Markdown on Wikipedia"
+[#25]: https://github.com/cebe/markdown/issues/25 "issue #25"
+[benchmark]: https://github.com/kzykhys/Markbench#readme "kzykhys/Markbench on github"
 
 ### Who is using it?
 
@@ -61,6 +64,8 @@ Alternatively you can add the following to the `require` section in your `compos
 ```
 
 Run `composer update` afterwards.
+
+[composer]: https://getcomposer.org/ "The PHP package manager"
 
 
 Usage <a name="usage"></a>
@@ -337,6 +342,7 @@ I'd like to thank [@erusev][] for creating [Parsedown][] which heavily influence
 the idea of the line based parsing approach.
 
 [@erusev]: https://github.com/erusev "Emanuil Rusev"
+[Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
 
 FAQ <a name="faq"></a>
 ---
@@ -364,11 +370,15 @@ own flavor picking the best things from all.
 I chose this approach as it is easier to implement and also more intuitive approach compared
 to using callbacks to inject functionallity into the parser.
 
+[real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
+
+[Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
 
 ### Where do I report bugs or rendering issues?
 
 Just [open an issue][] on github, post your markdown code and describe the problem. You may also attach screenshots of the rendered HTML result to describe your problem.
 
+[open an issue]: https://github.com/cebe/markdown/issues/new
 
 ### How can I contribute to this library?
 
@@ -382,19 +392,9 @@ with it as long as you mention my name and include the [license file][license]. 
 
 [MIT License]: http://opensource.org/licenses/MIT
 
+[license]: https://github.com/cebe/markdown/blob/master/LICENSE
 
 Contact
 -------
 
 Feel free to contact me using [email](mailto:mail@cebe.cc) or [twitter](https://twitter.com/cebe_cc).
-
-
-[PHP]: http://php.net/ "PHP is a popular general-purpose scripting language that is especially suited to web development."
-[Markdown]: http://en.wikipedia.org/wiki/Markdown "Markdown on Wikipedia"
-[composer]: https://getcomposer.org/ "The PHP package manager"
-[Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
-[benchmark]: https://github.com/kzykhys/Markbench#readme "kzykhys/Markbench on github"
-[Yii framework 2.0]: https://github.com/yiisoft/yii2
-[real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
-[open an issue]: https://github.com/cebe/markdown/issues/new
-[license]: https://github.com/cebe/markdown/blob/master/LICENSE
