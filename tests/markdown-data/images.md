@@ -12,3 +12,11 @@ Images inside of links:
 This is not an image: ![[ :-)
 
 This is not an image: ![[ :-)]]
+
+![Alt text](/path/to/img.jpg)
+
+![Alt text]( /path/to/img.jpg)
+
+![Alt text]( /path/to/img.jpg  )
+
+![Alt text](/path/to/img.jpg  )
