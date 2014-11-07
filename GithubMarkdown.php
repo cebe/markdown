@@ -64,15 +64,21 @@ class GithubMarkdown extends Markdown
 		$content = [];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (!empty($line) && ltrim($line) !== '' &&
-				!($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) === 0) &&
-				!$this->identifyHeadline($line, $lines, $i) &&
-				!$this->identifyUl($line, $lines, $i) &&
-				!$this->identifyOl($line, $lines, $i))
+			if (empty($line)
+				|| ltrim($line) === ''
+				|| !ctype_alpha($line[0]) && (
+					$this->identifyQuote($line, $lines, $i) ||
+					$this->identifyCode($line, $lines, $i) ||
+					$this->identifyFencedCode($line, $lines, $i) ||
+					$this->identifyUl($line, $lines, $i) ||
+					$this->identifyOl($line, $lines, $i) ||
+					$this->identifyHr($line, $lines, $i)
+				)
+				|| $this->identifyHeadline($line, $lines, $i))
 			{
-				$content[] = $line;
-			} else {
 				break;
+			} else {
+				$content[] = $line;
 			}
 		}
 		$block = [
