@@ -20,8 +20,8 @@ install:
 
 script:
   - vendor/bin/phpunit --verbose --coverage-clover=coverage.clover
-# test against standard markdown spec
-#  - git clone https://github.com/jgm/stmd && cd stmd && perl runtests.pl spec.txt ../bin/markdown
+  # test against CommonMark spec
+  - make test-commonmark
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar

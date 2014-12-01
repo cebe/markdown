@@ -53,7 +53,7 @@ abstract class Parser
 			return '';
 		}
 
-		$text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
+		$text = $this->normalizeText($text);
 
 		$this->prepareMarkers($text);
 
@@ -78,7 +78,7 @@ abstract class Parser
 			return '';
 		}
 
-		$text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
+		$text = $this->normalizeText($text);
 
 		$this->prepareMarkers($text);
 
@@ -87,6 +87,17 @@ abstract class Parser
 
 		$this->cleanup();
 		return $markup;
+	}
+
+	/**
+	 * Normalize input text before starting the parsing
+	 *
+	 * @param $text
+	 * @return string
+	 */
+	protected function normalizeText($text)
+	{
+		return str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
 	}
 
 	/**

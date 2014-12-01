@@ -241,7 +241,7 @@ REGEXP;
 	protected function consumeReference($lines, $current)
 	{
 		while (isset($lines[$current]) && preg_match('/^ {0,3}\[(.+?)\]:\s*(.+?)(?:\s+[\(\'"](.+?)[\)\'"])?\s*$/', $lines[$current], $matches)) {
-			$label = strtolower($matches[1]);
+			$label = mb_strtolower($matches[1], 'UTF-8');
 
 			$this->references[$label] = [
 				'url' => $matches[2],

@@ -8,7 +8,7 @@
 namespace cebe\markdown;
 
 /**
- * Markdown parser for the [initial markdown spec](http://daringfireball.net/projects/markdown/syntax).
+ * Markdown parser for [traditional markdown](http://daringfireball.net/projects/markdown/syntax) by John Gruber.
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */

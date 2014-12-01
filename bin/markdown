@@ -24,6 +24,7 @@ $flavor = 'cebe\\markdown\\Markdown';
 $flavors = [
 	'gfm'   => ['cebe\\markdown\\GithubMarkdown', __DIR__ . '/../GithubMarkdown.php'],
 	'extra' => ['cebe\\markdown\\MarkdownExtra', __DIR__ . '/../MarkdownExtra.php'],
+	'common' => ['cebe\\markdown\\CommonMark', __DIR__ . '/../CommonMark.php'],
 ];
 
 $full = false;
@@ -120,8 +121,9 @@ Usage:
     --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
               Available flavors:
 
-              gfm   - Github flavored markdown [2]
-              extra - Markdown Extra [3]
+              gfm    - Github flavored markdown [2]
+              extra  - Markdown Extra [3]
+              common - CommonMark [4]
 
     --full    ouput a full HTML page with head and body. If not given, only the parsed markdown will be output.
 
@@ -147,6 +149,7 @@ Examples:
 [1] http://daringfireball.net/projects/markdown/syntax
 [2] https://help.github.com/articles/github-flavored-markdown
 [3] http://michelf.ca/projects/php-markdown/extra/
+[4] http://commonmark.org/
 
 EOF;
 	exit(1);

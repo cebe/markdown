@@ -21,7 +21,7 @@ trait FencedCodeTrait
 	 */
 	protected function identifyFencedCode($line)
 	{
-		return ($l = $line[0]) === '`' && strncmp($line, '```', 3) === 0 ||
+		return ($l = $line[0]) === '`' && strncmp($line, '```', 3) === 0 && !preg_match('/^```+[^`]+`/', $line) ||
 				$l === '~' && strncmp($line, '~~~', 3) === 0;
 	}
 

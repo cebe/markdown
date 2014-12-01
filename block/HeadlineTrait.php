@@ -33,15 +33,17 @@ trait HeadlineTrait
 	 */
 	protected function consumeHeadline($lines, $current)
 	{
-		if ($lines[$current][0] === '#') {
+		$line = $lines[$current];
+		$line = ltrim($line);
+		if ($line[0] === '#') {
 			// ATX headline
 			$level = 1;
-			while (isset($lines[$current][$level]) && $lines[$current][$level] === '#' && $level < 6) {
+			while (isset($line[$level]) && $line[$level] === '#' && $level < 6) {
 				$level++;
 			}
 			$block = [
 				'headline',
-				'content' => $this->parseInline(trim($lines[$current], "# \t")),
+				'content' => $this->parseInline(trim($line, "# \t")),
 				'level' => $level,
 			];
 			return [$block, $current];
@@ -49,8 +51,8 @@ trait HeadlineTrait
 			// underlined headline
 			$block = [
 				'headline',
-				'content' => $this->parseInline($lines[$current]),
-				'level' => $lines[$current + 1][0] === '=' ? 1 : 2,
+				'content' => $this->parseInline($line),
+				'level' => ltrim($lines[$current + 1])[0] === '=' ? 1 : 2,
 			];
 			return [$block, $current + 1];
 		}
