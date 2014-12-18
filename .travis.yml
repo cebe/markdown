@@ -7,8 +7,13 @@ php:
   - hhvm
   - hhvm-nightly
 
-# use the docker setup
+# faster builds on new travis setup not using sudo
 sudo: false
+
+# cache composer cache
+cache:
+  directories:
+    - $HOME/.composer/cache
 
 # run build against hhvm but allow them to fail
 # http://docs.travis-ci.com/user/build-configuration/#Rows-That-are-Allowed-To-Fail
