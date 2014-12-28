@@ -98,7 +98,17 @@ trait ListTrait
 					if (!isset($block['attr']['start']) && isset($matches[2])) {
 						$block['attr']['start'] = $matches[2];
 					}
-				}
+				} else {
+          if (preg_match('/^\[([\sx]{1})\]\s([^\r\n]+)/', $line, $m)) {
+            if (!isset($block['class'])) $block['class'] = "task-list-item";
+            if ((count($m) >= 3) && isset($m[2]) && !empty($m[2])) {
+              $state = trim($m[1]) ? "checked" : "";
+              $line = " " . <<<HTML
+              <input type="checkbox" class="task-list-item-checkbox" disabled {$state}> {$m[2]}
+HTML;
+            }
+          }
+        }
 
 				$block['items'][++$item][] = $line;
 			} elseif (ltrim($line) === '') {
