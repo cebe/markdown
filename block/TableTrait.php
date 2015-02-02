@@ -106,7 +106,10 @@ trait TableTrait
 			$first = false;
 			$this->_tableCellCount = 0;
 		}
-		return "<table class=\"{$this->getTableClass()}\">\n$content</tbody>\n</table>\n";
+		return $this->getTableClass() !== '' ?
+			"<table class=\"{$this->getTableClass()}\">\n$content</tbody>\n</table>\n"
+			:
+			 "<table>\n$content</tbody>\n</table>\n";
 	}
 
 	/**
