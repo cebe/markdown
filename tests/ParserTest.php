@@ -41,6 +41,14 @@ class ParserTest extends  \PHPUnit_Framework_TestCase
 		$this->assertEquals('Result is A', $parser->parseParagraph('Result is [abc]'));
 		$this->assertEquals('Result is B', $parser->parseParagraph('Result is [[abc]]'));
 	}
+
+	public function testKeepZeroAlive()
+	{
+		$parser = new TestParser();
+
+		$this->assertEquals("0", $parser->parseParagraph("0"));
+		$this->assertEquals("<p>0</p>\n", $parser->parse("0"));
+	}
 }
 
 class TestParser extends Parser
