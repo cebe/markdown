@@ -56,6 +56,14 @@ class ParserTest extends  \PHPUnit_Framework_TestCase
 		$parser->maximumNestingLevel = 1;
 		$this->assertEquals("(C-a[b[c]])", $parser->parseParagraph('[a[b[c]]]'));
 	}
+
+	public function testKeepZeroAlive()
+	{
+		$parser = new TestParser();
+
+		$this->assertEquals("0", $parser->parseParagraph("0"));
+		$this->assertEquals("<p>0</p>\n", $parser->parse("0"));
+	}
 }
 
 class TestParser extends Parser
