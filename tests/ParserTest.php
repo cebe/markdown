@@ -41,6 +41,21 @@ class ParserTest extends  \PHPUnit_Framework_TestCase
 		$this->assertEquals('Result is A', $parser->parseParagraph('Result is [abc]'));
 		$this->assertEquals('Result is B', $parser->parseParagraph('Result is [[abc]]'));
 	}
+
+	public function testMaxNestingLevel()
+	{
+		$parser = new TestParser();
+		$parser->markers = [
+			'[' => 'parseMarkerC',
+		];
+
+		$parser->maximumNestingLevel = 3;
+		$this->assertEquals("(C-a(C-b(C-c)))", $parser->parseParagraph('[a[b[c]]]'));
+		$parser->maximumNestingLevel = 2;
+		$this->assertEquals("(C-a(C-b[c]))", $parser->parseParagraph('[a[b[c]]]'));
+		$parser->maximumNestingLevel = 1;
+		$this->assertEquals("(C-a[b[c]])", $parser->parseParagraph('[a[b[c]]]'));
+	}
 }
 
 class TestParser extends Parser
@@ -60,5 +75,12 @@ class TestParser extends Parser
 	protected function parseMarkerB($text)
 	{
 		return [['text', 'B'], strrpos($text, ']') + 1];
+	}
+
+	protected function parseMarkerC($text)
+	{
+		$terminatingMarkerPos = strrpos($text, ']');
+		$inside = $this->parseInline(substr($text, 1, $terminatingMarkerPos - 1));
+		return [['text', '(C-' . $this->renderAbsy($inside) . ')'], $terminatingMarkerPos + 1];
 	}
 }
