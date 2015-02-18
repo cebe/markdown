@@ -54,4 +54,12 @@ class GithubMarkdownTest extends BaseMarkdownTest
 		}
 		return $files;
 	}
+
+	public function testKeepZeroAlive()
+	{
+		$parser = $this->createMarkdown();
+
+		$this->assertEquals("0", $parser->parseParagraph("0"));
+		$this->assertEquals("<p>0</p>\n", $parser->parse("0"));
+	}
 }
