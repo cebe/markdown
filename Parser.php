@@ -319,7 +319,7 @@ abstract class Parser
 	{
 		if ($this->_depth >= $this->maximumNestingLevel) {
 			// maximum depth is reached, do not parse input
-			return ['text', $text];
+			return [['text', $text]];
 		}
 		$this->_depth++;
 
