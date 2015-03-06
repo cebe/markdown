@@ -21,3 +21,7 @@ with][multi
 line] reference.
 
 [multi line]: http://example.com
+
+[ ]
+
+[not a] reference
