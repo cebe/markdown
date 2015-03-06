@@ -33,13 +33,13 @@ trait CodeTrait
 			$line = $lines[$i];
 
 			// a line is considered to belong to this code block as long as it is intended by 4 spaces or a tab
-			if (isset($line[0]) && ($line[0] === "\t" || strncmp($lines[$i], '    ', 4) === 0)) {
+			if (isset($line[0]) && ($line[0] === "\t" || strncmp($line, '    ', 4) === 0)) {
 				$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				$content[] = $line;
 			// but also if it is empty and the next line is intended by 4 spaces or a tab
-			} elseif ((empty($line) || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
+			} elseif (($line === '' || rtrim($line) === '') && isset($lines[$i + 1][0]) &&
 				      ($lines[$i + 1][0] === "\t" || strncmp($lines[$i + 1], '    ', 4) === 0)) {
-				if (!empty($line)) {
+				if ($line !== '') {
 					$line = $line[0] === "\t" ? substr($line, 1) : substr($line, 4);
 				}
 				$content[] = $line;

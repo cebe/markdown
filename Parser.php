@@ -48,8 +48,8 @@ abstract class Parser
 	public function parse($text)
 	{
 		$this->prepare();
-		
-		if ($text !== '0' && empty($text)) {
+
+		if (ltrim($text) === '') {
 			return '';
 		}
 
@@ -74,7 +74,7 @@ abstract class Parser
 	{
 		$this->prepare();
 
-		if ($text !== '0' && empty($text)) {
+		if (ltrim($text) === '') {
 			return '';
 		}
 
@@ -167,7 +167,7 @@ abstract class Parser
 		// convert lines to blocks
 		for ($i = 0, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (($line === '0' || !empty($line)) && rtrim($line) !== '') { // skip empty lines
+			if ($line !== '' && rtrim($line) !== '') { // skip empty lines
 				// identify a blocks beginning
 				$identified = false;
 				foreach($blockTypes as $blockType) {

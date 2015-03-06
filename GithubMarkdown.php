@@ -64,7 +64,7 @@ class GithubMarkdown extends Markdown
 		$content = [];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
-			if (($line !== '0' && empty($line))
+			if ($line === ''
 				|| ltrim($line) === ''
 				|| !ctype_alpha($line[0]) && (
 					$this->identifyQuote($line, $lines, $i) ||

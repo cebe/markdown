@@ -92,7 +92,7 @@ class Markdown extends Parser
 				break;
 			}
 
-			if (($line === '0' || !empty($line)) && ltrim($line) !== '' &&
+			if ($line !== '' && ltrim($line) !== '' &&
 				!($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) === 0) &&
 				!$this->identifyHeadline($line, $lines, $i))
 			{
