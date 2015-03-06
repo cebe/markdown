@@ -44,3 +44,7 @@
 -   more indented line
 - different indent
 -not a list item
+
+---
+
+- one item

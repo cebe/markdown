@@ -85,6 +85,13 @@ class Markdown extends Parser
 		$content = [];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
+
+			// a list may break a paragraph when it is inside of a list
+			if (isset($this->context[1]) && $this->context[1] === 'list' && !ctype_alpha($line[0]) && (
+				$this->identifyUl($line, $lines, $i) || $this->identifyOl($line, $lines, $i))) {
+				break;
+			}
+
 			if (!empty($line) && ltrim($line) !== '' &&
 				!($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) === 0) &&
 				!$this->identifyHeadline($line, $lines, $i))

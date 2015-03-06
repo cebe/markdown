@@ -73,6 +73,7 @@ trait ListTrait
 		$item = 0;
 		$indent = '';
 		$len = 0;
+		$lastLineEmpty = false;
 		// track the indentation of list markers, if indented more than previous element
 		// a list marker is considered to be long to a lower level
 		$leadSpace = 3;
@@ -80,7 +81,8 @@ trait ListTrait
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			// match list marker on the beginning of the line
-			if (preg_match($type == 'ol' ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})\\'.$marker.'[ \t]+/', $line, $matches)) {
+			$pattern = ($type == 'ol') ? '/^( {0,'.$leadSpace.'})(\d+)\.[ \t]+/' : '/^( {0,'.$leadSpace.'})\\'.$marker.'[ \t]+/';
+			if (preg_match($pattern, $line, $matches)) {
 				if (($len = substr_count($matches[0], "\t")) > 0) {
 					$indent = str_repeat("\t", $len);
 					$line = substr($line, strlen($matches[0]));
@@ -101,13 +103,27 @@ trait ListTrait
 				}
 
 				$block['items'][++$item][] = $line;
+				$block['lazyItems'][$item] = $lastLineEmpty;
+				$lastLineEmpty = false;
 			} elseif (ltrim($line) === '') {
-				// next line after empty one is also a list or indented -> lazy list
-				if (isset($lines[$i + 1][0]) && (
-					$this->{'identify' . $type}($lines[$i + 1], $lines, $i + 1) && ($type !== 'ul' || ltrim($lines[$i + 1])[0] === $marker) ||
-					(strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t"))) {
+				// line is empty, may be a lazy list
+				$lastLineEmpty = true;
+
+				// two empty lines will end the list
+				if (!isset($lines[$i + 1][0])) {
+					break;
+
+				// next item is the continuation of this list -> lazy list
+				} elseif (preg_match($pattern, $lines[$i + 1])) {
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
+
+				// next item is indented as much as this list -> lazy list
+				} elseif (strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t") {
+					$block['items'][$item][] = $line;
+					$block['lazyItems'][$item] = true;
+
+				// everything else ends the list
 				} else {
 					break;
 				}
@@ -118,17 +134,13 @@ trait ListTrait
 					$line = substr($line, $len);
 				}
 				$block['items'][$item][] = $line;
+				$lastLineEmpty = false;
 			}
-		}
-
-		// make last item lazy if item before was lazy
-		if (isset($block['lazyItems'][$item - 1])) {
-			$block['lazyItems'][$item] = true;
 		}
 
 		foreach($block['items'] as $itemId => $itemLines) {
 			$content = [];
-			if (!isset($block['lazyItems'][$itemId])) {
+			if (!$block['lazyItems'][$itemId]) {
 				$firstPar = [];
 				while (!empty($itemLines) && rtrim($itemLines[0]) !== '' && $this->detectLineType($itemLines, 0) === 'paragraph') {
 					$firstPar[] = array_shift($itemLines);
