@@ -19,7 +19,7 @@ trait HeadlineTrait
 	{
 		return (
 			// heading with #
-			$line[0] === '#'
+			$line[0] === '#' && !preg_match('/^#\d+/', $line)
 			||
 			// underlined headline
 			!empty($lines[$current + 1]) &&
