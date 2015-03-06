@@ -81,7 +81,7 @@ class MarkdownExtra extends Markdown
 			$label = strtolower($matches[1]);
 
 			$this->references[$label] = [
-				'url' => $matches[2],
+				'url' => $this->replaceEscape($matches[2]),
 			];
 			if (isset($matches[3])) {
 				$this->references[$label]['title'] = $matches[3];
