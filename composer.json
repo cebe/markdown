@@ -22,7 +22,7 @@
 		"lib-pcre": "*"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "3.7.*",
+		"phpunit/phpunit": "4.1.*",
 		"facebook/xhprof": "*@dev",
 		"cebe/indent": "*"
 	},
