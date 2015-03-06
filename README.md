@@ -332,7 +332,119 @@ class MyMarkdown extends \cebe\markdown\Markdown
 
 ### Composing your own Markdown flavor
 
-TBD
+This markdown library is composed of traits so it is very easy to create your own markdown flavor by adding and/or removing
+the single feature traits.
+
+Designing your Markdown flavor consists of four steps:
+
+1. Select a base class
+2. Select language feature traits
+3. Define escapeable characters
+4. Optionally add custom rendering behavior
+
+#### Select a base class
+
+If you want to extend from a flavor and only add features you can use one of the existing classes
+(`Markdown`, `GithubMarkdown` or `MarkdownExtra`) as your flavors base class.
+
+If you want to define a subset of the markdown language, i.e. remove some of the features, you have to
+extend your class from `Parser`.
+
+#### Select language feature traits
+
+The following shows the trait selection for traditional Markdown.
+
+```php
+class MyMarkdown extends Parser
+{
+	// include block element parsing using traits
+	use block\CodeTrait;
+	use block\HeadlineTrait;
+	use block\HtmlTrait {
+		parseInlineHtml as private;
+	}
+	use block\ListTrait {
+		// Check Ul List before headline
+		identifyUl as protected identifyBUl;
+		consumeUl as protected consumeBUl;
+	}
+	use block\QuoteTrait;
+	use block\RuleTrait {
+		// Check Hr before checking lists
+		identifyHr as protected identifyAHr;
+		consumeHr as protected consumeAHr;
+	}
+	// include inline element parsing using traits
+	use inline\CodeTrait;
+	use inline\EmphStrongTrait;
+	use inline\LinkTrait;
+
+	/**
+	 * @var boolean whether to format markup according to HTML5 spec.
+	 * Defaults to `false` which means that markup is formatted as HTML4.
+	 */
+	public $html5 = false;
+
+	protected function prepare()
+	{
+		// reset references
+		$this->references = [];
+	}
+
+	// ...
+}
+```
+
+In general, just adding the trait with `use` is enough, however in some cases some fine tuning is desired
+to get most expected parsing results. Elements are detected in alphabetical order of their identification
+function. This means that if a line starting with `-` could be a list or a horizontal rule, the preference has to be set
+by renaming the identification function. This is what is done with renaming `identifyHr` to `identifyAHr`
+and `identifyBUl` to `identifyBUl`. The consume function always has to have the same name as the identification function
+so this has to be renamed too.
+
+There is also a conflict for parsing of the `<` character. This could either be a link/email enclosed in `<` and `>`
+or an inline HTML tag. In order to resolve this conflict when adding the `LinkTrait`, we need to hide the `parseInlineHtml`
+method of the `HtmlTrait`.
+
+If you use any trait that uses the `$html5` property to adjust its output you also need to define this property.
+
+If you use the link trait it may be useful to implement `prepare()` as shown above to reset references before
+parsing to ensure you get a reusable object.
+
+#### Define escapeable characters
+
+Depenedend on the language features you have chosen there is a different set of characters that can be escaped
+using `\`. The following is the set of escapeable characters for traditional markdown, you can copy it to your class
+as is.
+
+```php
+	/**
+	 * @var array these are "escapeable" characters. When using one of these prefixed with a
+	 * backslash, the character will be outputted without the backslash and is not interpreted
+	 * as markdown.
+	 */
+	protected $escapeCharacters = [
+		'\\', // backslash
+		'`', // backtick
+		'*', // asterisk
+		'_', // underscore
+		'{', '}', // curly braces
+		'[', ']', // square brackets
+		'(', ')', // parentheses
+		'#', // hash mark
+		'+', // plus sign
+		'-', // minus sign (hyphen)
+		'.', // dot
+		'!', // exclamation mark
+		'<', '>',
+	];
+```
+
+#### Add custom rendering behavior
+
+Optionally you may also want to adjust rendering behavior by overriding some methods.
+You may refer to the `consumeParagraph()` method of the `Markdown` and `GithubMarkdown` classes for some inspiration
+which define different rules for which elements are allowed to interrupt a paragraph.
 
 
 Acknowledgements <a name="ack"></a>
