@@ -118,10 +118,11 @@ trait ListTrait
 					$block['items'][$item][] = $line;
 					$block['lazyItems'][$item] = true;
 
-				// next item is indented as much as this list -> lazy list
+				// next item is indented as much as this list -> lazy list if it is not a reference
 				} elseif (strncmp($lines[$i + 1], $indent, $len) === 0 || !empty($lines[$i + 1]) && $lines[$i + 1][0] == "\t") {
 					$block['items'][$item][] = $line;
-					$block['lazyItems'][$item] = true;
+					$nextLine = $lines[$i + 1][0] === "\t" ? substr($lines[$i + 1], 1) : substr($lines[$i + 1], $len);
+					$block['lazyItems'][$item] = !method_exists($this, 'identifyReference') || !$this->identifyReference($nextLine);
 
 				// everything else ends the list
 				} else {
@@ -189,6 +190,8 @@ trait ListTrait
 		return implode(' ', $attributes);
 	}
 
+	abstract protected function parseBlocks($lines);
 	abstract protected function parseInline($text);
 	abstract protected function renderAbsy($absy);
+	abstract protected function detectLineType($lines, $current);
 }
