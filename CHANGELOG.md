@@ -1,10 +1,22 @@
 CHANGELOG
 =========
 
-Version 1.0.2 work in progress
+Version 1.1.1 work in progress
 ------------------------------
 
 ...
+
+Version 1.1.0 on 06. Mar. 2015
+------------------------------
+
+- improve compatibility with github flavored markdown
+- #64 fixed some rendering issue with emph and strong
+- #56 trailing and leading spaces in a link are now ignored
+- fixed various issues with table rendering
+- #98 Fix PHP fatal error when maximumNestingLevel was reached (@tanakahisateru)
+- refactored nested and lazy list handling, improved overall list rendering consistency
+- Lines containing "0" where skipped or considered empty in some cases (@tanakahisateru)
+- #54 escape characters are now also considered inside of urls
 
 Version 1.0.1 on 25. Okt. 2014
 ------------------------------
