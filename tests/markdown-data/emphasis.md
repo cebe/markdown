@@ -28,6 +28,6 @@ simple_word_with_underscores
 
 this is text, _this is emph_ simple_word_with_underscores text again.
 
-_em\_text_ __strong\_\_text__
+_em\_text_ __strong\_\_text\___
 
-*em\*text* **strong\*\*text**
+*em\*text* **strong\*\*text\***
