@@ -193,14 +193,14 @@ REGEXP;
 
 	protected function renderEmail($block)
 	{
-		$email = htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+		$email = htmlspecialchars($this->unescape($block[1]), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 		return "<a href=\"mailto:$email\">$email</a>";
 	}
 
 	protected function renderUrl($block)
 	{
-		$url = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+		$url = htmlspecialchars($this->unescape($block[1]), ENT_COMPAT | ENT_HTML401, 'UTF-8');
+		$text = htmlspecialchars(urldecode($this->unescape($block[1])), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 		return "<a href=\"$url\">$text</a>";
 	}
 
@@ -219,11 +219,11 @@ REGEXP;
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
-				return $block['orig'];
+				return $this->unescape($block['orig']);
 			}
 		}
-		return '<a href="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
+		return '<a href="' . htmlspecialchars($this->unescape($block['url']), ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($this->unescape($block['title']), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. '>' . $this->renderAbsy($block['text']) . '</a>';
 	}
 
@@ -233,12 +233,12 @@ REGEXP;
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
-				return $block['orig'];
+				return $this->unescape($block['orig']);
 			}
 		}
-		return '<img src="' . htmlspecialchars($block['url'], ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
-			. ' alt="' . htmlspecialchars($block['text'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"'
-			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($block['title'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
+		return '<img src="' . htmlspecialchars($this->unescape($block['url']), ENT_COMPAT | ENT_HTML401, 'UTF-8') . '"'
+			. ' alt="' . htmlspecialchars($this->unescape($block['text']), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"'
+			. (empty($block['title']) ? '' : ' title="' . htmlspecialchars($this->unescape($block['title']), ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE, 'UTF-8') . '"')
 			. ($this->html5 ? '>' : ' />');
 	}
 

@@ -40,6 +40,6 @@ trait CodeTrait
 
 	protected function renderInlineCode($block)
 	{
-		return '<code>' . htmlspecialchars($block[1], ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</code>';
+		return '<code>' . htmlspecialchars($this->unescape($block[1], true), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</code>';
 	}
 }
