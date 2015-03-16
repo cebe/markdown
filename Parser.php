@@ -32,9 +32,11 @@ abstract class Parser
 	 * as markdown.
 	 */
 	protected $escapeCharacters = [
+		'\\', // backslash
 	];
 
 	private $_depth = 0;
+
 
 	/**
 	 * Parses the given text considering the full language.
