@@ -64,6 +64,7 @@ class Markdown extends Parser
 		'<', '>',
 	];
 
+
 	/**
 	 * @inheritDoc
 	 */

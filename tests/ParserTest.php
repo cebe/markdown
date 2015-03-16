@@ -86,7 +86,7 @@ class TestParser extends Parser
 		'\\', '[', ']'
 	];
 
-    protected function inlineMarkers()
+	protected function inlineMarkers()
 	{
 		return $this->markers;
 	}
