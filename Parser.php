@@ -97,7 +97,7 @@ abstract class Parser
 		if (empty($this->escapeCharacters)) {
 			return $text;
 		} else {
-			$cs = '[' . preg_quote(implode('', $this->escapeCharacters)) . ']';
+			$cs = '[' . preg_quote(implode('', $this->escapeCharacters), '/') . ']';
 			return preg_replace_callback('/\\\\(' . $cs . ')/s', function($matches) {
 				$key = array_search($matches[1], $this->escapeCharacters);
 				return chr(0x1b) . $key .  chr(0x1b);
