@@ -96,7 +96,7 @@ trait HtmlTrait
 			for ($i = $current, $count = count($lines); $i < $count; $i++) {
 				$line = $lines[$i];
 				$content[] = $line;
-				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>");
+				$level += substr_count($line, "<$tag") - substr_count($line, "</$tag>") - substr_count($line, "/>");
 				if ($level <= 0) {
 					break;
 				}

@@ -25,3 +25,13 @@ self-closing on block level:
 
 <p>this is a paragraph</p>
 <hr style="clear: both;" />
+
+something **bold**.
+
+<custom />
+
+# h1
+
+<custom multi="line" something="hi" />
+
+## h2

@@ -4,7 +4,9 @@ CHANGELOG
 Version 1.1.1 work in progress
 ------------------------------
 
+- #112 Fixed parsing for custom self-closing HTML tags
 ...
+
 
 Version 1.1.0 on 06. Mar. 2015
 ------------------------------
