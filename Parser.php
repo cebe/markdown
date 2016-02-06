@@ -290,7 +290,7 @@ abstract class Parser
 	 * Check is done to avoid iterations in parseInline(), good for huge markdown files
 	 * @param string $text
 	 */
-	private function prepareMarkers($text)
+	protected function prepareMarkers($text)
 	{
 		$this->_inlineMarkers = [];
 		foreach ($this->inlineMarkers() as $marker => $method) {
