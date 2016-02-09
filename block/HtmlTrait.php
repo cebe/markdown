@@ -146,10 +146,10 @@ trait HtmlTrait
 	protected function parseInlineHtml($text)
 	{
 		if (strpos($text, '>') !== false) {
-			if (preg_match('~^</?(\w+\d?)( .*?)?>~', $text, $matches)) {
+			if (preg_match('~^</?(\w+\d?)( .*?)?>~s', $text, $matches)) {
 				// HTML tags
 				return [['inlineHtml', $matches[0]], strlen($matches[0])];
-			} elseif (preg_match('~^<!--.*?-->~', $text, $matches)) {
+			} elseif (preg_match('~^<!--.*?-->~s', $text, $matches)) {
 				// HTML comments
 				return [['inlineHtml', $matches[0]], strlen($matches[0])];
 			}

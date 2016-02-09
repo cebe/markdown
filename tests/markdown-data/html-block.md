@@ -17,6 +17,11 @@ more markdown here
 
 <thisisnotanhtmltag
 
+but this is:
+
+<img src="file.jpg"
+     alt="some alt aligned with src attribute" title="some text" />
+
 <span class="test">some inline **md**</span>
 
 <span>some inline **md**</span>
@@ -35,3 +40,20 @@ something **bold**.
 <custom multi="line" something="hi" />
 
 ## h2
+
+p <img src="file.jpg"
+       alt="some alt aligned with src attribute"
+       title="some text" />
+   something
+
+p <img src="file.jpg"
+       alt="some alt aligned with src attribute"
+       title="some text" />
+    something
+
+p is < than 5
+    this is code
+
+this paragraph contains a <!-- multi
+line html comment -->
+newline
