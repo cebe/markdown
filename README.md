@@ -88,19 +88,19 @@ Here are some examples:
 ```php
 // traditional markdown and parse full text
 $parser = new \cebe\markdown\Markdown();
-$parser->parse($markdown);
+echo $parser->parse($markdown);
 
 // use github markdown
 $parser = new \cebe\markdown\GithubMarkdown();
-$parser->parse($markdown);
+echo $parser->parse($markdown);
 
 // use markdown extra
 $parser = new \cebe\markdown\MarkdownExtra();
-$parser->parse($markdown);
+echo $parser->parse($markdown);
 
 // parse only inline elements (useful for one-line descriptions)
 $parser = new \cebe\markdown\GithubMarkdown();
-$parser->parseParagraph($markdown);
+echo $parser->parseParagraph($markdown);
 ```
 
 You may optionally set one of the following options on the parser object:
