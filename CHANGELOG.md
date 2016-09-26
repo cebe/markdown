@@ -4,7 +4,7 @@ CHANGELOG
 Version 1.1.2 work in progress
 ------------------------------
 
-...
+- #128 Fix table renderer which including default alignment (@tanakahisateru)
 
 Version 1.1.1 work in progress
 ------------------------------
