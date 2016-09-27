@@ -64,11 +64,27 @@ class ParserTest extends  \PHPUnit_Framework_TestCase
 		$this->assertEquals("0", $parser->parseParagraph("0"));
 		$this->assertEquals("<p>0</p>\n", $parser->parse("0"));
 	}
+
+	public function testEscape()
+	{
+		$parser = new TestParser();
+		$parser->markers = [
+			'[' => 'parseMarkerC',
+		];
+
+		$this->assertEquals("[a(C-b)c]", $parser->parseParagraph("\\[a[b]c\\]"));
+		$this->assertEquals("(C-a[b]c)", $parser->parseParagraph("[a\\[b\\]c]"));
+		$this->assertEquals("\\[", $parser->parseParagraph("\\\\\\["));
+	}
 }
 
 class TestParser extends Parser
 {
 	public $markers = [];
+
+	protected $escapeCharacters = [
+		'\\', '[', ']'
+	];
 
 	protected function inlineMarkers()
 	{

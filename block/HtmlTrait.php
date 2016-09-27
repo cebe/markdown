@@ -114,7 +114,7 @@ trait HtmlTrait
 	 */
 	protected function renderHtml($block)
 	{
-		return $block['content'] . "\n";
+		return $this->unescape($block['content'], true) . "\n";
 	}
 
 	/**
@@ -136,7 +136,7 @@ trait HtmlTrait
 	 */
 	protected function renderInlineHtml($block)
 	{
-		return $block[1];
+		return $this->unescape($block[1], true);
 	}
 
 	/**

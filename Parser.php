@@ -25,6 +25,7 @@ abstract class Parser
 	 * TODO remove in favor of absy
 	 */
 	protected $context = [];
+
 	/**
 	 * @var array these are "escapeable" characters. When using one of these prefixed with a
 	 * backslash, the character will be outputted without the backslash and is not interpreted
@@ -47,6 +48,7 @@ abstract class Parser
 	 */
 	public function parse($text)
 	{
+		$text = $this->escape($text);
 		$this->prepare();
 
 		if (ltrim($text) === '') {
@@ -72,6 +74,7 @@ abstract class Parser
 	 */
 	public function parseParagraph($text)
 	{
+		$text = $this->escape($text);
 		$this->prepare();
 
 		if (ltrim($text) === '') {
@@ -87,6 +90,29 @@ abstract class Parser
 
 		$this->cleanup();
 		return $markup;
+	}
+
+	protected function escape($text)
+	{
+		if (empty($this->escapeCharacters)) {
+			return $text;
+		} else {
+			$cs = '[' . preg_quote(implode('', $this->escapeCharacters), '/') . ']';
+			return preg_replace_callback('/\\\\(' . $cs . ')/s', function($matches) {
+				$key = array_search($matches[1], $this->escapeCharacters);
+				return chr(0x1b) . $key .  chr(0x1b);
+			}, $text);
+		}
+	}
+
+	protected function unescape($text, $includesEscapeCharacter=false)
+	{
+		$text = preg_replace_callback('/\\x1b(.+?)\\x1b/', function($matches) use($includesEscapeCharacter) {
+			$key = $matches[1];
+			$c = isset($this->escapeCharacters[$key]) ? $this->escapeCharacters[$key] : '';
+			return ($includesEscapeCharacter ? '\\' : '') . $c;
+		}, $text);
+		return $text;
 	}
 
 	/**
@@ -366,24 +392,12 @@ abstract class Parser
 	}
 
 	/**
-	 * Parses escaped special characters.
-	 * @marker \
-	 */
-	protected function parseEscape($text)
-	{
-		if (isset($text[1]) && in_array($text[1], $this->escapeCharacters)) {
-			return [['text', $text[1]], 2];
-		}
-		return [['text', $text[0]], 1];
-	}
-
-	/**
 	 * This function renders plain text sections in the markdown text.
 	 * It can be used to work on normal text sections for example to highlight keywords or
 	 * do special escaping.
 	 */
 	protected function renderText($block)
 	{
-		return $block[1];
+		return $this->unescape($block[1]);
 	}
 }
