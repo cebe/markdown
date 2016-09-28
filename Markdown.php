@@ -92,9 +92,17 @@ class Markdown extends Parser
 				break;
 			}
 
-			if ($line === '' || ltrim($line) === '' || $this->identifyHeadline($line, $lines, $i)) {
+			if (
+				$line === '' ||
+				ltrim($line) === '' ||
+				!ctype_alpha($line[0]) && (
+					$this->identifyQuote($line, $lines, $i) ||
+					$this->identifyHr($line, $lines, $i) ||
+					$this->identifyHtml($line, $lines, $i)
+				)
+				|| $this->identifyHeadline($line, $lines, $i)) {
 				break;
-			} elseif ($line[0] === "\t" || $line[0] === " " && strncmp($line, '    ', 4) === 0) {
+			} elseif ($this->identifyCode($line, $lines, $i)) {
 				// possible beginning of a code block
 				// but check for continued inline HTML
 				// e.g. <img src="file.jpg"

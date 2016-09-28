@@ -54,3 +54,12 @@ headline2
 ----
 ## changelog 2
 * 17-Feb-2013 re-design
+
+paragraph
+> quote
+
+paragraph
+- - -
+
+paragraph
+<div>html block</div>

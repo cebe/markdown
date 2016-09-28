@@ -71,7 +71,8 @@ class GithubMarkdown extends Markdown
 					$this->identifyFencedCode($line, $lines, $i) ||
 					$this->identifyUl($line, $lines, $i) ||
 					$this->identifyOl($line, $lines, $i) ||
-					$this->identifyHr($line, $lines, $i)
+					$this->identifyHr($line, $lines, $i) ||
+					$this->identifyHtml($line, $lines, $i)
 				)
 				|| $this->identifyHeadline($line, $lines, $i))
 			{
