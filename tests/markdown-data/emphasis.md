@@ -24,6 +24,8 @@ __strong text__*emphasized text*
 
 _emphasized text_**strong text**
 
+**strong text A****strong text B**
+
 simple_word_with_underscores
 
 this is text, _this is emph_ simple_word_with_underscores text again.
