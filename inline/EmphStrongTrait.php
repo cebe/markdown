@@ -13,7 +13,7 @@ namespace cebe\markdown\inline;
 trait EmphStrongTrait
 {
 	/**
-	 * Parses empathized and strong elements.
+	 * Parses emphasized and strong elements.
 	 * @marker _
 	 * @marker *
 	 */
