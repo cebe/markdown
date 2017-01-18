@@ -13,7 +13,7 @@ namespace cebe\markdown\inline;
 trait EmphStrongTrait
 {
 	/**
-	 * Parses empathized and strong elements.
+	 * Parses emphasized and strong elements.
 	 * @marker _
 	 * @marker *
 	 */
@@ -26,7 +26,7 @@ trait EmphStrongTrait
 		}
 
 		if ($marker == $text[1]) { // strong
-			if ($marker == '*' && preg_match('/^[*]{2}((?:[^*]|[*][^*]*[*])+?)[*]{2}(?![*]{2})/s', $text, $matches) ||
+			if ($marker == '*' && preg_match('/^[*]{2}((?:[^*]|[*][^*]*[*])+?)[*]{2}/s', $text, $matches) ||
 				$marker == '_' && preg_match('/^__((?:[^_]|_[^_]*_)+?)__(?!__)/us', $text, $matches)) {
 
 				return [
