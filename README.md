@@ -213,13 +213,13 @@ In the following example we will implement support for [fenced code blocks][] wh
 
 class MyMarkdown extends \cebe\markdown\Markdown
 {
-	protected function identifyLine($line, $lines, $current)
+	protected function identifyFencedCode($line, $lines, $current)
 	{
 		// if a line starts with at least 3 backticks it is identified as a fenced code block
 		if (strncmp($line, '```', 3) === 0) {
-			return 'fencedCode';
+			return true;
 		}
-		return parent::identifyLine($lines, $current);
+		return false;
 	}
 
 	// ...
