@@ -200,7 +200,9 @@ REGEXP;
 	protected function renderUrl($block)
 	{
 		$url = htmlspecialchars($block[1], ENT_COMPAT | ENT_HTML401, 'UTF-8');
-		$text = htmlspecialchars(urldecode($block[1]), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+		$decodedUrl = urldecode($block[1]);
+		$secureUrlText = preg_match('//u', $decodedUrl) ? $decodedUrl : $block[1];
+		$text = htmlspecialchars($secureUrlText, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 		return "<a href=\"$url\">$text</a>";
 	}
 

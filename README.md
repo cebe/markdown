@@ -182,7 +182,8 @@ Here are some extensions to this library:
 - [kartik-v/yii2-markdown](https://github.com/kartik-v/yii2-markdown) - Advanced Markdown editing and conversion utilities for Yii Framework 2.0.
 - [cebe/markdown-latex](https://github.com/cebe/markdown-latex) - Convert Markdown to LaTeX and PDF
 - [softark/creole](https://github.com/softark/creole) - A creole markup parser
-- ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L98)
+- [hyn/frontmatter](https://github.com/hyn/frontmatter) - Frontmatter Metadata Support (JSON, TOML, YAML)
+- ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L186)
 
 
 Extending the language <a name="extend"></a>
@@ -212,13 +213,13 @@ In the following example we will implement support for [fenced code blocks][] wh
 
 class MyMarkdown extends \cebe\markdown\Markdown
 {
-	protected function identifyLine($line, $lines, $current)
+	protected function identifyFencedCode($line, $lines, $current)
 	{
 		// if a line starts with at least 3 backticks it is identified as a fenced code block
 		if (strncmp($line, '```', 3) === 0) {
-			return 'fencedCode';
+			return true;
 		}
-		return parent::identifyLine($lines, $current);
+		return false;
 	}
 
 	// ...

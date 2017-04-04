@@ -6,10 +6,7 @@ Version 1.1.2 work in progress
 
 - Added a workaround for a [PHP bug](https://bugs.php.net/bug.php?id=45735) which exists in versions `<` 7.0, where `preg_match()` causes a segfault
   on [catastropic backtracking][] in emph/strong parsing.
-
-
-[catastropic backtracking]: http://www.regular-expressions.info/catastrophic.html
-
+- #128 Fix table renderer which including default alignment (@tanakahisateru)
 
 Version 1.1.1 work in progress
 ------------------------------
