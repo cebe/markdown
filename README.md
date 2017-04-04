@@ -55,18 +55,20 @@ It will also run on facebook's [hhvm](http://hhvm.com/).
 
 Installation is recommended to be done via [composer][] by running:
 
-	composer require cebe/markdown "~1.0.1"
+	composer require cebe/markdown "~1.1.1"
 
 Alternatively you can add the following to the `require` section in your `composer.json` manually:
 
 ```json
-"cebe/markdown": "~1.0.1"
+"cebe/markdown": "~1.1.1"
 ```
 
 Run `composer update` afterwards.
 
 [composer]: https://getcomposer.org/ "The PHP package manager"
 
+> Note: If you have configured PHP with opcache you need to enable the
+> [opcache.save_comments](http://php.net/manual/en/opcache.configuration.php#ini.opcache.save-comments) option because inline element parsing relies on PHPdoc annotations to find declared elements.
 
 Usage <a name="usage"></a>
 -----
@@ -115,7 +117,7 @@ For GithubMarkdown:
 
 - `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
 
-It is recommended to use UTF-8 encoding for the input strings. Other encodings are currently not tested.
+It is recommended to use UTF-8 encoding for the input strings. Other encodings may work, but are currently untested.
 
 ### The command line script
 
@@ -231,7 +233,7 @@ You may use `$lines` and `$current` to check other lines than the current line. 
 
 Parsing of a block element is done in two steps:
 
-1. "consuming" all the lines belonging to it. In most cases this is iterating over the lines starting from the identified
+1. **Consuming** all the lines belonging to it. In most cases this is iterating over the lines starting from the identified
    line until a blank line occurs. This step is implemented by a method named `consume{blockName}()` where `{blockName}`
    is the same name as used for the identify function above. The consume method also takes the lines array
    and the number of the current line. It will return two arguments: an array representing the block element in the abstract syntax tree
@@ -269,7 +271,7 @@ Parsing of a block element is done in two steps:
 	}
 	```
 
-2. "rendering" the element. After all blocks have been consumed, they are being rendered using the
+2. **Rendering** the element. After all blocks have been consumed, they are being rendered using the
    `render{elementName}()`-method where `elementName` refers to the name of the element in the abstract syntax tree:
 
    ```php
