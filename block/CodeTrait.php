@@ -61,6 +61,6 @@ trait CodeTrait
 	protected function renderCode($block)
 	{
 		$class = isset($block['language']) ? ' class="language-' . $block['language'] . '"' : '';
-		return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8') . "</code></pre>\n";
+		return "<pre><code$class>" . htmlspecialchars($block['content'] . "\n", ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8', false) . "</code></pre>\n";
 	}
 }
