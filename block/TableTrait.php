@@ -12,10 +12,6 @@ namespace cebe\markdown\block;
  */
 trait TableTrait
 {
-	private $_tableCellTag = 'td';
-	private $_tableCellCount = 0;
-	private $_tableCellAlign = [];
-
 	/**
 	 * identify a line as the beginning of a table block.
 	 */
@@ -75,7 +71,24 @@ trait TableTrait
 			if (substr($line, -1, 1) === '|' && (substr($line, -2, 2) !== '\\|' || substr($line, -3, 3) === '\\\\|')) {
 				$line = substr($line, 0, -1);
 			}
-			$block['rows'][] = $line;
+
+			array_unshift($this->context, 'table');
+			$row = $this->parseInline($line);
+			array_shift($this->context);
+
+			$r = count($block['rows']);
+			$c = 0;
+			$block['rows'][] = [];
+			foreach ($row as $absy) {
+				if (!isset($block['rows'][$r][$c])) {
+					$block['rows'][$r][] = [];
+				}
+				if ($absy[0] === 'tableBoundary') {
+					$c++;
+				} else {
+					$block['rows'][$r][$c][] = $absy;
+				}
+			}
 		}
 
 		return [$block, --$i];
@@ -88,20 +101,21 @@ trait TableTrait
 	{
 		$head = '';
 		$body = '';
-		$this->_tableCellAlign = $block['cols'];
+		$cols = $block['cols'];
 		$first = true;
 		foreach($block['rows'] as $row) {
-			$this->_tableCellTag = $first ? 'th' : 'td';
-			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount] . '"';
-			$this->_tableCellCount++;
-			$tds = "<$this->_tableCellTag$align>" . trim($this->renderAbsy($this->parseInline($row))) . "</$this->_tableCellTag>"; // TODO move this to the consume step
+			$cellTag = $first ? 'th' : 'td';
+			$tds = '';
+			foreach ($row as $c => $cell) {
+				$align = empty($cols[$c]) ? '' : ' align="' . $cols[$c] . '"';
+				$tds .= "<$cellTag$align>" . trim($this->renderAbsy($cell)) . "</$cellTag>";
+			}
 			if ($first) {
 				$head .= "<tr>$tds</tr>\n";
 			} else {
 				$body .= "<tr>$tds</tr>\n";
 			}
 			$first = false;
-			$this->_tableCellCount = 0;
 		}
 		return $this->composeTable($head, $body);
 	}
@@ -132,9 +146,7 @@ trait TableTrait
 	protected function parseTd($markdown)
 	{
 		if (isset($this->context[1]) && $this->context[1] === 'table') {
-			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount] . '"';
-			$this->_tableCellCount++;
-			return [['text', "</$this->_tableCellTag><$this->_tableCellTag$align>"], isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1]; // TODO make a absy node
+			return [['tableBoundary'], isset($markdown[1]) && $markdown[1] === ' ' ? 2 : 1];
 		}
 		return [['text', $markdown[0]], 1];
 	}
