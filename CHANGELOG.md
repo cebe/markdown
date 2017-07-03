@@ -7,6 +7,7 @@ Version 1.1.2 work in progress
 - Added a workaround for a [PHP bug](https://bugs.php.net/bug.php?id=45735) which exists in versions `<` 7.0, where `preg_match()` causes a segfault
   on [catastropic backtracking][] in emph/strong parsing.
 - #128 Fix table renderer which including default alignment (@tanakahisateru)
+- #126 Fixed crash on empty lines that extend a lazy list
 
 Version 1.1.1 work in progress
 ------------------------------
