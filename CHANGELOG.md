@@ -1,16 +1,17 @@
 CHANGELOG
 =========
 
-Version 1.1.2 work in progress
-------------------------------
+Version 1.1.2 on 16. Jul 2017
+-----------------------------
 
+- #126 Fixed crash on empty lines that extend a lazy list
+- #128 Fix table renderer which including default alignment (@tanakahisateru)
+- #129  Use given encoded URL if decoded URL text looks insecure, e.g. uses broken UTF-8 (@tanakahisateru)
 - Added a workaround for a [PHP bug](https://bugs.php.net/bug.php?id=45735) which exists in versions `<` 7.0, where `preg_match()` causes a segfault
   on [catastropic backtracking][] in emph/strong parsing.
-- #128 Fix table renderer which including default alignment (@tanakahisateru)
-- #126 Fixed crash on empty lines that extend a lazy list
 
-Version 1.1.1 work in progress
-------------------------------
+Version 1.1.1 on 14. Sep 2016
+-----------------------------
 
 - #112 Fixed parsing for custom self-closing HTML tags
 - #113 improve extensibility by making `prepareMarkers()` protected and add `parseBlock()` method
