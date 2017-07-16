@@ -12,6 +12,9 @@ php:
 # faster builds on new travis setup not using sudo
 sudo: false
 
+# travis does not support HHVM on other platforms, choosing trusty
+dist: trusty
+
 # cache composer cache
 cache:
   directories:
