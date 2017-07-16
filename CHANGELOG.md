@@ -9,6 +9,8 @@ Version 1.1.2 on 16. Jul 2017
 - #129  Use given encoded URL if decoded URL text looks insecure, e.g. uses broken UTF-8 (@tanakahisateru)
 - Added a workaround for a [PHP bug](https://bugs.php.net/bug.php?id=45735) which exists in versions `<` 7.0, where `preg_match()` causes a segfault
   on [catastropic backtracking][] in emph/strong parsing.
+  
+[catastropic backtracking]: http://www.regular-expressions.info/catastrophic.html
 
 Version 1.1.1 on 14. Sep 2016
 -----------------------------
