@@ -1,9 +1,10 @@
 CHANGELOG
 =========
 
-Version 1.1.3 work in progress
+Version 1.2.0 work in progress
 ------------------------------
 
+- #89 Lists should be separated by a HR (@bieleckim)
 - #151 Fixed table rendering for lines begining with | for GFM (@GenaBitu)
 - Improved table rendering, allow single column tables.
 
