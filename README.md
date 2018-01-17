@@ -420,7 +420,7 @@ parsing to ensure you get a reusable object.
 
 #### Define escapeable characters
 
-Depenedend on the language features you have chosen there is a different set of characters that can be escaped
+Depending on the language features you have chosen there is a different set of characters that can be escaped
 using `\`. The following is the set of escapeable characters for traditional markdown, you can copy it to your class
 as is.
 
@@ -492,6 +492,8 @@ to using callbacks to inject functionallity into the parser.
 [real parser]: http://en.wikipedia.org/wiki/Parsing#Types_of_parser
 
 [Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
+
+[Yii framework 2.0]: https://github.com/yiisoft/yii2
 
 ### Where do I report bugs or rendering issues?
 
