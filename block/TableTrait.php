@@ -38,7 +38,7 @@ trait TableTrait
 			'rows' => [],
 		];
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
-			$line = rtrim($lines[$i]);
+			$line = trim($lines[$i]);
 
 			// extract alignment from second line
 			if ($i == $current+1) {
