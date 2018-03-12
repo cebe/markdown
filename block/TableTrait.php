@@ -37,9 +37,8 @@ trait TableTrait
 			'cols' => [],
 			'rows' => [],
 		];
-		$beginsWithPipe = $lines[$current][0] === '|';
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
-			$line = rtrim($lines[$i]);
+			$line = trim($lines[$i]);
 
 			// extract alignment from second line
 			if ($i == $current+1) {
@@ -65,7 +64,7 @@ trait TableTrait
 
 				continue;
 			}
-			if ($line === '' || $beginsWithPipe && $line[0] !== '|') {
+			if ($line === '' || substr($lines[$i], 0, 4) === '    ') {
 				break;
 			}
 			if ($line[0] === '|') {
