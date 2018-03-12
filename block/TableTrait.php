@@ -64,7 +64,7 @@ trait TableTrait
 
 				continue;
 			}
-			if ($line === '' | substr($lines[i], 0, 4) === '    ') {
+			if ($line === '' | substr($lines[$i], 0, 4) === '    ') {
 				break;
 			}
 			if ($line[0] === '|') {
