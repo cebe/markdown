@@ -37,7 +37,6 @@ trait TableTrait
 			'cols' => [],
 			'rows' => [],
 		];
-		$beginsWithPipe = $lines[$current][0] === '|';
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = rtrim($lines[$i]);
 
@@ -65,7 +64,7 @@ trait TableTrait
 
 				continue;
 			}
-			if ($line === '' || $beginsWithPipe && $line[0] !== '|') {
+			if ($line === '') {
 				break;
 			}
 			if ($line[0] === '|') {
