@@ -22,7 +22,9 @@ trait TableTrait
 	protected function identifyTable($line, $lines, $current)
 	{
 		return strpos($line, '|') !== false && isset($lines[$current + 1])
-			&& preg_match('~^\\s*\\|?(\\s*:?-[\\-\\s]*:?\\s*\\|\\s*:?-[\\-\\s]*:?\\s*)+\\|?\\s*$~', $lines[$current + 1]);
+			&& preg_match('~^\\s*\\|?(\\s*:?-[\\-\\s]*:?\\s*\\|?)*\\s*$~', $lines[$current + 1])
+			&& strpos($lines[$current + 1], '|') !== false
+			&& isset($lines[$current + 2]) && trim($lines[$current + 1]) !== '';
 	}
 
 	/**

@@ -4,6 +4,8 @@ CHANGELOG
 Version 1.1.3 work in progress
 ------------------------------
 
+- #151 Fixed table rendering for lines begining with | for GFM (@GenaBitu)
+- Improved table rendering, allow single column tables.
 
 Version 1.1.2 on 16. Jul 2017
 -----------------------------
