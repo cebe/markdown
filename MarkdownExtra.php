@@ -223,6 +223,9 @@ class MarkdownExtra extends Markdown
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
+				if (strncmp($block['orig'], '[', 1) === 0) {
+					return '[' . $this->renderAbsy($this->parseInline(substr($block['orig'], 1)));
+				}
 				return $block['orig'];
 			}
 		}
@@ -238,6 +241,9 @@ class MarkdownExtra extends Markdown
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
+				if (strncmp($block['orig'], '![', 2) === 0) {
+					return '![' . $this->renderAbsy($this->parseInline(substr($block['orig'], 2)));
+				}
 				return $block['orig'];
 			}
 		}

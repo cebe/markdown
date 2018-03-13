@@ -79,7 +79,7 @@ trait LinkTrait
 			// remove all starting [ markers to avoid next one to be parsed as link
 			$result = '[';
 			$i = 1;
-			while (isset($markdown[$i]) && $markdown[$i] == '[') {
+			while (isset($markdown[$i]) && $markdown[$i] === '[') {
 				$result .= '[';
 				$i++;
 			}
@@ -111,7 +111,7 @@ trait LinkTrait
 			// remove all starting [ markers to avoid next one to be parsed as link
 			$result = '!';
 			$i = 1;
-			while (isset($markdown[$i]) && $markdown[$i] == '[') {
+			while (isset($markdown[$i]) && $markdown[$i] === '[') {
 				$result .= '[';
 				$i++;
 			}
@@ -221,6 +221,9 @@ REGEXP;
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
+				if (strncmp($block['orig'], '[', 1) === 0) {
+					return '[' . $this->renderAbsy($this->parseInline(substr($block['orig'], 1)));
+				}
 				return $block['orig'];
 			}
 		}
@@ -235,6 +238,9 @@ REGEXP;
 			if (($ref = $this->lookupReference($block['refkey'])) !== false) {
 				$block = array_merge($block, $ref);
 			} else {
+				if (strncmp($block['orig'], '![', 2) === 0) {
+					return '![' . $this->renderAbsy($this->parseInline(substr($block['orig'], 2)));
+				}
 				return $block['orig'];
 			}
 		}
@@ -275,4 +281,7 @@ REGEXP;
 		}
 		return [false, --$current];
 	}
+
+	abstract protected function parseInline($text);
+	abstract protected function renderAbsy($blocks);
 }
