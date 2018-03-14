@@ -28,6 +28,8 @@ simple_word_with_underscores
 
 this is text, _this is emph_ simple_word_with_underscores text again.
 
+highlight something in**side** of a word. a**b**c.
+
 a ** a\*b **
 
 a __ a\_b __
@@ -41,3 +43,13 @@ a **this *is* strong**
 a *this **is** strong*
 
 a ***this is strong***
+
+a **\* ABC**
+
+a **A****B**
+
+a **A____B**
+
+a __A____B__
+
+a __A****B__
