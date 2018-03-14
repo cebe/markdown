@@ -86,23 +86,44 @@ trait TableTrait
 	 */
 	protected function renderTable($block)
 	{
-		$content = '';
+		$head = '';
+		$body = '';
 		$this->_tableCellAlign = $block['cols'];
-		$content .= "<thead>\n";
 		$first = true;
 		foreach($block['rows'] as $row) {
 			$this->_tableCellTag = $first ? 'th' : 'td';
 			$align = empty($this->_tableCellAlign[$this->_tableCellCount]) ? '' : ' align="' . $this->_tableCellAlign[$this->_tableCellCount] . '"';
 			$this->_tableCellCount++;
 			$tds = "<$this->_tableCellTag$align>" . trim($this->renderAbsy($this->parseInline($row))) . "</$this->_tableCellTag>"; // TODO move this to the consume step
-			$content .= "<tr>$tds</tr>\n";
 			if ($first) {
-				$content .= "</thead>\n<tbody>\n";
+				$head .= "<tr>$tds</tr>\n";
+			} else {
+				$body .= "<tr>$tds</tr>\n";
 			}
 			$first = false;
 			$this->_tableCellCount = 0;
 		}
-		return "<table>\n$content</tbody>\n</table>\n";
+		return $this->composeTable($head, $body);
+	}
+
+	/**
+	 * This method composes a table from parsed body and head HTML.
+	 *
+	 * You may override this method to customize the table rendering, for example by
+	 * adding a `class` to the table tag:
+	 *
+	 * ```php
+	 * return "<table class="table table-striped">\n<thead>\n$head</thead>\n<tbody>\n$body</tbody>\n</table>\n"
+	 * ```
+	 *
+	 * @param string $head table head HTML.
+	 * @param string $body table body HTML.
+	 * @return string the complete table HTML.
+	 * @since 1.2.0
+	 */
+	protected function composeTable($head, $body)
+	{
+		return "<table>\n<thead>\n$head</thead>\n<tbody>\n$body</tbody>\n</table>\n";
 	}
 
 	/**
