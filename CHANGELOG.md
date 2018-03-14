@@ -1,7 +1,10 @@
 CHANGELOG
 =========
 
-Version 1.2.0 work in progress
+Version 1.2.1 work in progress
+------------------------------
+
+Version 1.2.0 on 14. Mar. 2018
 ------------------------------
 
 - #50 Do not render empty emphs.
