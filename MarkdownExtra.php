@@ -109,7 +109,7 @@ class MarkdownExtra extends Markdown
 		$block = [
 			'code',
 		];
-		$line = rtrim($lines[$current]);
+		$line = trim($lines[$current]);
 		if (($pos = strrpos($line, '`')) === false) {
 			$pos = strrpos($line, '~');
 		}
@@ -117,7 +117,7 @@ class MarkdownExtra extends Markdown
 		$block['attributes'] = substr($line, $pos);
 		$content = [];
 		for($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-			if (rtrim($line = $lines[$i]) !== $fence) {
+			if (($pos = strpos($line = $lines[$i], $fence)) === false || $pos > 3) {
 				$content[] = $line;
 			} else {
 				break;

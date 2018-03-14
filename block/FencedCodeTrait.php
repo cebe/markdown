@@ -21,8 +21,12 @@ trait FencedCodeTrait
 	 */
 	protected function identifyFencedCode($line)
 	{
-		return ($l = $line[0]) === '`' && strncmp($line, '```', 3) === 0 ||
-				$l === '~' && strncmp($line, '~~~', 3) === 0;
+		return ($line[0] === '`' && strncmp($line, '```', 3) === 0) ||
+			   ($line[0] === '~' && strncmp($line, '~~~', 3) === 0) ||
+			   (isset($line[3]) && (
+					($line[3] === '`' && strncmp(ltrim($line), '```', 3) === 0) ||
+					($line[3] === '~' && strncmp(ltrim($line), '~~~', 3) === 0)
+			   ));
 	}
 
 	/**
@@ -30,13 +34,13 @@ trait FencedCodeTrait
 	 */
 	protected function consumeFencedCode($lines, $current)
 	{
-		// consume until ```
-		$line = rtrim($lines[$current]);
+		$line = ltrim($lines[$current]);
 		$fence = substr($line, 0, $pos = strrpos($line, $line[0]) + 1);
-		$language = substr($line, $pos);
+		$language = rtrim(substr($line, $pos));
+		// consume until end fence
 		$content = [];
 		for ($i = $current + 1, $count = count($lines); $i < $count; $i++) {
-			if (rtrim($line = $lines[$i]) !== $fence) {
+			if (($pos = strpos($line = $lines[$i], $fence)) === false || $pos > 3) {
 				$content[] = $line;
 			} else {
 				break;
