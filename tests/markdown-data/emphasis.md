@@ -59,3 +59,7 @@ a __A****B__
 **
 
 aha * * haha
+
+_em\_text_ __strong\_\_text\___
+
+*em\*text* **strong\*\*text\***
