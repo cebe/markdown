@@ -7,6 +7,7 @@ Version 1.2.0 work in progress
 - #69 Improve ABSY for tables, make column and row information directly available in absy (@NathanBaulch)
 - #89 Lists should be separated by a HR (@bieleckim)
 - #95 Added `TableTrait::composeTable($head, $body)`, for easier overriding of table layout (@maximal, @cebe)
+- #134 Fix Emph and Strong to allow escaping `*` or `_` inside them.
 - #135 GithubMarkdown was not parsing inline code when there are square brackets around it.
 - #151 Fixed table rendering for lines begining with | for GFM (@GenaBitu)
 - Improved table rendering, allow single column tables.

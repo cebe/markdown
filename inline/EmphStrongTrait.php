@@ -34,8 +34,8 @@ trait EmphStrongTrait
 				return [['text', $text[0] . $text[1]], 2];
 			}
 
-			if ($marker == '*' && preg_match('/^[*]{2}((?:[^*]|[*][^*]*[*])+?)[*]{2}(?![*]{2})/s', $text, $matches) ||
-				$marker == '_' && preg_match('/^__((?:[^_]|_[^_]*_)+?)__(?!__)/us', $text, $matches)) {
+			if ($marker === '*' && preg_match('/^[*]{2}((?>\\\\[*]|[^*]|[*][^*]*[*])+?)[*]{2}(?![*]{2})/s', $text, $matches) ||
+				$marker === '_' && preg_match('/^__((?>\\\\_|[^_]|_[^_]*_)+?)__(?!__)/us', $text, $matches)) {
 
 				return [
 					[
@@ -54,8 +54,8 @@ trait EmphStrongTrait
 				return [['text', $text[0]], 1];
 			}
 
-			if ($marker === '*' && preg_match('/^[*]((?:[^*]|[*][*][^*]+?[*][*])+?)[*](?![*][^*])/s', $text, $matches) ||
-				$marker === '_' && preg_match('/^_((?:[^_]|__[^_]*__)+?)_(?!_[^_])\b/us', $text, $matches)) {
+			if ($marker === '*' && preg_match('/^[*]((?>\\\\[*]|[^*]|[*][*][^*]+?[*][*])+?)[*](?![*][^*])/s', $text, $matches) ||
+				$marker === '_' && preg_match('/^_((?>\\\\_|[^_]|__[^_]*__)+?)_(?!_[^_])\b/us', $text, $matches)) {
 				return [
 					[
 						'emph',

@@ -27,3 +27,17 @@ _emphasized text_**strong text**
 simple_word_with_underscores
 
 this is text, _this is emph_ simple_word_with_underscores text again.
+
+a ** a\*b **
+
+a __ a\_b __
+
+a * a\*b *
+
+a _ a\_b _
+
+a **this *is* strong**
+
+a *this **is** strong*
+
+a ***this is strong***
