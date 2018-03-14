@@ -17,6 +17,16 @@ trait TableTrait
 	private $_tableCellAlign = [];
 
 	/**
+	 * Get HTML class attribute for table tags.
+	 *
+	 * @return string Returns HTML class attribute for table tags.
+	 */
+	public function getTableClass()
+	{
+		return '';
+	}
+
+	/**
 	 * identify a line as the beginning of a table block.
 	 */
 	protected function identifyTable($line, $lines, $current)
@@ -102,7 +112,10 @@ trait TableTrait
 			$first = false;
 			$this->_tableCellCount = 0;
 		}
-		return "<table>\n$content</tbody>\n</table>\n";
+		return $this->getTableClass() !== '' ?
+			"<table class=\"{$this->getTableClass()}\">\n$content</tbody>\n</table>\n"
+			:
+			 "<table>\n$content</tbody>\n</table>\n";
 	}
 
 	/**
