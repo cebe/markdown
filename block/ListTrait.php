@@ -137,6 +137,10 @@ trait ListTrait
 				$block['items'][$item][] = $line;
 				$lastLineEmpty = false;
 			}
+
+			if (!empty($lines[$i + 1]) && $this->identifyAHr($lines[$i + 1])) {
+				break;
+			}
 		}
 
 		foreach($block['items'] as $itemId => $itemLines) {
