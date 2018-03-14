@@ -4,6 +4,7 @@ CHANGELOG
 Version 1.2.0 work in progress
 ------------------------------
 
+- #50 Do not render empty emphs.
 - #69 Improve ABSY for tables, make column and row information directly available in absy (@NathanBaulch)
 - #89 Lists should be separated by a HR (@bieleckim)
 - #95 Added `TableTrait::composeTable($head, $body)`, for easier overriding of table layout (@maximal, @cebe)
