@@ -54,8 +54,8 @@ trait EmphStrongTrait
 				return [['text', $text[0]], 1];
 			}
 
-			if ($marker == '*' && preg_match('/^[*]((?:[^*]|[*][*][^*]+?[*][*])+?)[*](?![*][^*])/s', $text, $matches) ||
-				$marker == '_' && preg_match('/^_((?:[^_]|__[^_]*__)+?)_(?!_[^_])\b/us', $text, $matches)) {
+			if ($marker === '*' && preg_match('/^[*]((?:[^*]|[*][*][^*]+?[*][*])+?)[*](?![*][^*])/s', $text, $matches) ||
+				$marker === '_' && preg_match('/^_((?:[^_]|__[^_]*__)+?)_(?!_[^_])\b/us', $text, $matches)) {
 				return [
 					[
 						'emph',
@@ -77,4 +77,7 @@ trait EmphStrongTrait
 	{
 		return '<em>' . $this->renderAbsy($block[1]) . '</em>';
 	}
+
+    abstract protected function parseInline($text);
+    abstract protected function renderAbsy($blocks);
 }

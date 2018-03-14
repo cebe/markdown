@@ -21,7 +21,7 @@ abstract class Parser
 	public $maximumNestingLevel = 32;
 
 	/**
-	 * @var string the current context the parser is in.
+	 * @var array the current context the parser is in.
 	 * TODO remove in favor of absy
 	 */
 	protected $context = [];

@@ -34,4 +34,7 @@ trait StrikeoutTrait
 	{
 		return '<del>' . $this->renderAbsy($block[1]) . '</del>';
 	}
+
+    abstract protected function parseInline($text);
+    abstract protected function renderAbsy($blocks);
 }
