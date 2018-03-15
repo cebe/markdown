@@ -26,7 +26,7 @@ trait UrlLinkTrait
 			/(?(R) # in case of recursion match parentheses
 				 \(((?>[^\s()]+)|(?R))*\)
 			|      # else match a link with title
-				^(https?|ftp):\/\/(([^\s()]+)|(?R))+(?<![\.,:;\'"!\?\s])
+				^(https?|ftp):\/\/(([^\s<>()]+)|(?R))+(?<![\.,:;\'"!\?\s])
 			)/x
 REGEXP;
 

@@ -15,3 +15,5 @@ this line ends with &
 contact me at <strong>mail@cebe.cc</strong>.
 
 contact me at <strong><mail@cebe.cc></strong>.
+
+contact me at <strong><http://cebe.cc/contact></strong>.
