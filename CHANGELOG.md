@@ -4,6 +4,8 @@ CHANGELOG
 Version 1.2.1 work in progress
 ------------------------------
 
+- Improved handling of inline HTML and email tags.
+
 Version 1.2.0 on 14. Mar. 2018
 ------------------------------
 

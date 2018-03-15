@@ -11,3 +11,7 @@ new text on new line
 this line ends with <
 
 this line ends with &
+
+contact me at <strong>mail@cebe.cc</strong>.
+
+contact me at <strong><mail@cebe.cc></strong>.
