@@ -58,12 +58,12 @@ So in case you are using PHP `opcache`, make sure
 
 Installation is recommended to be done via [composer][] by running:
 
-	composer require cebe/markdown "~1.1.1"
+	composer require cebe/markdown "~1.2.0"
 
 Alternatively you can add the following to the `require` section in your `composer.json` manually:
 
 ```json
-"cebe/markdown": "~1.1.1"
+"cebe/markdown": "~1.2.0"
 ```
 
 Run `composer update` afterwards.
