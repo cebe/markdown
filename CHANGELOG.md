@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-Version 1.0.2 work in progress
+Version 1.0.2 on 26. Mar. 2018
 ------------------------------
 
 - Improved handling of custom syntax with `[[`, references should not use `[` as the first character in the reference name.
