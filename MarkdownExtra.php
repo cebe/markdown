@@ -69,7 +69,7 @@ class MarkdownExtra extends Markdown
 
 	protected function identifyReference($line)
 	{
-		return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $line);
+		return ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[[^\[](.*?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*('.$this->_specialAttributesRegex.')?\s*$/', $line);
 	}
 
 	/**

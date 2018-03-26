@@ -4,7 +4,7 @@ CHANGELOG
 Version 1.0.2 work in progress
 ------------------------------
 
-...
+- Improved handling of custom syntax with `[[`, references should not use `[` as the first character in the reference name.
 
 Version 1.0.1 on 25. Okt. 2014
 ------------------------------
