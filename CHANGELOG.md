@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-Version 1.2.1 work in progress
+Version 1.2.1 on 26. Mar. 2018
 ------------------------------
 
 - Improved handling of inline HTML with URL and email tags.
