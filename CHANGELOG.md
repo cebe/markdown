@@ -1,10 +1,15 @@
 CHANGELOG
 =========
 
-Version 1.0.2 on 26. Mar. 2018
+Version 1.0.3 on 26. Mar. 2018
 ------------------------------
 
 - Improved handling of custom syntax with `[[`, references should not use `[` as the first character in the reference name.
+
+Version 1.0.2 on 6. Mar. 2015
+-----------------------------
+
+- #98 Fix PHP fatal error when maximumNestingLevel was reached (@tanakahisateru)
 
 Version 1.0.1 on 25. Okt. 2014
 ------------------------------
