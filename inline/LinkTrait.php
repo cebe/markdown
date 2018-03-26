@@ -254,7 +254,7 @@ REGEXP;
 
 	protected function identifyReference($line)
 	{
-		return isset($line[0]) && ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[(.+?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line);
+		return isset($line[0]) && ($line[0] === ' ' || $line[0] === '[') && preg_match('/^ {0,3}\[[^\[](.*?)\]:\s*([^\s]+?)(?:\s+[\'"](.+?)[\'"])?\s*$/', $line);
 	}
 
 	/**
