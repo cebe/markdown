@@ -62,7 +62,7 @@ trait HeadlineTrait
 	protected function renderHeadline($block)
 	{
 		$tag = 'h' . $block['level'];
-		return "<$tag>" . $this->renderAbsy($block['content']) . "</$tag>\n";
+		return sprintf("<a name=\"%s\"></a><%s>%s</%s>\n", strtolower($this->renderAbsy($block['content'])), $tag, $this->renderAbsy($block['content']), $tag);
 	}
 
 	abstract protected function parseInline($text);
