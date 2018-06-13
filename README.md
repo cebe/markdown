@@ -184,7 +184,6 @@ Extensions
 Here are some extensions to this library:
 
 - [Bogardo/markdown-codepen](https://github.com/Bogardo/markdown-codepen) - shortcode to embed codepens from http://codepen.io/ in markdown.
-- [kartik-v/yii2-markdown](https://github.com/kartik-v/yii2-markdown) - Advanced Markdown editing and conversion utilities for Yii Framework 2.0.
 - [cebe/markdown-latex](https://github.com/cebe/markdown-latex) - Convert Markdown to LaTeX and PDF
 - [softark/creole](https://github.com/softark/creole) - A creole markup parser
 - [hyn/frontmatter](https://github.com/hyn/frontmatter) - Frontmatter Metadata Support (JSON, TOML, YAML)
