@@ -178,6 +178,44 @@ Here is the full Help output you will see when running `bin/markdown --help`:
     [3] http://michelf.ca/projects/php-markdown/extra/
 
 
+Security Considerations <a name="security"></a>
+-----------------------
+
+By design markdown [allows HTML to be included within the markdown text](https://daringfireball.net/projects/markdown/syntax#html).
+This also means that it may contain Javascript and CSS styles. This allows to be very flexible
+for creating output that is not limited by the markdown syntax, but it comes with
+a security risk if you are parsing user input as markdown (see [XSS](https://en.wikipedia.org/wiki/Cross-site_scripting)).
+
+In that case you should process the result of the markdown conversion with tools like 
+[HTML Purifier](http://htmlpurifier.org/) that filter out all elements which are not allowed for users
+to be added.
+
+The list of [allowed elements](http://htmlpurifier.org/live/configdoc/plain.html#HTML.AllowedElements) for
+markdown could be configured as:
+
+```php
+[
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'hr',
+    'pre', 'code',
+    'blockquote',
+    'table', 'tr', 'td', 'th', 'thead', 'tbody',
+    'strong', 'em', 'b', 'i', 'u', 's', 'span',
+    'a', 'p', 'br', 'nobr',
+    'ul', 'ol', 'li',
+    'img',
+],
+```
+
+The list of [allowed attributes](http://htmlpurifier.org/live/configdoc/plain.html#HTML.AllowedAttributes) would be:
+
+```php
+['th.align', 'td.align', 'ol.start', 'code.class']
+```
+
+The above configuration is a general recommendation and may need to be adjusted dependent on your needs.
+
+
 Extensions
 ----------
 
