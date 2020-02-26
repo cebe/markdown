@@ -111,4 +111,28 @@ class GithubMarkdown extends Markdown
 			return parent::renderText($text);
 		}
 	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * Allows escaping newlines to create line breaks.
+	 *
+	 * @marker \
+	 */
+	protected function parseEscape($text)
+	{
+		$br = $this->html5 ? "<br>\n" : "<br />\n";
+
+		# If the backslash is followed by a newline.
+		# Note: GFM doesn't allow spaces after the backslash.
+		if ($text[1] === "\n") {
+
+			# Return the line break
+			return [["text", $br], 2];
+		}
+
+		# Otherwise parse the sequence normally
+		return parent::parseEscape($text);
+
+	}
 }
