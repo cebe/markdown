@@ -66,7 +66,7 @@ Alternatively you can add the following to the `require` section in your `compos
 "cebe/markdown": "~1.2.0"
 ```
 
-Run `composer update` afterwards.
+Run `composer update cebe/markdown` afterwards.
 
 [composer]: https://getcomposer.org/ "The PHP package manager"
 
