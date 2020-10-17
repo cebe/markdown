@@ -117,7 +117,7 @@ class Markdown extends Parser
 
 
 	/**
-	 * @inheritdocs
+	 * @inheritDoc
 	 *
 	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */

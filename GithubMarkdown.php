@@ -98,7 +98,7 @@ class GithubMarkdown extends Markdown
 	}
 
 	/**
-	 * @inheritdocs
+	 * @inheritDoc
 	 *
 	 * Parses a newline indicated by two spaces on the end of a markdown line.
 	 */
