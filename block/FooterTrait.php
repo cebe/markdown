@@ -56,9 +56,7 @@ trait FooterTrait
             $text = substr_replace($text, $number, 3, 0);
             $text = substr_replace($text, $link, -5, 0);
 
-            $content .= Html::tag('footnotes', $text, [
-                    'id' => 'fn:'.$block['id']
-                ]) . "\n";
+            $content .= '<footnotes id="fn:' . $block['id'] . '">' . $text . "</footnotes>\n";
         }
         return $content;
     }
