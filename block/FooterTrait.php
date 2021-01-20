@@ -51,8 +51,9 @@ trait FooterTrait
         $content .= '<hr>';
         foreach ($blocks as $block) {
             $number = $block['num'] . ". ";
-            $link = '<a href="#fnref:' . $block['id'] . '" class="footnote-backref">↩</a>';
+            $link = '<a href="#fnref:' . $block['id'] . '" class="footnote-backref">↑</a>';
             $text = $this->renderAbsy($block['content']);
+            $text = $this->renderAbsy($this->parseInline($text));
             $text = substr_replace($text, $number, 3, 0);
             $text = substr_replace($text, $link, -5, 0);
 
