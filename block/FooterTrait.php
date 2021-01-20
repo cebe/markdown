@@ -48,7 +48,6 @@ trait FooterTrait
      */
     protected function applyFooter($content, $blocks)
     {
-        $content .= '<hr>';
         foreach ($blocks as $block) {
             $number = $block['num'] . ". ";
             $link = '<a href="#fnref:' . $block['id'] . '" class="footnote-backref">↑</a>';
