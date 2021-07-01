@@ -7,7 +7,7 @@ A super fast, highly extensible markdown parser for PHP
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/)
 
-What is this? <a name="what"></a>
+What is this?
 -------------
 
 A set of [PHP][] classes, each representing a [Markdown][] flavor, and a command line tool
@@ -46,14 +46,14 @@ Future plans are to support:
 [Yii Framework]: http://www.yiiframework.com/ "The Yii PHP Framework"
 
 
-Installation <a name="installation"></a>
+Installation
 ------------
 
 [PHP 5.4 or higher](http://www.php.net/downloads.php) is required to use it.
 It will also run on facebook's [hhvm](http://hhvm.com/).
 
 The library uses PHPDoc annotations to determine the markdown elements that should be parsed.
-So in case you are using PHP `opcache`, make sure 
+So in case you are using PHP `opcache`, make sure
 [it does not strip comments](http://php.net/manual/en/opcache.configuration.php#ini.opcache.save-comments).
 
 Installation is recommended to be done via [composer][] by running:
@@ -73,7 +73,7 @@ Run `composer update cebe/markdown` afterwards.
 > Note: If you have configured PHP with opcache you need to enable the
 > [opcache.save_comments](http://php.net/manual/en/opcache.configuration.php#ini.opcache.save-comments) option because inline element parsing relies on PHPdoc annotations to find declared elements.
 
-Usage <a name="usage"></a>
+Usage
 -----
 
 ### In your PHP project
@@ -118,7 +118,7 @@ For all Markdown Flavors:
 
 For GithubMarkdown:
 
-- `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags. 
+- `$parser->enableNewlines = true` to convert all newlines to `<br/>`-tags. By default only newlines with two preceding spaces are converted to `<br/>`-tags.
 
 It is recommended to use UTF-8 encoding for the input strings. Other encodings may work, but are currently untested.
 
@@ -140,15 +140,15 @@ Here is the full Help output you will see when running `bin/markdown --help`:
 
     PHP Markdown to HTML converter
     ------------------------------
-    
+
     by Carsten Brandt <mail@cebe.cc>
-    
+
     Usage:
         bin/markdown [--flavor=<flavor>] [--full] [file.md]
-    
+
         --flavor  specifies the markdown flavor to use. If omitted the original markdown by John Gruber [1] will be used.
                   Available flavors:
-    
+
                   gfm   - Github flavored markdown [2]
                   extra - Markdown Extra [3]
 
@@ -172,13 +172,13 @@ Here is the full Help output you will see when running `bin/markdown --help`:
 
             curl http://daringfireball.net/projects/markdown/syntax.text | bin/markdown > md.html
 
-    
+
     [1] http://daringfireball.net/projects/markdown/syntax
     [2] https://help.github.com/articles/github-flavored-markdown
     [3] http://michelf.ca/projects/php-markdown/extra/
 
 
-Security Considerations <a name="security"></a>
+Security Considerations
 -----------------------
 
 By design markdown [allows HTML to be included within the markdown text](https://daringfireball.net/projects/markdown/syntax#html).
@@ -186,7 +186,7 @@ This also means that it may contain Javascript and CSS styles. This allows to be
 for creating output that is not limited by the markdown syntax, but it comes with
 a security risk if you are parsing user input as markdown (see [XSS](https://en.wikipedia.org/wiki/Cross-site_scripting)).
 
-In that case you should process the result of the markdown conversion with tools like 
+In that case you should process the result of the markdown conversion with tools like
 [HTML Purifier](http://htmlpurifier.org/) that filter out all elements which are not allowed for users
 to be added.
 
@@ -228,7 +228,7 @@ Here are some extensions to this library:
 - ... [add yours!](https://github.com/cebe/markdown/edit/master/README.md#L186)
 
 
-Extending the language <a name="extend"></a>
+Extending the language
 ----------------------
 
 Markdown consists of two types of language elements, I'll call them block and inline elements simlar to what you have in
@@ -491,7 +491,7 @@ You may refer to the `consumeParagraph()` method of the `Markdown` and `GithubMa
 which define different rules for which elements are allowed to interrupt a paragraph.
 
 
-Acknowledgements <a name="ack"></a>
+Acknowledgements
 ----------------
 
 I'd like to thank [@erusev][] for creating [Parsedown][] which heavily influenced this work and provided
@@ -500,7 +500,7 @@ the idea of the line based parsing approach.
 [@erusev]: https://github.com/erusev "Emanuil Rusev"
 [Parsedown]: http://parsedown.org/ "The Parsedown PHP Markdown parser"
 
-FAQ <a name="faq"></a>
+FAQ
 ---
 
 ### Why another markdown parser?
