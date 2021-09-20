@@ -2,7 +2,7 @@
 
 namespace cebe\markdown;
 
-use cebe\markdown\block\FooterTrait;
+use cebe\markdown\block\FootnoteTrait;
 use cebe\markdown\block\TableTrait;
 
 // work around https://github.com/facebook/hhvm/issues/1120
@@ -20,7 +20,7 @@ class MarkdownExtra extends Markdown
 	// include block element parsing using traits
 	use block\TableTrait;
 	use block\FencedCodeTrait;
-	use block\FooterTrait;
+	use block\FootnoteTrait;
 
 	// include inline element parsing using traits
 	// TODO
