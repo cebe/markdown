@@ -34,7 +34,7 @@ trait ListTrait
 	{
 		$l = $line[0];
 		return ($l === '-' || $l === '+' || $l === '*') && (isset($line[1]) && (($l1 = $line[1]) === ' ' || $l1 === "\t")) ||
-		       ($l === ' ' && preg_match('/^ {0,3}[\-\+\*][ \t]/', $line));
+			($l === ' ' && preg_match('/^ {0,3}[\-\+\*][ \t]/', $line));
 	}
 
 	/**

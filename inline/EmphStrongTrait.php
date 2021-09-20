@@ -82,6 +82,6 @@ trait EmphStrongTrait
 		return '<em>' . $this->renderAbsy($block[1]) . '</em>';
 	}
 
-    abstract protected function parseInline($text);
-    abstract protected function renderAbsy($blocks);
+	abstract protected function parseInline($text);
+	abstract protected function renderAbsy($blocks);
 }

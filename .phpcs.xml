@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="cebe/markdown">
+    <rule ref="PSR2">
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent" />
+
+        <!-- @TODO The following exclusions need to be checked for validity. -->
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword" />
+        <exclude name="Generic.Files.LineLength.TooLong" />
+        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine" />
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody" />
+        <exclude name="PSR2.Files.EndFileNewline.NoneFound" />
+        <exclude name="PSR1.Classes.ClassDeclaration.MultipleClasses" />
+        <exclude name="PSR2.Classes.ClassDeclaration.SpaceBeforeName" />
+        <exclude name="PSR2.Namespaces.NamespaceDeclaration.BlankLineAfter" />
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen" />
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis" />
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore" />
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction" />
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore" />
+
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowSpaceIndent" />
+    <arg name="tab-width" value="4" />
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="indent" value="4"/>
+            <property name="tabIndent" value="true"/>
+        </properties>
+    </rule>
+    <file>.</file>
+    <exclude-pattern>vendor/</exclude-pattern>
+</ruleset>

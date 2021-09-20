@@ -34,6 +34,7 @@ install:
   - composer install --prefer-dist
 
 script:
+  - vendor/bin/phpcs -s
   - vendor/bin/phpunit --verbose --coverage-clover=coverage.clover
 # test against standard markdown spec
 #  - git clone https://github.com/jgm/stmd && cd stmd && perl runtests.pl spec.txt ../bin/markdown
