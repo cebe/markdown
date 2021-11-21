@@ -25,13 +25,12 @@ trait FootnoteTrait
     abstract protected function renderAbsy($blocks);
 
     /**
-     * @param $text
+     * Add footnotes' HTML to the end of parsed HTML.
+     * @param string $html The HTML output of Markdown::parse().
      * @return string
      */
-    public function parse($text)
+    public function addParsedFootnotes($html)
     {
-        $html = parent::parse($text);
-
         // If no footnotes found, do nothing more.
         if (count($this->footnotes) === 0) {
             return $html;
