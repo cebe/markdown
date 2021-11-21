@@ -2,6 +2,7 @@
 
 namespace cebe\markdown;
 
+use cebe\markdown\block\FootnoteTrait;
 use cebe\markdown\block\TableTrait;
 
 // work around https://github.com/facebook/hhvm/issues/1120
@@ -19,6 +20,7 @@ class MarkdownExtra extends Markdown
 	// include block element parsing using traits
 	use block\TableTrait;
 	use block\FencedCodeTrait;
+	use block\FootnoteTrait;
 
 	// include inline element parsing using traits
 	// TODO
@@ -59,8 +61,6 @@ class MarkdownExtra extends Markdown
 	// TODO add markdown inside HTML blocks
 
 	// TODO implement definition lists
-
-	// TODO implement footnotes
 
 	// TODO implement Abbreviations
 
@@ -195,6 +195,14 @@ class MarkdownExtra extends Markdown
 	{
 		return '{' . $block[1] . '}';
 	}
+
+    /**
+     * @inheritdoc
+     */
+    function parse($text)
+    {
+        return $this->addParsedFootnotes(parent::parse($text));
+    }
 
 	protected function parseInline($text)
 	{
