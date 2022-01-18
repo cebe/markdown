@@ -24,13 +24,13 @@ par5
 
 #### a h4 heading ########
 
-#### # h4 surrunded with # ##
-
 ###### h6
 
 ####### h7
 
 #### other h4 heading with # #######
+
+#### # h4 surrunded with # ##
 
 <a name="example"></a>
 head
