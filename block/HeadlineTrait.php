@@ -41,7 +41,7 @@ trait HeadlineTrait
 			}
 			$block = [
 				'headline',
-				'content' => $this->parseInline(trim($lines[$current], "# \t")),
+				'content' => $this->parseInline(trim(trim($lines[$current], "#"))),
 				'level' => $level,
 			];
 			return [$block, $current];
