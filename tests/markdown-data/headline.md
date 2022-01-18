@@ -28,6 +28,8 @@ par5
 
 ####### h7
 
+#### other h4 heading with # #######
+
 <a name="example"></a>
 head
 ----
