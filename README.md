@@ -7,6 +7,32 @@ A super fast, highly extensible markdown parser for PHP
 [![Code Coverage](https://scrutinizer-ci.com/g/cebe/markdown/badges/coverage.png?s=db6af342d55bea649307ef311fbd536abb9bab76)](https://scrutinizer-ci.com/g/cebe/markdown/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/cebe/markdown/badges/quality-score.png?s=17448ca4d140429fd687c58ff747baeb6568d528)](https://scrutinizer-ci.com/g/cebe/markdown/)
 
+# Different features and characteristics of them.
+
+Parsedown
+
+$parser = new Parsedown();
+echo $parser->text('# Hello World!');
+
+CommonMark
+
+$parser = new \League\CommonMark\CommonMarkConverter();
+echo $parser->convertToHtml('# Hello World!');
+
+PHP MarkDown
+
+echo \Michelf\Markdown::defaultTransform('# Hello World!');
+
+cebe/markdown
+
+$parser = new \cebe\markdown\Markdown();
+echo $parser->parse('# Hello World!');
+
+
+### But the most popular makrdown libraries
+
+### Its popularity is well-deserved, because it is also the fastest Markdown processor!
+
 What is this? <a name="what"></a>
 -------------
 
@@ -89,6 +115,9 @@ The next step is to call the `parse()`-method for parsing the text using the ful
 or calling the `parseParagraph()`-method to parse only inline elements.
 
 Here are some examples:
+
+
+
 
 ```php
 // traditional markdown and parse full text
