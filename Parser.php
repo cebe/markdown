@@ -35,6 +35,26 @@ abstract class Parser
 	];
 
 	private $_depth = 0;
+	/**
+	 * @var string the inline text handled by the innermost running `parseInline()` call.
+	 */
+	private $_inlineSubject = '';
+	/**
+	 * @var string the part of the inline subject that was passed to the current inline parser method.
+	 */
+	private $_inlineRest = '';
+	/**
+	 * @var integer the offset of `$_inlineRest` in the inline subject.
+	 */
+	private $_inlineOffset = 0;
+	/**
+	 * @var array scan results memoized for the inline subject.
+	 */
+	private $_inlineCache = [];
+	/**
+	 * @var string|null the characters matched by `\s` in a regular expression.
+	 */
+	private $_whitespace;
 
 
 	/**
@@ -56,6 +76,7 @@ abstract class Parser
 		$text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
 
 		$this->prepareMarkers($text);
+		$this->resetInlineState();
 
 		$absy = $this->parseBlocks(explode("\n", $text));
 		$markup = $this->renderAbsy($absy);
@@ -81,6 +102,7 @@ abstract class Parser
 		$text = str_replace(["\r\n", "\n\r", "\r"], "\n", $text);
 
 		$this->prepareMarkers($text);
+		$this->resetInlineState();
 
 		$absy = $this->parseInline($text);
 		$markup = $this->renderAbsy($absy);
@@ -326,43 +348,268 @@ abstract class Parser
 
 		$markers = implode('', array_keys($this->_inlineMarkers));
 
+		$outerState = [$this->_inlineSubject, $this->_inlineRest, $this->_inlineOffset, $this->_inlineCache];
+		$this->_inlineSubject = $text;
+		$this->_inlineCache = [];
+
 		$paragraph = [];
+		$length = strlen($text);
+		$offset = 0;
 
-		while (!empty($markers) && ($found = strpbrk($text, $markers)) !== false) {
-
-			$pos = strpos($text, $found);
+		while (!empty($markers) && $offset < $length && ($pos = $offset + strcspn($text, $markers, $offset)) < $length) {
 
 			// add the text up to next marker to the paragraph
-			if ($pos !== 0) {
-				$paragraph[] = ['text', substr($text, 0, $pos)];
+			if ($pos !== $offset) {
+				$paragraph[] = ['text', substr($text, $offset, $pos - $offset)];
 			}
-			$text = $found;
+			$rest = substr($text, $pos);
 
 			$parsed = false;
-			foreach ($this->_inlineMarkers[$text[0]] as $marker => $method) {
-				if (strncmp($text, $marker, strlen($marker)) === 0) {
+			foreach ($this->_inlineMarkers[$rest[0]] as $marker => $method) {
+				if (strncmp($rest, $marker, strlen($marker)) === 0) {
 					// parse the marker
+					$this->_inlineRest = $rest;
+					$this->_inlineOffset = $pos;
 					array_unshift($this->context, $method);
-					list($output, $offset) = $this->$method($text);
+					list($output, $consumed) = $this->$method($rest);
 					array_shift($this->context);
 
 					$paragraph[] = $output;
-					$text = substr($text, $offset);
+					$offset = $pos + $consumed;
 					$parsed = true;
 					break;
 				}
 			}
 			if (!$parsed) {
-				$paragraph[] = ['text', substr($text, 0, 1)];
-				$text = substr($text, 1);
+				$paragraph[] = ['text', $rest[0]];
+				$offset = $pos + 1;
 			}
 		}
 
-		$paragraph[] = ['text', $text];
+		$paragraph[] = ['text', $offset < $length ? substr($text, $offset) : ''];
+
+		list($this->_inlineSubject, $this->_inlineRest, $this->_inlineOffset, $this->_inlineCache) = $outerState;
 
 		$this->_depth--;
 
 		return $paragraph;
+	}
+
+	/**
+	 * Parses and renders inline elements of text that is discovered while rendering.
+	 *
+	 * The call counts as one nesting level, so that text which keeps producing such calls is rendered
+	 * as plain text once [[maximumNestingLevel]] is reached.
+	 *
+	 * @param string $text the inline text to parse.
+	 * @return string the rendered markup.
+	 */
+	protected function renderNestedInline($text)
+	{
+		$this->_depth++;
+		$output = $this->renderAbsy($this->parseInline($text));
+		$this->_depth--;
+
+		return $output;
+	}
+
+	/**
+	 * Returns the inline text that the offsets of [[inlineOffset()]], [[inlineFind()]] and
+	 * [[inlineBalanced()]] refer to.
+	 *
+	 * @return string the inline subject.
+	 */
+	protected function inlineSubject()
+	{
+		return $this->_inlineSubject;
+	}
+
+	/**
+	 * Returns the offset of the given text in the inline subject.
+	 *
+	 * Inline parser methods receive the text starting at their marker. This method maps that text
+	 * back to the inline subject, which allows scan results to be shared between the markers of the
+	 * same text instead of scanning the remaining text for each marker again.
+	 *
+	 * Text that is not the end of the inline subject becomes the new inline subject.
+	 *
+	 * @param string $text the text passed to an inline parser method.
+	 * @return integer the offset of `$text` in the inline subject.
+	 */
+	protected function inlineOffset($text)
+	{
+		if ($text === $this->_inlineRest) {
+			return $this->_inlineOffset;
+		}
+
+		$length = strlen($text);
+		$offset = strlen($this->_inlineSubject) - $length;
+		if ($length === 0 || $offset < 0 || substr_compare($this->_inlineSubject, $text, $offset) !== 0) {
+			$this->_inlineSubject = $text;
+			$this->_inlineCache = [];
+			$offset = 0;
+		}
+		$this->_inlineRest = $text;
+		$this->_inlineOffset = $offset;
+
+		return $offset;
+	}
+
+	/**
+	 * Finds the first match of a regular expression at or after an offset of the inline subject.
+	 *
+	 * The result is memoized per pattern. Searching the same pattern from increasing offsets
+	 * scans each part of the inline subject only once.
+	 *
+	 * @param string $pattern the regular expression. Its result must not depend on the text before the
+	 * position where a match starts.
+	 * @param integer $offset the offset in the inline subject to start searching at.
+	 * @return array|false the matches as returned by `preg_match()` with `PREG_OFFSET_CAPTURE`,
+	 * `false` if there is no match.
+	 */
+	protected function inlineFind($pattern, $offset)
+	{
+		if (isset($this->_inlineCache['find'][$pattern])) {
+			list($from, $matches) = $this->_inlineCache['find'][$pattern];
+			if ($from <= $offset && ($matches === false || $matches[0][1] >= $offset)) {
+				return $matches;
+			}
+		}
+
+		$matches = [];
+		if ($offset > strlen($this->_inlineSubject)
+			|| !preg_match($pattern, $this->_inlineSubject, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+			$matches = false;
+		}
+		$this->_inlineCache['find'][$pattern] = [$offset, $matches];
+
+		return $matches;
+	}
+
+	/**
+	 * Finds the first balanced pair of delimiters that opens at or after an offset of the inline subject.
+	 *
+	 * An opening delimiter belongs to a pair when a closing delimiter follows it and all delimiters
+	 * in between form pairs themselves.
+	 *
+	 * @param string $open the opening delimiter, a single character.
+	 * @param string $close the closing delimiter, a single character.
+	 * @param integer $offset the offset in the inline subject to start searching at.
+	 * @param boolean $breakOnWhitespace whether a pair must not contain whitespace.
+	 * @return array|false the offsets of the opening and the closing delimiter, `false` if there is
+	 * no balanced pair.
+	 */
+	protected function inlineBalanced($open, $close, $offset, $breakOnWhitespace = false)
+	{
+		$key = $open . $close . ($breakOnWhitespace ? ' ' : '');
+		if (!isset($this->_inlineCache['balanced'][$key])) {
+			$this->_inlineCache['balanced'][$key] = $this->scanBalanced(
+				$open,
+				$close,
+				$breakOnWhitespace ? $this->inlineWhitespace() : ''
+			);
+		}
+		list($starts, $ends) = $this->_inlineCache['balanced'][$key];
+
+		// binary search for the first pair starting at or after the offset
+		$low = 0;
+		$high = count($starts);
+		while ($low < $high) {
+			$middle = ($low + $high) >> 1;
+			if ($starts[$middle] < $offset) {
+				$low = $middle + 1;
+			} else {
+				$high = $middle;
+			}
+		}
+
+		return isset($starts[$low]) ? [$starts[$low], $ends[$low]] : false;
+	}
+
+	/**
+	 * Returns a store for scan results that an inline parser method memoizes for the inline subject.
+	 *
+	 * The store is discarded together with the inline subject.
+	 *
+	 * @param string $name the name that identifies the store.
+	 * @return \ArrayObject the store.
+	 */
+	protected function inlineMemo($name)
+	{
+		if (!isset($this->_inlineCache['memo'][$name])) {
+			$this->_inlineCache['memo'][$name] = new \ArrayObject();
+		}
+
+		return $this->_inlineCache['memo'][$name];
+	}
+
+	/**
+	 * Returns the characters that `\s` matches in a regular expression.
+	 *
+	 * @return string the whitespace characters, usable as a mask for `strspn()` and `strcspn()`.
+	 */
+	protected function inlineWhitespace()
+	{
+		if ($this->_whitespace === null) {
+			$this->_whitespace = preg_replace('/\S/', '', implode('', array_map('chr', range(0, 255))));
+		}
+
+		return $this->_whitespace;
+	}
+
+	/**
+	 * Collects all balanced pairs of delimiters of the inline subject in a single pass.
+	 *
+	 * @param string $open the opening delimiter.
+	 * @param string $close the closing delimiter.
+	 * @param string $breaks the characters that discard all delimiters that are still open.
+	 * @return array the offsets of the opening delimiters in ascending order and the offsets of their
+	 * closing delimiters.
+	 */
+	private function scanBalanced($open, $close, $breaks)
+	{
+		$subject = $this->_inlineSubject;
+		$length = strlen($subject);
+		$mask = $open . $close . $breaks;
+
+		$opened = [];
+		$closed = [];
+		$stack = [];
+		for ($i = strcspn($subject, $mask); $i < $length; $i += 1 + strcspn($subject, $mask, $i + 1)) {
+			$char = $subject[$i];
+			if ($char === $open) {
+				$stack[] = count($opened);
+				$opened[] = $i;
+				$closed[] = -1;
+			} elseif ($char !== $close) {
+				$stack = [];
+			} elseif (!empty($stack)) {
+				$closed[array_pop($stack)] = $i;
+			}
+		}
+
+		$starts = [];
+		$ends = [];
+		foreach ($closed as $index => $end) {
+			if ($end !== -1) {
+				$starts[] = $opened[$index];
+				$ends[] = $end;
+			}
+		}
+
+		return [$starts, $ends];
+	}
+
+	/**
+	 * Discards the inline scan state of a previous run.
+	 */
+	private function resetInlineState()
+	{
+		$this->_inlineSubject = '';
+		$this->_inlineRest = '';
+		$this->_inlineOffset = 0;
+		$this->_inlineCache = [];
+		$this->_whitespace = null;
 	}
 
 	/**

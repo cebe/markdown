@@ -62,6 +62,7 @@ class GithubMarkdown extends Markdown
 	{
 		// consume until newline
 		$content = [];
+		$htmlState = null;
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 			if ($line === ''
@@ -81,7 +82,7 @@ class GithubMarkdown extends Markdown
 				// but check for continued inline HTML
 				// e.g. <img src="file.jpg"
 				//           alt="some alt aligned with src attribute" title="some text" />
-				if (preg_match('~<\w+([^>]+)$~s', implode("\n", $content))) {
+				if ($this->endsInsideHtmlTag($content, $htmlState)) {
 					$content[] = $line;
 				} else {
 					break;

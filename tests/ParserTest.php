@@ -15,7 +15,7 @@ use cebe\markdown\Parser;
  * @author Carsten Brandt <mail@cebe.cc>
  * @group default
  */
-class ParserTest extends  \PHPUnit_Framework_TestCase
+class ParserTest extends  \PHPUnit\Framework\TestCase
 {
 	public function testMarkerOrder()
 	{

@@ -185,8 +185,9 @@ class MarkdownExtra extends Markdown
 	 */
 	protected function parseSpecialAttributes($text)
 	{
-		if (preg_match("~$this->_specialAttributesRegex~", $text, $matches)) {
-			return [['specialAttributes', $matches[1]], strlen($matches[0])];
+		$matches = $this->inlineFind("~$this->_specialAttributesRegex~", $this->inlineOffset($text));
+		if ($matches !== false) {
+			return [['specialAttributes', $matches[1][0]], strlen($matches[0][0])];
 		}
 		return [['text', '{'], 1];
 	}
@@ -224,7 +225,7 @@ class MarkdownExtra extends Markdown
 				$block = array_merge($block, $ref);
 			} else {
 				if (strncmp($block['orig'], '[', 1) === 0) {
-					return '[' . $this->renderAbsy($this->parseInline(substr($block['orig'], 1)));
+					return '[' . $this->renderNestedInline(substr($block['orig'], 1));
 				}
 				return $block['orig'];
 			}
@@ -242,7 +243,7 @@ class MarkdownExtra extends Markdown
 				$block = array_merge($block, $ref);
 			} else {
 				if (strncmp($block['orig'], '![', 2) === 0) {
-					return '![' . $this->renderAbsy($this->parseInline(substr($block['orig'], 2)));
+					return '![' . $this->renderNestedInline(substr($block['orig'], 2));
 				}
 				return $block['orig'];
 			}
