@@ -14,7 +14,7 @@ use cebe\markdown\Parser;
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */
-abstract class BaseMarkdownTest extends \PHPUnit_Framework_TestCase
+abstract class BaseMarkdownTest extends \PHPUnit\Framework\TestCase
 {
 	protected $outputFileExtension = '.html';
 

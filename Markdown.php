@@ -83,6 +83,7 @@ class Markdown extends Parser
 	{
 		// consume until newline
 		$content = [];
+		$htmlState = null;
 		for ($i = $current, $count = count($lines); $i < $count; $i++) {
 			$line = $lines[$i];
 
@@ -99,7 +100,7 @@ class Markdown extends Parser
 				// but check for continued inline HTML
 				// e.g. <img src="file.jpg"
 				//           alt="some alt aligned with src attribute" title="some text" />
-				if (preg_match('~<\w+([^>]+)$~s', implode("\n", $content))) {
+				if ($this->endsInsideHtmlTag($content, $htmlState)) {
 					$content[] = $line;
 				} else {
 					break;
@@ -115,6 +116,43 @@ class Markdown extends Parser
 		return [$block, --$i];
 	}
 
+
+	/**
+	 * Returns whether the lines of a paragraph end inside of an HTML tag that is not closed yet.
+	 *
+	 * Only the text after the last `>` decides this. The position of that character is tracked
+	 * between calls, so that checking a paragraph line by line does not scan all of its lines for
+	 * each line again.
+	 *
+	 * @param array $content the lines of the paragraph that were consumed so far.
+	 * @param array|null $state the scan state of the paragraph. Pass a variable that is `null` for
+	 * the first call and pass the same variable for the following calls.
+	 * @return boolean whether the lines end inside of an HTML tag.
+	 */
+	protected function endsInsideHtmlTag($content, &$state)
+	{
+		// number of scanned lines, index of the last line that contains `>`, result
+		list($scanned, $last, $open) = $state === null ? [0, -1, false] : $state;
+
+		$count = count($content);
+		for ($i = $scanned; $i < $count; $i++) {
+			if (strpos($content[$i], '>') !== false) {
+				$last = $i;
+				$open = false;
+			}
+		}
+
+		if (!$open && $count > 0) {
+			$lines = array_slice($content, max($last, 0));
+			if ($last !== -1) {
+				$lines[0] = (string) substr($lines[0], strrpos($lines[0], '>') + 1);
+			}
+			$open = (bool) preg_match('~<\w+([^>]+)$~s', implode("\n", $lines));
+		}
+		$state = [$count, $last, $open];
+
+		return $open;
+	}
 
 	/**
 	 * @inheritdocs

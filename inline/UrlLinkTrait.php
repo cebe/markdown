@@ -22,21 +22,58 @@ trait UrlLinkTrait
 	 */
 	protected function parseUrl($markdown)
 	{
-		$pattern = <<<REGEXP
-			/(?(R) # in case of recursion match parentheses
-				 \(((?>[^\s()]+)|(?R))*\)
-			|      # else match a link with title
-				^(https?|ftp):\/\/(([^\s<>()]+)|(?R))+(?<![\.,:;\'"!\?\s])
-			)/x
-REGEXP;
-
-		if (!in_array('parseLink', $this->context) && preg_match($pattern, $markdown, $matches)) {
+		if (!in_array('parseLink', $this->context) && ($length = $this->matchUrl($markdown)) !== false) {
 			return [
-				['autoUrl', $matches[0]],
-				strlen($matches[0])
+				['autoUrl', substr($markdown, 0, $length)],
+				$length
 			];
 		}
 		return [['text', substr($markdown, 0, 4)], 4];
+	}
+
+	/**
+	 * Matches a URL at the beginning of the text.
+	 *
+	 * The URL consists of characters other than whitespace and angle brackets, where parentheses must
+	 * be balanced. Punctuation at the end of the URL is not part of it.
+	 *
+	 * @param string $markdown the text starting with the URL scheme.
+	 * @return integer|false the length of the URL, `false` if the text does not start with a URL.
+	 */
+	private function matchUrl($markdown)
+	{
+		if (!preg_match('/^(?:https?|ftp):\/\//', $markdown, $scheme)) {
+			return false;
+		}
+		$start = $this->inlineOffset($markdown);
+		$subject = $this->inlineSubject();
+		$length = strlen($subject);
+		$mask = $this->inlineWhitespace() . '<>()';
+
+		$bodyStart = $start + strlen($scheme[0]);
+		$wordStart = false;
+		for ($end = $bodyStart; $end < $length; ) {
+			if ($subject[$end] === '(') {
+				$group = $this->inlineBalanced('(', ')', $end, true);
+				if ($group === false || $group[0] !== $end) {
+					break;
+				}
+				$wordStart = false;
+				$end = $group[1] + 1;
+			} elseif (($wordLength = strcspn($subject, $mask, $end)) > 0) {
+				$wordStart = $end;
+				$end += $wordLength;
+			} else {
+				break;
+			}
+		}
+
+		if ($wordStart !== false) {
+			// the URL does not end with punctuation
+			$end = $wordStart + strlen(rtrim(substr($subject, $wordStart, $end - $wordStart), '.,:;\'"!?'));
+		}
+
+		return $end > $bodyStart ? $end - $start : false;
 	}
 
 	protected function renderAutoUrl($block)

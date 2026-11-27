@@ -4,7 +4,7 @@ CHANGELOG
 Version 1.2.2 work in progress
 ------------------------------
 
-...
+- cebe/markdown#195 Fixed quadratic and exponential parsing time and unbounded recursion on crafted input (@terabytesoftw)
 
 Version 1.2.1 on 26. Mar. 2018
 ------------------------------

@@ -149,9 +149,13 @@ trait HtmlTrait
 			if (preg_match('~^</?(\w+\d?)( .*?)?>~s', $text, $matches)) {
 				// HTML tags
 				return [['inlineHtml', $matches[0]], strlen($matches[0])];
-			} elseif (preg_match('~^<!--.*?-->~s', $text, $matches)) {
-				// HTML comments
-				return [['inlineHtml', $matches[0]], strlen($matches[0])];
+			} elseif (strncmp($text, '<!--', 4) === 0) {
+				$start = $this->inlineOffset($text);
+				if (($end = $this->inlineFind('/-->/', $start + 4)) !== false) {
+					// HTML comments
+					$length = $end[0][1] + 3 - $start;
+					return [['inlineHtml', substr($text, 0, $length)], $length];
+				}
 			}
 		}
 		return [['text', '&lt;'], 1];

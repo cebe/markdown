@@ -15,13 +15,9 @@
 				<file>./tests/GithubMarkdownTest.php</file>
 				
 				<file>./tests/MarkdownExtraTest.php</file>
+
+				<file>./tests/PathologicalInputTest.php</file>
 			</testsuite>
 		</testsuites>
-		<filter>
-			<blacklist>
-				<directory>./vendor</directory>
-				<directory>./tests</directory>
-			</blacklist>
-		</filter>
 </phpunit>
 
